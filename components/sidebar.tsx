@@ -1,6 +1,6 @@
 "use client";
 import { Nav } from "./ui/nav";
-import { LayoutDashboard, UsersRound, LibraryBig } from "lucide-react";
+import { LayoutDashboard, UsersRound } from "lucide-react";
 
 type Props = {};
 
