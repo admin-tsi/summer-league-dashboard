@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Calendar, ChevronDown } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
 
 const Header = () => {
   const pathname = usePathname();
@@ -20,6 +21,7 @@ const Header = () => {
         <div className="text-lg font-bold">
           {pathname.replace("/", "") || "Home"}
         </div>
+        <ModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center space-x-2 cursor-pointer">
             <Calendar className="h-5 w-5" />

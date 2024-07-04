@@ -16,12 +16,14 @@ import {
   DollarSign,
   Users,
 } from "lucide-react";
-import { Overview } from "@/components/Overview";
+import { Overview } from "@/components/overview";
+import { ContentLayout } from "@/components/admin-panel/content-layout";
+import CustomBreadcrumb from "@/components/custom-breadcumb";
 
 export default function Page() {
   return (
-    <main className="flex flex-col gap-5 w-full">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
+    <ContentLayout title="Dashboard">
+      <CustomBreadcrumb />
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full rounded-none justify-start">
           <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -214,6 +216,6 @@ export default function Page() {
           <h6>i</h6>
         </TabsContent>
       </Tabs>
-    </main>
+    </ContentLayout>
   );
 }

@@ -23,7 +23,7 @@ export default function SideNavbar({}: Props) {
           },
           {
             title: "Users",
-            href: "/users",
+            href: "/Users",
             icon: UsersRound,
             variant: "ghost",
           },

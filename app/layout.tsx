@@ -5,9 +5,8 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
-import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
 import React from "react";
+import { ThemeProvider } from "@/providers/theme-provider";
 
 const cabinetGroteskFont = localFont({
   variable: "--cabinet-grotesk-font",
@@ -48,15 +47,9 @@ export default async function RootLayout({
         <body
           className={cn(cabinetGroteskFont.className, satoshiFont.className)}
         >
-          <div className="flex h-screen">
-            <Sidebar />
-            <div className="flex flex-col flex-1">
-              <Header />
-              <main className="flex-1 p-8 bg-background overflow-y-auto">
-                {children}
-              </main>
-            </div>
-          </div>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </SessionProvider>
