@@ -31,6 +31,7 @@ export const {
             password,
           });
 
+          console.log("response", response.data);
           const { user, token, expiresIn } = response.data;
           console.log("expirin", response.data);
           if (user && token) {
