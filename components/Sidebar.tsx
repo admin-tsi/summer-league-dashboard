@@ -22,12 +22,6 @@ export default function SideNavbar({}: Props) {
             variant: "ghost",
           },
           {
-            title: "Courses",
-            href: "/courses",
-            icon: LibraryBig,
-            variant: "ghost",
-          },
-          {
             title: "Users",
             href: "/users",
             icon: UsersRound,
