@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/form";
 import { LoginSchema } from "@/schemas";
 import * as z from "zod";
-import FormError from "@/components/admin-panel/login/FormError";
-import FormSuccess from "@/components/admin-panel/login/FormSuccess";
+import FormError from "@/components/login/FormError";
+import FormSuccess from "@/components/login/FormSuccess";
 import { login } from "@/actions/login";
 import LoadingSpinner from "@/components/loading-spinner";
 export default function Page() {
