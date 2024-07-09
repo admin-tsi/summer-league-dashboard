@@ -1,16 +1,5 @@
-"use client";
-
-import Link from "next/link";
-import { LayoutGrid, LogOut, User } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,8 +9,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { LayoutGrid, LogOut, User } from "lucide-react";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
+import { useState } from "react";
 
-export function UserNav() {
+type Props = {
+  firstName?: string;
+  lastName?: string;
+  role?: string;
+  email?: string;
+}
+
+export function UserNav({ firstName = '', lastName = '', role = '', email = '' }: Props) {
+  const [firstInitial, setFirstInitial] = useState(firstName.charAt(0));
+  const [lastInitial, setLastInitial] = useState(lastName.charAt(0));
+
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -34,7 +43,10 @@ export function UserNav() {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
-                  <AvatarFallback className="bg-transparent">JD</AvatarFallback>
+                  <AvatarFallback className="bg-transparent">
+                    {firstInitial}
+                    {lastInitial}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -45,10 +57,15 @@ export function UserNav() {
 
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">John Doe</p>
+          <div className="flex flex-col space-y-2">
             <p className="text-xs leading-none text-muted-foreground">
-              johndoe@example.com
+              {role}
+            </p>
+            <p className="text-sm font-medium leading-none">
+              {firstName} {lastName}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -68,7 +85,10 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="hover:cursor-pointer" onClick={() => {}}>
+        <DropdownMenuItem
+          className="hover:cursor-pointer"
+          onClick={() => signOut()}
+        >
           <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
           Sign out
         </DropdownMenuItem>
