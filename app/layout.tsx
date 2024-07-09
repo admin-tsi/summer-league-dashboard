@@ -7,6 +7,7 @@ import { auth } from "@/auth";
 import { SessionProvider } from "next-auth/react";
 import React from "react";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { Toaster } from "sonner";
 
 const cabinetGroteskFont = localFont({
   variable: "--cabinet-grotesk-font",
@@ -49,6 +50,7 @@ export default async function RootLayout({
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

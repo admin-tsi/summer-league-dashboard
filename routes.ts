@@ -24,4 +24,4 @@ export const apiAuthPrefix: string = "/api/auth";
  * These routes are used for authentication
  * @type {string}
  */
-export const defaultLoginRedirect: string = "/dashboard";
+export const defaultLoginRedirect: string = "/";
