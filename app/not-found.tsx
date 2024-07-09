@@ -9,7 +9,7 @@ export default function NotFound() {
           Sorry, we couldn&apos;t find the page you&apos;re looking for.
         </p>
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-block px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg shadow-md hover:bg-[hsl(var(--primary))]/80 transition duration-300"
         >
           Return Home

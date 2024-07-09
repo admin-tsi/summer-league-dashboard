@@ -24,6 +24,7 @@ export function Sidebar() {
       {/*
       <SidebarToggle isOpen={sidebar?.isOpen} setIsOpen={sidebar?.setIsOpen} />
 */}
+
       <div className="relative h-full flex flex-col px-3 py-4 shadow-md dark:shadow-zinc-800">
         <Button
           className={cn(
@@ -38,11 +39,12 @@ export function Sidebar() {
               src={logo}
               alt="AWSP Logo"
               layout="responsive"
-              width={72}
-              height={64}
+              width={20}
+              height={18}
               className="mt-2"
             />
-            <h1
+
+            {/*            <h1
               className={cn(
                 "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
                 sidebar?.isOpen === false
@@ -51,7 +53,7 @@ export function Sidebar() {
               )}
             >
               Brand
-            </h1>
+            </h1>*/}
           </Link>
         </Button>
         <Menu isOpen={sidebar?.isOpen} />
