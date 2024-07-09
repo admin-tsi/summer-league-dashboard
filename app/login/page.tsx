@@ -43,10 +43,12 @@ export default function Page() {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     startTransition(() => {
       login(values).then((response) => {
+
         if (response && "error" in response) {
           setError(response.error);
           setSuccess("");
         } else if (response) {
+          console.log(response);
           setError("");
           setSuccess(String(response.success));
         } else {

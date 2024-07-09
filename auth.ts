@@ -4,11 +4,13 @@ import axios from "axios";
 
 export type MyUserType = {
   id: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: string;
   isverified: boolean;
   accessToken: string;
-  expireIn: number;
+  refreshToken: string;
   emailVerified: Date | null;
   createdAt: string;
   updatedAt: string;
@@ -16,6 +18,7 @@ export type MyUserType = {
 };
 
 const api = process.env.NEXT_PUBLIC_BASE_URL;
+
 export const {
   handlers: { POST, GET },
   auth,
@@ -32,12 +35,26 @@ export const {
           });
 
           console.log("response", response.data);
-          const { user, token, expiresIn } = response.data;
-          console.log("expirin", response.data);
-          if (user && token) {
-            user.accessToken = token;
-            user.expireIn = expiresIn;
-            return user;
+
+          const { user, accessToken, refreshToken } = response.data;
+
+          if (user && accessToken && refreshToken) {
+            const formattedUser: MyUserType = {
+              id: user._id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              role: user.role,
+              isverified: user.isverified,
+              accessToken,
+              refreshToken,
+              emailVerified: user.emailVerified,
+              createdAt: user.createdAt,
+              updatedAt: user.updatedAt,
+              __v: user.__v,
+            };
+
+            return formattedUser;
           } else {
             return null;
           }
