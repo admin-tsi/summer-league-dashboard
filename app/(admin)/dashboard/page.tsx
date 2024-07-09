@@ -1,3 +1,4 @@
+"use client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -19,10 +20,18 @@ import {
 import { Overview } from "@/components/overview";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import CustomBreadcrumb from "@/components/custom-breadcumb";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export default function Page() {
+  const currentUser: any = useCurrentUser();
   return (
-    <ContentLayout title="Dashboard">
+    <ContentLayout
+      title="Dashboard"
+      firstame={currentUser?.firstName}
+      lastName={currentUser?.lastName}
+      email={currentUser?.email}
+      role={currentUser?.role}
+    >
       <CustomBreadcrumb />
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full rounded-none justify-start">
