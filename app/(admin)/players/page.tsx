@@ -79,6 +79,7 @@ export default function PlayersPage() {
   useEffect(() => {
     getAllPlayers(token)
       .then((data) => {
+        // @ts-ignore
         setPlayers(data.players);
       })
       .catch(() => setError("Failed to load players"))

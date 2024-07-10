@@ -11,7 +11,7 @@ export default async function AdminLayout({
 
   return (
     <SessionProvider session={session}>
-      <AdminPanelLayout>{children}</AdminPanelLayout>{" "}
+      <AdminPanelLayout>{children}</AdminPanelLayout>
     </SessionProvider>
   );
 }
