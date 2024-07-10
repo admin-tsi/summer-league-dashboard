@@ -14,6 +14,7 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { signOut } from "next-auth/react";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -112,7 +113,7 @@ export function Menu({ isOpen }: MenuProps) {
                     className="w-full justify-center h-10 mt-5"
                   >
                     <span className={cn(isOpen === false ? "" : "mr-4")}>
-                      <LogOut size={18} />
+                      <LogOut size={18} onClick={() => signOut()} />
                     </span>
                     <p
                       className={cn(

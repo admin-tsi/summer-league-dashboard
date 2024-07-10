@@ -3,10 +3,9 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 import { cn } from "@/lib/utils";
-import { auth } from "@/auth";
-import { SessionProvider } from "next-auth/react";
 import React from "react";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { Toaster } from "sonner";
 
 const cabinetGroteskFont = localFont({
   variable: "--cabinet-grotesk-font",
@@ -40,18 +39,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
   return (
-    <SessionProvider session={session}>
-      <html lang="en">
-        <body
-          className={cn(cabinetGroteskFont.className, satoshiFont.className)}
-        >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-          </ThemeProvider>
-        </body>
-      </html>
-    </SessionProvider>
+    <html lang="en">
+      <body className={cn(cabinetGroteskFont.className, satoshiFont.className)}>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }

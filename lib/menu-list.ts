@@ -1,11 +1,4 @@
-import {
-  Tag,
-  Users,
-  Settings,
-  Bookmark,
-  SquarePen,
-  LayoutGrid,
-} from "lucide-react";
+import { Users, Settings, LayoutGrid } from "lucide-react";
 
 type Submenu = {
   href: string;
@@ -40,6 +33,7 @@ export function getMenuList(pathname: string): Group[] {
         },
       ],
     },
+    /*
     {
       groupLabel: "Contents",
       menus: [
@@ -77,6 +71,7 @@ export function getMenuList(pathname: string): Group[] {
         },
       ],
     },
+*/
     {
       groupLabel: "Settings",
       menus: [
