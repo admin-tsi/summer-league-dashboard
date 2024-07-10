@@ -24,6 +24,7 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { useEffect } from "react";
 import { verifyTokenExpiration } from "@/providers/refresh-access-provider";
 
+
 export default function Page() {
   const currentUser: any = useCurrentUser();
 
@@ -37,20 +38,15 @@ export default function Page() {
         console.log(`Old access token: ${currentUser.accessToken}`);
         console.log(`New access token: ${newAccessToken}`);
       } else {
-        console.log("Impossible d'obtenir un nouvel access token.");
+        console.log("Impossible to get a new access token.");
       }
     };
 
     checkToken();
   }, [currentUser.accessToken, currentUser.refreshToken]);
+
   return (
-    <ContentLayout
-      title="Dashboard"
-      firstame={currentUser?.firstName}
-      lastName={currentUser?.lastName}
-      email={currentUser?.email}
-      role={currentUser?.role}
-    >
+    <ContentLayout title="Dashboard">
       <CustomBreadcrumb />
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full rounded-none justify-start">
