@@ -20,8 +20,31 @@ import {
 import { Overview } from "@/components/overview";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import CustomBreadcrumb from "@/components/custom-breadcumb";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useEffect } from "react";
+import { verifyTokenExpiration } from "@/providers/refresh-access-provider";
+
 
 export default function Page() {
+  const currentUser: any = useCurrentUser();
+
+  useEffect(() => {
+    const checkToken = async () => {
+      const newAccessToken = await verifyTokenExpiration(
+        currentUser.accessToken,
+        currentUser.refreshToken
+      );
+      if (newAccessToken) {
+        console.log(`Old access token: ${currentUser.accessToken}`);
+        console.log(`New access token: ${newAccessToken}`);
+      } else {
+        console.log("Impossible to get a new access token.");
+      }
+    };
+
+    checkToken();
+  }, [currentUser.accessToken, currentUser.refreshToken]);
+
   return (
     <ContentLayout title="Dashboard">
       <CustomBreadcrumb />
