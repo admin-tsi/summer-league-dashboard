@@ -1,8 +1,21 @@
 import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import axios from "axios";
-import { AuthUser } from "@/lib/types/login/auth-user";
 import Credentials from "next-auth/providers/credentials";
+import axios from "axios";
+
+export type MyUserType = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  isverified: boolean;
+  accessToken: string;
+  refreshToken: string;
+  emailVerified: Date | null;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+};
 
 const api = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -21,26 +34,24 @@ export const {
             password,
           });
 
+          console.log("response", response.data);
+
           const { user, accessToken, refreshToken } = response.data;
 
           if (user && accessToken && refreshToken) {
-            const formattedUser: AuthUser = {
-              // @ts-ignore
-              id: user.id,
+            const formattedUser: MyUserType = {
+              id: user._id,
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
               role: user.role,
+              isverified: user.isverified,
               accessToken,
               refreshToken,
+              emailVerified: user.emailVerified,
               createdAt: user.createdAt,
               updatedAt: user.updatedAt,
               __v: user.__v,
-              specialization: user.specialization,
-              countryCode: user.countryCode,
-              phoneNumber: user.phoneNumber,
-              dateOfBirth: user.dateOfBirth,
-              address: user.address,
             };
 
             return formattedUser;
@@ -61,16 +72,13 @@ export const {
   callbacks: {
     jwt: async ({ token, user }) => {
       if (user) {
-        token.user = user as AuthUser;
+        token.user = user as MyUserType;
       }
-      console.log(token);
+
       return token;
     },
     session: async ({ session, token }) => {
-      if (token.user) {
-        // @ts-ignore
-        session.user = token.user as AuthUser;
-      }
+      session.user = token.user as MyUserType;
       return session;
     },
   },

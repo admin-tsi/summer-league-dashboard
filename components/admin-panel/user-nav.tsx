@@ -39,7 +39,7 @@ export function UserNav() {
     }
   }, [user]);
 
-  console.log(user, "user");
+  // console.log(user, "user");
 
   return (
     <DropdownMenu>
