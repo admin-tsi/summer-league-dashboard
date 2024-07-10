@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User } from "@/lib/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +13,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { User } from "@/lib/types/login/user";
+import { Badge } from "@/components/ui/badge"; // Adjust the path as necessary
 
 export const columns = (
   handleDelete: (userId: string) => void,
@@ -44,37 +45,20 @@ export const columns = (
     enableHiding: false,
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    id: "identity",
+    header: "Identity",
     cell: ({ row }) => (
       <div onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("email") || "-"}
+        {`${row.original.firstName} ${row.original.lastName}`} <br />
+        <span className="text-sm text-gray-500">{row.original.email}</span>
       </div>
     ),
   },
   {
-    accessorKey: "firstname",
-    header: "First Name",
-    cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("firstname") || "-"}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "lastname",
-    header: "Last Name",
-    cell: ({ row }) => (
-      <div className="uppercase" onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("lastname") || "-"}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "age",
+    accessorKey: "dateOfBirth",
     header: "Age",
     cell: ({ row }) => {
-      const dob = new Date(row.getValue("age"));
+      const dob = new Date(row.getValue("dateOfBirth"));
       const today = new Date();
       let age = today.getFullYear() - dob.getFullYear();
       const m = today.getMonth() - dob.getMonth();
@@ -87,11 +71,12 @@ export const columns = (
     },
   },
   {
-    accessorKey: "phone",
+    accessorKey: "phoneNumber",
     header: "Phone",
     cell: ({ row }) => (
       <div onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("phone") || "-"}
+        {row.original.countryCode ? `+${row.original.countryCode} ` : ""}
+        {row.getValue("phoneNumber") || "-"}
       </div>
     ),
   },
@@ -100,15 +85,50 @@ export const columns = (
     header: "Role",
     cell: ({ row }) => (
       <div onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("role") || "-"}
+        <Badge
+          variant={"outline"}
+          className="bg-primary-yellow/20 text-primary-yellow border-primary-yellow"
+        >
+          {row.getValue("role") || "-"}
+        </Badge>
+      </div>
+    ),
+  },
+
+  {
+    accessorKey: "specialization",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0"
+        >
+          Specialization
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div onClick={() => handleEdit(row.original._id)}>
+        {row.getValue("specialization") || "-"}
       </div>
     ),
   },
   {
-    accessorKey: "isverified",
+    accessorKey: "address",
+    header: "Address",
+    cell: ({ row }) => (
+      <div onClick={() => handleEdit(row.original._id)}>
+        {row.getValue("address") || "-"}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "isVerified",
     header: "Status",
     cell: ({ row }) => {
-      const status: boolean = row.getValue("isverified");
+      const status: boolean = row.getValue("isVerified");
       const statusColor = status ? "text-green-500" : "text-red-500";
       const statusText = status ? "Verified" : "Not Verified";
       return <div className={`${statusColor}`}>{statusText}</div>;
@@ -148,7 +168,7 @@ export const columns = (
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                className="bg-muted text-white hover:bg-red-500"
+                className="text-white hover:bg-red-500"
                 onClick={() => handleDelete(row.original._id)}
               >
                 Delete

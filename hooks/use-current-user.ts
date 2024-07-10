@@ -1,8 +1,14 @@
 import { useSession } from "next-auth/react";
-import { MyUserType } from "@/auth";
+import { AuthUser } from "@/lib/types/login/auth-user";
 
 export const useCurrentUser = () => {
-  const session = useSession();
+  const { data: session, status } = useSession();
 
-  return session.data?.user as MyUserType | undefined;
+  console.log(session, "session");
+
+  if (status === "loading") {
+    return undefined;
+  }
+
+  return session?.user as AuthUser | undefined;
 };

@@ -31,7 +31,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { deleteUser, getAllUsers } from "@/lib/api";
 import { useCurrentToken } from "@/hooks/use-current-token";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -47,6 +46,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
+import { deleteUser, getAllUsers } from "@/lib/api/users/users";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any>([]);
@@ -70,7 +70,7 @@ export default function UsersPage() {
   };
 
   const handleClick = async (id: any) => {
-    router.push(`/students/${id}`);
+    router.push(`/users/${id}`);
   };
 
   useEffect(() => {
@@ -131,10 +131,10 @@ export default function UsersPage() {
       </Breadcrumb>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter email..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter identity..."
+          value={(table.getColumn("age")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("age")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

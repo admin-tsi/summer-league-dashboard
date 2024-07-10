@@ -1,3 +1,4 @@
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,18 +19,27 @@ import {
 import { LayoutGrid, LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { Badge } from "@/components/ui/badge";
 
-type Props = {
-  firstName?: string;
-  lastName?: string;
-  role?: string;
-  email?: string;
-}
+export function UserNav() {
+  const user = useCurrentUser();
+  const [firstName, setFirstName] = useState<string | undefined>(undefined);
+  const [lastName, setLastName] = useState<string | undefined>(undefined);
+  const [email, setEmail] = useState<string | undefined>(undefined);
+  const [role, setRole] = useState<string | undefined>(undefined);
 
-export function UserNav({ firstName = '', lastName = '', role = '', email = '' }: Props) {
-  const [firstInitial, setFirstInitial] = useState(firstName.charAt(0));
-  const [lastInitial, setLastInitial] = useState(lastName.charAt(0));
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.firstName);
+      setLastName(user.lastName);
+      setEmail(user.email);
+      setRole(user.role);
+    }
+  }, [user]);
+
+  console.log(user, "user");
 
   return (
     <DropdownMenu>
@@ -44,8 +54,8 @@ export function UserNav({ firstName = '', lastName = '', role = '', email = '' }
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
                   <AvatarFallback className="bg-transparent">
-                    {firstInitial}
-                    {lastInitial}
+                    {firstName != null ? firstName[0] : "J"}
+                    {lastName != null ? lastName[0] : "D"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -58,9 +68,11 @@ export function UserNav({ firstName = '', lastName = '', role = '', email = '' }
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
-            <p className="text-xs leading-none text-muted-foreground">
-              {role}
-            </p>
+            <div className="w-1/2">
+              <Badge variant="outline" className="">
+                {role}
+              </Badge>
+            </div>
             <p className="text-sm font-medium leading-none">
               {firstName} {lastName}
             </p>
@@ -86,10 +98,10 @@ export function UserNav({ firstName = '', lastName = '', role = '', email = '' }
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="hover:cursor-pointer"
+          className="hover:cursor-pointer bg-destructive text-destructive-foreground"
           onClick={() => signOut()}
         >
-          <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
+          <LogOut className="w-4 h-4 mr-3 text-destructive-foreground" />
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

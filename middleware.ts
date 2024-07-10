@@ -1,4 +1,6 @@
+import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+
 import {
   apiAuthPrefix,
   authRoutes,
@@ -14,24 +16,20 @@ export default auth((req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-  if (isApiAuthRoute) return;
+  if (isApiAuthRoute) return NextResponse.next();
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
+      return NextResponse.redirect(new URL(defaultLoginRedirect, nextUrl));
     }
-    return;
+    return NextResponse.next();
   }
 
   if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL("/login", nextUrl));
+    return NextResponse.redirect(new URL("/login", nextUrl));
   }
 
-  if (isLoggedIn && nextUrl.pathname === "/") {
-    return Response.redirect(new URL(defaultLoginRedirect, nextUrl));
-  }
-
-  return;
+  return NextResponse.next();
 });
 
 export const config = {
