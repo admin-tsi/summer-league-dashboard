@@ -17,7 +17,6 @@ export const fetchNewAccessToken = async (
     }
 
     const { accessToken } = await response.json();
-    // console.log("newtoken", accessToken);
 
     return accessToken;
   } catch (error: any) {

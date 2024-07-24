@@ -1,5 +1,9 @@
 "use client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ContentLayout } from "@/components/admin-panel/content-layout";
+import CustomBreadcrumb from "@/components/custom-breadcumb";
+import { Overview } from "@/components/overview";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,8 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Activity,
   ArrowUpRight,
@@ -17,33 +20,26 @@ import {
   DollarSign,
   Users,
 } from "lucide-react";
-import { Overview } from "@/components/overview";
-import { ContentLayout } from "@/components/admin-panel/content-layout";
-import CustomBreadcrumb from "@/components/custom-breadcumb";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { useEffect } from "react";
-import { verifyTokenExpiration } from "@/providers/refresh-access-provider";
-
 
 export default function Page() {
-  const currentUser: any = useCurrentUser();
+  // const currentUser: any = useCurrentUser();
 
-  useEffect(() => {
-    const checkToken = async () => {
-      const newAccessToken = await verifyTokenExpiration(
-        currentUser.accessToken,
-        currentUser.refreshToken
-      );
-      if (newAccessToken) {
-        console.log(`Old access token: ${currentUser.accessToken}`);
-        console.log(`New access token: ${newAccessToken}`);
-      } else {
-        console.log("Impossible to get a new access token.");
-      }
-    };
+  // useEffect(() => {
+  //   const checkToken = async () => {
+  //     const newAccessToken = await verifyTokenExpiration(
+  //       currentUser.accessToken,
+  //       currentUser.refreshToken
+  //     );
+  //     if (newAccessToken) {
+  //       console.log(`Old access token: ${currentUser.accessToken}`);
+  //       console.log(`New access token: ${newAccessToken}`);
+  //     } else {
+  //       console.log("Impossible to get a new access token.");
+  //     }
+  //   };
 
-    checkToken();
-  }, [currentUser.accessToken, currentUser.refreshToken]);
+  //   checkToken();
+  // }, [currentUser.accessToken, currentUser.refreshToken]);
 
   return (
     <ContentLayout title="Dashboard">

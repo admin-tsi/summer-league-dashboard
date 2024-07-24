@@ -44,7 +44,7 @@ export default async function RootLayout({
       <body className={cn(cabinetGroteskFont.className, satoshiFont.className)}>
         <ThemeProvider attribute="class" defaultTheme="light">
           {children}
-          <Toaster />
+          <Toaster className="font-satoshi" />
         </ThemeProvider>
       </body>
     </html>

@@ -26,8 +26,8 @@ import { LoginSchema } from "@/schemas";
 import * as z from "zod";
 import FormError from "@/components/login/form-error";
 import FormSuccess from "@/components/login/form-success";
-import { login } from "@/actions/login";
 import LoadingSpinner from "@/components/loading-spinner";
+import { login } from "@/lib/api/auth/login";
 export default function Page() {
   const [error, setError] = React.useState<string | undefined>("");
   const [success, setSuccess] = React.useState<string | undefined>("");

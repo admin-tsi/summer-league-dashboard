@@ -1,6 +1,7 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,12 +17,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { LayoutGrid, LogOut, User } from "lucide-react";
+import { LayoutGrid, LockKeyhole, LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
+import { AskChangePassword } from "@/lib/api/auth/changePassword";
+import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
 
 export function UserNav() {
   const user = useCurrentUser();
@@ -39,7 +42,29 @@ export function UserNav() {
     }
   }, [user]);
 
-  // console.log(user, "user");
+  const handleChangePassword = async () => {
+    const { accessToken, refreshToken } = user ?? {};
+
+    if (accessToken && refreshToken) {
+      const token = await verifyTokenExpiration(accessToken, refreshToken);
+
+      if (token) {
+        const emailToSend = email || "";
+
+        const result = await AskChangePassword({
+          email: emailToSend,
+          token,
+        });
+
+        if (result.success) {
+          console.log(result.message);
+          toast(result.message);
+        } else {
+          console.error(result.error);
+        }
+      }
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -94,6 +119,15 @@ export function UserNav() {
               <User className="w-4 h-4 mr-3 text-muted-foreground" />
               Account
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem className="hover:cursor-pointer" asChild>
+            <button
+              className="flex items-center w-full"
+              onClick={() => handleChangePassword()}
+            >
+              <LockKeyhole className="w-4 h-4 mr-3 text-muted-foreground" />
+              Change Password
+            </button>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
