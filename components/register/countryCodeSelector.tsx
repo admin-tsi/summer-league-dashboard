@@ -17,13 +17,11 @@ interface Country {
 }
 
 interface CountryCodeSelectorProps {
-  onChange: (code: string) => void;
   value: string;
   register: UseFormRegisterReturn;
 }
 
 const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
-  onChange,
   value,
   register,
 }) => {

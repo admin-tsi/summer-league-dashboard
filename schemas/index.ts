@@ -47,6 +47,21 @@ export const RegisterSchema = z.object({
     .string()
     .min(1, { message: "Phone number is required" })
     .regex(/^\d+$/, { message: "Phone number must be a valid number" }),
-  dateOfBirth: z.string().min(1, "Date of birth is required"),
+  dateOfBirth: z
+    .string()
+    .min(1, "Date of birth is required")
+    .refine((value) => {
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+      return age >= 15;
+    }, "You must be at least 15 years old"),
   specialization: z.string().min(1, "Specialization is required"),
 });
