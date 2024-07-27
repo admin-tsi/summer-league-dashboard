@@ -478,7 +478,7 @@ export default function Form() {
               {formError ? (
                 <>
                   <h2 className="text-base font-semibold leading-7 text-red-900">
-                    Oups !!!
+                    Oups !!!!
                   </h2>
                   <p className="mt-1 px-4 text-center text-sm leading-6 text-gray-600">
                     {`${formError}. Please try again to register your account to start managing your account. If the problem persists, don't hesitate to contact us for help or try again later.`}
