@@ -1,5 +1,6 @@
 "use client";
 
+import { submitForm } from "@/lib/api/auth/register";
 import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -8,7 +9,10 @@ import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Checkbox } from "../ui/checkbox";
-import CountryCodeSelector from "./countryCodeSelector";
+import LoadingSpinner from "../loading-spinner";
+import Link from "next/link";
+import logo from "@/public/logo.svg";
+import Image from "next/image";
 
 type Inputs = z.infer<typeof RegisterSchema>;
 
@@ -28,15 +32,19 @@ const steps = [
     name: "Tell us more about you",
     fields: ["specialization", "dateOfBirth"],
   },
+  {
+    id: "Step 4",
+    name: "Complete",
+  },
 ];
 
 export default function Form() {
   const [previousStep, setPreviousStep] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [isTermsAccepted, setIsTermsAccepted] = useState(false);
-  const [termsError, setTermsError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [termsError, setTermsError] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const delta = currentStep - previousStep;
 
   const {
@@ -49,13 +57,21 @@ export default function Form() {
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(RegisterSchema),
-    defaultValues: JSON.parse(localStorage.getItem("formData") || "{}"),
   });
 
-  const processForm: SubmitHandler<Inputs> = (data) => {
-    console.log(data);
-    // localStorage.removeItem("formData");
-    // reset();
+  const processForm: SubmitHandler<Inputs> = async (data) => {
+    try {
+      setIsSubmitting(true);
+      const response = await submitForm(data);
+      setFormError(null);
+      console.log(response);
+      localStorage.removeItem("formData");
+    } catch (error: any) {
+      console.error(error);
+      setFormError(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   type FieldName = keyof Inputs;
@@ -64,9 +80,7 @@ export default function Form() {
     const fields = steps[currentStep].fields;
     const output = await trigger(fields as FieldName[], { shouldFocus: true });
 
-    if (!output) return;
-
-    if (currentStep === steps.length - 1) {
+    if (currentStep === steps.length - 2) {
       if (!isTermsAccepted) {
         setTermsError(true);
         return;
@@ -74,6 +88,8 @@ export default function Form() {
         await handleSubmit(processForm)();
       }
     }
+
+    if (!output) return;
 
     setPreviousStep(currentStep);
     setCurrentStep((step) => step + 1);
@@ -86,39 +102,49 @@ export default function Form() {
     }
   };
 
-  useEffect(() => {
-    const subscription = watch((data) => {
-      localStorage.setItem("formData", JSON.stringify(data));
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch]);
-
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedData = localStorage.getItem("formData");
+      if (savedData) {
+        reset(JSON.parse(savedData));
+      }
+
+      const subscription = watch((data) => {
+        localStorage.setItem("formData", JSON.stringify(data));
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, [reset, watch]);
+
   return (
-    <section className="w-full h-[100vh] flex justify-center items-center">
-      <div className="w-full md:w-[500px] p-5 rounded-lg bg-muted shadow">
-        <nav aria-label="Progress">
+    <>
+      <div className="w-full h-full overflow-y-scroll md:h-fit md:w-[500px] p-5 rounded-lg bg-muted shadow">
+        <nav aria-label="Progress" className="flex flex-col space-y-10">
+          <div className="w-full flex justify-center items-center">
+            <Image src={logo} alt="AWSP Logo" width={72} height={50} />
+          </div>
           <ol
             role="list"
-            className="space-y-4 md:flex md:space-x-8 md:space-y-0"
+            className=" flex w-full space-x-2 md:space-x-8 md:space-y-0"
           >
             {steps.map((step, index) => (
-              <li key={step.id} className="md:flex-1">
+              <li key={step.id} className="w-1/4 md:flex-1">
                 {currentStep > index ? (
-                  <div className="group flex w-full flex-col border-l-4 border-primary py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                  <div className="group flex w-full flex-col border-t-4 border-primary py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
                     <span className="text-sm font-medium text-prborder-primary transition-colors">
                       {step.id}
                     </span>
                   </div>
                 ) : currentStep === index ? (
                   <div
-                    className="flex w-full flex-col border-l-4 border-primary py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
+                    className="flex w-full flex-col border-t-4 border-primary py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
                     aria-current="step"
                   >
                     <span className="text-sm font-medium text-prborder-primary">
@@ -126,7 +152,7 @@ export default function Form() {
                     </span>
                   </div>
                 ) : (
-                  <div className="group flex w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                  <div className="group flex w-full flex-col border-t-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
                     <span className="text-sm font-medium text-gray-500 transition-colors">
                       {step.id}
                     </span>
@@ -227,24 +253,22 @@ export default function Form() {
               <p className="mt-1 text-sm leading-6 text-gray-600">
                 Please provide your personal information below. This includes
                 details such as your full name, address, and contact
-                information. This data is necessary to complete your profile and
-                ensure that we can reach you if needed.
+                information.
               </p>
 
               <div className="mt-5 grid grid-cols-1 gap-4">
-                <div className="sm:col-span-3">
+                <div className="w-full">
                   <label
                     htmlFor="firstName"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    First name
+                    First Name
                   </label>
                   <div className="mt-2">
                     <input
                       type="text"
                       id="firstName"
                       {...register("firstName")}
-                      autoComplete="firstName"
                       placeholder="John"
                       className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
@@ -255,19 +279,19 @@ export default function Form() {
                     )}
                   </div>
                 </div>
-                <div className="sm:col-span-3">
+
+                <div className="">
                   <label
                     htmlFor="lastName"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Last name
+                    Last Name
                   </label>
                   <div className="mt-2">
                     <input
                       type="text"
                       id="lastName"
                       {...register("lastName")}
-                      autoComplete="lastName"
                       placeholder="Doe"
                       className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
@@ -278,12 +302,23 @@ export default function Form() {
                     )}
                   </div>
                 </div>
-                <div className="col-span-3">
+
+                <div className="w-full">
                   <div className="grid grid-cols-3 gap-4">
                     <div className="col-span-1">
-                      <CountryCodeSelector
-                        value={watch("countryCode") || ""}
-                        register={register("countryCode")}
+                      <label
+                        htmlFor="countryCode"
+                        className="block text-sm font-medium leading-6 text-gray-900"
+                      >
+                        Country Code
+                      </label>
+                      <input
+                        type="text"
+                        id="countryCode"
+                        {...register("countryCode")}
+                        autoComplete="countryCode"
+                        placeholder="+229"
+                        className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                       />
                       {errors.countryCode?.message && (
                         <p className="mt-2 text-sm text-red-400">
@@ -298,7 +333,7 @@ export default function Form() {
                       >
                         Phone number
                       </label>
-                      <div className="mt-1">
+                      <div className="">
                         <input
                           type="text"
                           id="phoneNumber"
@@ -316,7 +351,8 @@ export default function Form() {
                     </div>
                   </div>
                 </div>
-                <div className="sm:col-span-3">
+
+                <div className="w-full">
                   <label
                     htmlFor="address"
                     className="block text-sm font-medium leading-6 text-gray-900"
@@ -353,10 +389,8 @@ export default function Form() {
                 Tell us more about you
               </h2>
               <p className="mt-1 text-sm leading-6 text-gray-600">
-                To complete your account creation on the Summer League platform,
-                we’d like to learn a bit more about you! This information will
-                help us get to know you better and provide you with a
-                personalized and enriching experience.
+                Share some additional details about yourself. This helps us
+                tailor your experience and provide better support.
               </p>
 
               <div className="mt-5 grid grid-cols-1 gap-4">
@@ -365,15 +399,14 @@ export default function Form() {
                     htmlFor="specialization"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Profession
+                    Specialization
                   </label>
                   <div className="mt-2">
                     <input
                       type="text"
                       id="specialization"
                       {...register("specialization")}
-                      autoComplete="specialization"
-                      placeholder="sports coach"
+                      placeholder="Specialization"
                       className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
                     {errors.specialization?.message && (
@@ -383,20 +416,19 @@ export default function Form() {
                     )}
                   </div>
                 </div>
+
                 <div className="sm:col-span-3">
                   <label
                     htmlFor="dateOfBirth"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Date of birth
+                    Date of Birth
                   </label>
                   <div className="mt-2">
                     <input
                       type="date"
                       id="dateOfBirth"
                       {...register("dateOfBirth")}
-                      autoComplete="dateOfBirth"
-                      placeholder="Doe"
                       className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
                     {errors.dateOfBirth?.message && (
@@ -406,6 +438,7 @@ export default function Form() {
                     )}
                   </div>
                 </div>
+
                 <div className="sm:col-span-3">
                   <div className="items-top flex space-x-2 mt-4">
                     <Checkbox
@@ -437,42 +470,66 @@ export default function Form() {
               </div>
             </motion.div>
           )}
-        </form>
 
-        {/* Navigation */}
-        <div className="mt-8 pt-5">
-          <div className="flex justify-between">
-            <button
-              type="button"
-              onClick={prev}
-              disabled={currentStep === 0}
-              className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-background hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="h-6 w-6"
+          {currentStep === steps.length - 1 && (
+            <div className="w-full flex flex-col justify-center items-center">
+              {formError ? (
+                <>
+                  <h2 className="text-base font-semibold leading-7 text-red-900">
+                    Oups !!!
+                  </h2>
+                  <p className="mt-1 px-4 text-center text-sm leading-6 text-gray-600">
+                    {`${formError}. Please try again to register your account to start managing your account. If the problem persists, don't hesitate to contact us for help or try again later.`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="inline-flex my-5 items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Try Again
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-base font-semibold leading-7 text-gray-900">
+                    Complete
+                  </h2>
+                  <p className="mt-1 px-4 text-center text-sm leading-6 text-gray-600">
+                    Thank you for your submission. You can now log in with your
+                    credentials to begin managing your team.
+                  </p>
+                  <Link
+                    href="/login"
+                    className="inline-flex my-5 items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Log in
+                  </Link>
+                </>
+              )}
+            </div>
+          )}
+
+          <div className="mt-8 flex justify-between">
+            {currentStep > 0 && (
+              <button
+                type="button"
+                onClick={prev}
+                disabled={isSubmitting || currentStep === steps.length - 1}
+                className="inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
+                Back
+              </button>
+            )}
             <button
               type="button"
               onClick={next}
               className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-background hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isSubmitting}
+              disabled={isSubmitting || currentStep === steps.length - 1}
             >
               {isSubmitting ? (
-                <span>Loading...</span>
-              ) : currentStep === steps.length - 1 ? (
-                <span>Terminer</span>
+                <LoadingSpinner text="Loading..." />
+              ) : currentStep === steps.length - 2 ? (
+                <span className="px-4">Terminer</span>
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -491,8 +548,8 @@ export default function Form() {
               )}
             </button>
           </div>
-        </div>
+        </form>
       </div>
-    </section>
+    </>
   );
 }

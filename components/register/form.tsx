@@ -5,7 +5,7 @@ import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Checkbox } from "../ui/checkbox";
@@ -13,6 +13,7 @@ import LoadingSpinner from "../loading-spinner";
 import Link from "next/link";
 import logo from "@/public/logo.svg";
 import Image from "next/image";
+import Confetti, { ConfettiRef } from "../magicui/confetti";
 
 type Inputs = z.infer<typeof RegisterSchema>;
 
@@ -45,6 +46,7 @@ export default function Form() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [termsError, setTermsError] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const confettiRef = useRef<ConfettiRef>(null);
   const delta = currentStep - previousStep;
 
   const {
@@ -491,16 +493,23 @@ export default function Form() {
                 </>
               ) : (
                 <>
-                  <h2 className="text-base font-semibold leading-7 text-gray-900">
+                  <span className="pointer-events-none whitespace-pre-wrap bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-center text-6xl md:text-8xl font-semibold leading-none text-transparent dark:from-white dark:to-slate-900/10">
                     Complete
-                  </h2>
-                  <p className="mt-1 px-4 text-center text-sm leading-6 text-gray-600">
+                  </span>
+                  <p className="my-6 px-4 text-center text-sm leading-6 text-gray-600">
                     Thank you for your submission. You can now log in with your
                     credentials to begin managing your team.
                   </p>
+                  <Confetti
+                    ref={confettiRef}
+                    className="absolute left-0 top-0 z-0 size-full"
+                    onMouseEnter={() => {
+                      confettiRef.current?.fire({});
+                    }}
+                  />
                   <Link
                     href="/login"
-                    className="inline-flex my-5 items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex z-50 my-5 items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Log in
                   </Link>
@@ -529,7 +538,7 @@ export default function Form() {
               {isSubmitting ? (
                 <LoadingSpinner text="Loading..." />
               ) : currentStep === steps.length - 2 ? (
-                <span className="px-4">Terminer</span>
+                <span className="px-4">Finish</span>
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
