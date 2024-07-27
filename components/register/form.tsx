@@ -474,7 +474,7 @@ export default function Form() {
           )}
 
           {currentStep === steps.length - 1 && (
-            <div className="w-full flex flex-col justify-center items-center">
+            <div className="w-full max-md:h-full flex flex-col justify-center items-center">
               {formError ? (
                 <>
                   <h2 className="text-base font-semibold leading-7 text-red-900">
@@ -519,43 +519,45 @@ export default function Form() {
           )}
 
           <div className="mt-8 flex justify-between">
-            {currentStep > 0 && (
+            {currentStep > 0 && currentStep < steps.length - 1 && (
               <button
                 type="button"
                 onClick={prev}
-                disabled={isSubmitting || currentStep === steps.length - 1}
+                disabled={isSubmitting}
                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Back
               </button>
             )}
-            <button
-              type="button"
-              onClick={next}
-              className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-background hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={isSubmitting || currentStep === steps.length - 1}
-            >
-              {isSubmitting ? (
-                <LoadingSpinner text="Loading..." />
-              ) : currentStep === steps.length - 2 ? (
-                <span className="px-4">Finish</span>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="h-6 w-6"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                  />
-                </svg>
-              )}
-            </button>
+            {currentStep < steps.length - 1 && (
+              <button
+                type="button"
+                onClick={next}
+                className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-background hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <LoadingSpinner text="Loading..." />
+                ) : currentStep === steps.length - 2 ? (
+                  <span className="px-4">Finish</span>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    className="h-6 w-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                    />
+                  </svg>
+                )}
+              </button>
+            )}
           </div>
         </form>
       </div>
