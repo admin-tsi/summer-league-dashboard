@@ -15,3 +15,17 @@ export const UserSchema = z.object({
   dateOfBirth: z.string(),
   address: z.string(),
 });
+
+export const playerSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  position: z.string(),
+  birthdate: z.date(),
+  dorseyNumber: z.number(),
+  height: z.number(),
+  weight: z.number(),
+  phoneNumber: z.string(),
+  playerBiography: z.string(),
+  playerImage: z.string().url(),
+  nationality: z.string(),
+});

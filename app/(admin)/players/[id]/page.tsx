@@ -21,6 +21,7 @@ import CustomBreadcrumb from "@/components/custom-breadcumb";
 import { getUserById, updateUser } from "@/lib/api/users/users";
 import { UserSchema } from "@/lib/schemas/users/users";
 import { formatDate } from "@/lib/utils";
+import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 
 type UserFormData = z.infer<typeof UserSchema>;
 
@@ -85,10 +86,18 @@ export default function Page({
     }
   };
 
+  const breadcrumbPaths = [
+    { label: "Home", href: "/" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Players", href: "/players" },
+    { label: params.id === "New" ? "New Player" : `${params.id}` },
+  ];
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-12">
-        <CustomBreadcrumb />
+        <DynamicBreadcrumbs paths={breadcrumbPaths} />
+        {params.id}
         {isLoading && (
           <div className="w-full flex justify-center items-center">
             <LoadingSpinner text="Loading..." />
