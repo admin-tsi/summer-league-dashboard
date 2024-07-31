@@ -1,90 +1,22 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useCurrentToken } from "@/hooks/use-current-token";
-import { useForm, FormProvider } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+import Editinput from "@/components/player/edit/input";
 import {
-  FormControl,
-  FormField,
-  FormLabel,
-  FormItem,
-  FormMessage,
-  Form,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
-import { User } from "@/lib/types/login/user";
-import LoadingSpinner from "@/components/loading-spinner";
-import CustomBreadcrumb from "@/components/custom-breadcumb";
-import { getUserById, updateUser } from "@/lib/api/users/users";
-import { UserSchema } from "@/lib/schemas/users/users";
-import { formatDate } from "@/lib/utils";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import ImageDropzone from "@/components/player/edit/picture";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
-
-type UserFormData = z.infer<typeof UserSchema>;
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function Page({
   params,
 }: {
   params: { id: string; token: string };
 }) {
-  const token = useCurrentToken();
-  const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
-  const form = useForm<UserFormData>({
-    resolver: zodResolver(UserSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      role: "",
-      createdAt: "",
-      updatedAt: "",
-      specialization: "",
-      countryCode: "",
-      phoneNumber: "",
-      dateOfBirth: "",
-      address: "",
-    },
-  });
-
-  const { setValue, handleSubmit } = form;
-
-  useEffect(() => {
-    setIsLoading(true);
-    getUserById(params.id, token)
-      .then((data) => {
-        setUser(data);
-        Object.keys(data).forEach((key) => {
-          if (key in form.getValues()) {
-            setValue(key as keyof UserFormData, data[key as keyof User] ?? "");
-          }
-        });
-      })
-      .catch((error) => {
-        console.error("Failed to fetch user", error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [params.id, token, setValue, form]);
-
-  const onSubmit = async (data: UserFormData) => {
-    console.log("Form Submitted:", data);
-    setIsLoading(true);
-    try {
-      await updateUser(params.id, data, token);
-      alert("User updated successfully!");
-    } catch (error) {
-      console.error("Failed to update user", error);
-      alert("Failed to update user");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const token = useCurrentToken();
 
   const breadcrumbPaths = [
     { label: "Home", href: "/" },
@@ -94,193 +26,89 @@ export default function Page({
   ];
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-12">
-        <DynamicBreadcrumbs paths={breadcrumbPaths} />
-        {params.id}
-        {isLoading && (
-          <div className="w-full flex justify-center items-center">
-            <LoadingSpinner text="Loading..." />
+    <div className="pt-10 px-5 flex flex-col space-y-6 container mx-auto">
+      <DynamicBreadcrumbs paths={breadcrumbPaths} />
+      <div className=" flex flex-col space-y-3">
+        <div className="w-full flex flex-col justify-center items-center md:flex md:flex-row md:justify-normal gap-3">
+          <ImageDropzone />
+          <div className="w-full flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <Badge variant="outline" className="w-fit py-3 px-6">
+                Player Status
+              </Badge>
+              <Button variant="tableDispositionBtn" className="border shadow">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="lucide lucide-user-pen"
+                >
+                  <path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
+                  <path d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                  <circle cx="10" cy="7" r="4" />
+                </svg>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Editinput id="firstName" label="First Name" required />
+              <Editinput id="lastName" label="Last Name" required />
+              <Editinput id="dorseyNumber" label="Dorsey Number" required />
+              <Editinput id="college" label="College" required />
+              <Editinput id="nationality" label="Nationality" required />
+              <Editinput id="email" label="Email" required />
+            </div>
           </div>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {!isLoading && user && (
-            <>
-              <FormField
-                name="firstName"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="firstName">First Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="firstName"
-                        placeholder="First Name"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="lastName"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="lastName">Last Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="lastName"
-                        placeholder="Last Name"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="email"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="email">Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="email"
-                        placeholder="Email"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="phoneNumber"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="phoneNumber">Phone</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="phoneNumber"
-                        placeholder="Phone"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="dateOfBirth"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="dateOfBirth">Date of Birth</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="dateOfBirth"
-                        placeholder="Date of Birth"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                        value={formatDate(field.value)}
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="role"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="role">Role</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="role"
-                        placeholder="Role"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="specialization"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="specialization">
-                      Specialization
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="specialization"
-                        placeholder="Specialization"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="countryCode"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="countryCode">Country Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="countryCode"
-                        placeholder="Country Code"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="address"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="address">Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="address"
-                        placeholder="Address"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="col-span-1 md:col-span-2 flex justify-center">
-                <Button type="submit" variant="outline" disabled={isLoading}>
-                  {isLoading ? <LoadingSpinner text="Saving..." /> : "Save"}
-                </Button>
-              </div>
-            </>
-          )}
         </div>
-      </form>
-    </FormProvider>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Editinput id="fullNumber" label="Full Number" required />
+          <Editinput
+            id="yearsOfExperience"
+            label="Years of Experience"
+            required
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <Editinput id="position" label="Position" required />
+          <Editinput id="height" label="height" required />
+          <Editinput id="weight" label="weight" required />
+        </div>
+      </div>
+      <div className="w-full flex flex-col md:flex-row">
+        <div className="w-full md:w-1/2 gap-3">
+          <span className="font-semibold">Documents</span>
+          <p className="py-4 md:w-[80%]">
+            Upload the secure birth certificate of the player to be registered
+            on the platform. The validity of the birth certificate will be
+            verified within 24 hours and will lead to the activation of the
+            player&apos;s profile.
+          </p>
+        </div>
+        <div className="w-full md:w-1/2">
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Birth certificate</AccordionTrigger>
+              <AccordionContent>
+                Yes. It adheres to the WAI-ARIA design pattern.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Personal identification card</AccordionTrigger>
+              <AccordionContent>
+                Yes. It adheres to the WAI-ARIA design pattern.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
+    </div>
   );
 }
