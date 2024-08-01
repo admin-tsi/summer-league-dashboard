@@ -77,6 +77,9 @@ dependencies:
   commitlint:
     specifier: ^19.3.0
     version: 19.3.0(@types/node@20.0.0)(typescript@5.0.2)
+  framer-motion:
+    specifier: ^11.3.19
+    version: 11.3.19(react-dom@18.0.0)(react@18.0.0)
   jsonwebtoken:
     specifier: ^9.0.2
     version: 9.0.2
@@ -3342,6 +3345,25 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
+    dev: false
+
+  /framer-motion@11.3.19(react-dom@18.0.0)(react@18.0.0):
+    resolution: {integrity: sha512-+luuQdx4AsamyMcvzW7jUAJYIKvQs1KE7oHvKkW3eNzmo0S+3PSDWjBuQkuIP9WyneGnKGMLUSuHs8OP7jKpQg==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0
+      react-dom: ^18.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      react: 18.0.0
+      react-dom: 18.0.0(react@18.0.0)
+      tslib: 2.6.3
     dev: false
 
   /fs.realpath@1.0.0:

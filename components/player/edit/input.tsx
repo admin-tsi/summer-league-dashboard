@@ -1,5 +1,6 @@
 import { Input } from "@/components/ui/input";
 import React from "react";
+import { UseFormRegisterReturn } from "react-hook-form";
 
 interface InputProps {
   id?: string;
@@ -11,6 +12,7 @@ interface InputProps {
   errorMessage?: string;
   required?: boolean;
   placeholder?: string;
+  register?: UseFormRegisterReturn;
 }
 
 const Editinput: React.FC<InputProps> = ({
@@ -23,6 +25,7 @@ const Editinput: React.FC<InputProps> = ({
   errorMessage,
   required = false,
   placeholder,
+  register,
 }) => {
   return (
     <div className="flex flex-col space-y-2">
@@ -40,7 +43,7 @@ const Editinput: React.FC<InputProps> = ({
         className={`px-4 py-2 border rounded-md focus-visible:outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
           errorMessage ? "border-red-500" : "border-black"
         }`}
-        required={required}
+        {...register}
       />
       {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
     </div>
