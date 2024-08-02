@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, BadgeCheck, Pencil, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,11 +14,25 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { User } from "@/lib/types/login/user";
-import { Badge } from "@/components/ui/badge"; // Adjust the path as necessary
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const columns = (
   handleDelete: (userId: string) => void,
   handleEdit: (userId: string) => void,
+  handleRoleChange: (userId: string, newRole: string) => void,
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -125,13 +139,13 @@ export const columns = (
     ),
   },
   {
-    accessorKey: "isVerified",
+    accessorKey: "accountStatus",
     header: "Status",
     cell: ({ row }) => {
-      const status: boolean = row.getValue("isVerified");
-      const statusColor = status ? "text-green-500" : "text-red-500";
+      const status: boolean = row.getValue("accountStatus");
+      const statusColor = status ? "text-primary-green" : "text-destructive";
       const statusText = status ? "Verified" : "Not Verified";
-      return <div className={`${statusColor}`}>{statusText}</div>;
+      return <div className={`${statusColor} font-semibold`}>{statusText}</div>;
     },
   },
   {
@@ -176,6 +190,47 @@ export const columns = (
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              aria-label="Change Role"
+              className="p-2 rounded hover:bg-gray-100"
+              variant="ghost"
+            >
+              <BadgeCheck className="h-4 text-primary-yellow" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Change User Role</h4>
+                <p className="text-sm text-muted-foreground">
+                  Select a new role for this user
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <div className="grid grid-cols-3 items-center gap-4">
+                  <Label htmlFor="role">Role</Label>
+                  <Select
+                    onValueChange={(value) =>
+                      handleRoleChange(row.original._id, value)
+                    }
+                    defaultValue={row.original.role}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="team-manager">Team Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     ),
   },

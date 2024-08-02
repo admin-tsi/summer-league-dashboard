@@ -486,8 +486,8 @@ export default function Form() {
                     <span className="font-black text-md">{formError}</span>
                     <br />
                     Please try again to register your account to start managing
-                    your account. If the problem persists, don't hesitate to
-                    contact us for help or try again later.
+                    your account. If the problem persists, don&apos;t hesitate
+                    to contact us for help or try again later.
                   </div>
                   <Button
                     type="button"
