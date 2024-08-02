@@ -177,7 +177,7 @@ export default function Page() {
                 )}
               </Button>
               <div className="text-sm text-center">
-                Don't have an account?
+                Don&apos;t have an account?
                 <Button variant="link" className="text-primary" asChild>
                   <Link
                     href="/register"

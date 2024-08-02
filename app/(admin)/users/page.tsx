@@ -46,7 +46,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-import { deleteUser, getAllUsers } from "@/lib/api/users/users";
+import { deleteUser, getAllUsers, promoteUser } from "@/lib/api/users/users";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any>([]);
@@ -64,6 +64,24 @@ export default function UsersPage() {
     } catch (error) {
       toast.error("Failed to delete user");
       console.error("Failed to delete user", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      setLoading(true);
+      await promoteUser(userId, token, newRole);
+      toast.success("User role updated successfully");
+      setUsers(
+        users.map((user: { _id: string; role: string }) =>
+          user._id === userId ? { ...user, role: newRole } : user,
+        ),
+      );
+    } catch (error) {
+      toast.error("Failed to update user role");
+      console.error("Failed to update user role", error);
     } finally {
       setLoading(false);
     }
@@ -91,7 +109,7 @@ export default function UsersPage() {
 
   const table = useReactTable({
     data: users,
-    columns: columns(handleDeleteUser, handleClick),
+    columns: columns(handleDeleteUser, handleClick, handleRoleChange),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
