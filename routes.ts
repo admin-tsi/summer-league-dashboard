@@ -3,7 +3,11 @@
  * These routes are accessible to everyone
  * @type {string[]}
  */
-export const publicRoutes: string[] = ["/login", "/change-password"];
+export const publicRoutes: string[] = [
+  "/login",
+  "/change-password",
+  "/register",
+];
 
 /**
  * An array of private routes
