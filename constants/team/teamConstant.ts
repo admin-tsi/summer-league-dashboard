@@ -1,0 +1,16 @@
+export const teamNames = [
+  "Yewa Guardians",
+  "Olokun",
+  "Lissa Rainbows",
+  "Gleti Scholars",
+  "Ibeji",
+  "Ogun Warriors",
+  "Mawu Sunrays",
+  "Xevioso Artisans",
+  "Gbadu",
+  "Ori Destinies",
+  "Obatala",
+  "Loko Roots",
+  "Esu Tricksters",
+  "Orunmila Stars",
+];
