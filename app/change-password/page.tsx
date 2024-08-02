@@ -29,6 +29,7 @@ import FormSuccess from "@/components/login/form-success";
 import LoadingSpinner from "@/components/loading-spinner";
 import { changePassword } from "@/lib/api/auth/changePassword";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 export default function Page() {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
@@ -134,13 +135,18 @@ export default function Page() {
                             placeholder="********"
                             required
                           />
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
                             onClick={toggleNewPasswordVisibility}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                            className="absolute inset-y-0 right-2 flex items-center justify-center text-gray-400 hover:bg-transparent"
                           >
-                            {showNewPassword ? "👁️" : "👁️‍🗨️"}
-                          </button>
+                            {showNewPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -164,13 +170,18 @@ export default function Page() {
                             placeholder="********"
                             required
                           />
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
                             onClick={toggleConfirmPasswordVisibility}
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"
+                            className="absolute inset-y-0 right-2 flex items-center justify-center text-gray-400 hover:bg-transparent"
                           >
-                            {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
-                          </button>
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
                         </div>
                       </FormControl>
                       <FormMessage />

@@ -4,7 +4,7 @@ import { submitForm } from "@/lib/api/auth/register";
 import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,6 +14,8 @@ import Link from "next/link";
 import logo from "@/public/logo.svg";
 import Image from "next/image";
 import Confetti, { ConfettiRef } from "../magicui/confetti";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Inputs = z.infer<typeof RegisterSchema>;
 
@@ -54,7 +56,6 @@ export default function Form() {
     handleSubmit,
     watch,
     reset,
-    setValue,
     trigger,
     formState: { errors },
   } = useForm<Inputs>({
@@ -213,7 +214,7 @@ export default function Form() {
                     Password
                   </label>
                   <div className="relative mt-2">
-                    <input
+                    <Input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       {...register("password")}
@@ -221,17 +222,18 @@ export default function Form() {
                       placeholder="********"
                       className="block w-full px-2 rounded-md border-[1px] placeholder:px-2 py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
                       onClick={togglePasswordVisibility}
-                      className="absolute top-3 right-2 text-gray-400"
+                      className="absolute inset-y-0 right-2 flex items-center justify-center text-gray-400 hover:bg-transparent"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
                       ) : (
                         <Eye className="h-4 w-4" />
                       )}
-                    </button>
+                    </Button>
                     {errors.password?.message && (
                       <p className="mt-2 text-sm text-red-400">
                         {errors.password.message}
@@ -310,7 +312,7 @@ export default function Form() {
                     <div className="col-span-1">
                       <label
                         htmlFor="countryCode"
-                        className="block text-sm font-medium leading-6 text-gray-900"
+                        className="block text-sm font-medium leading-6 text-gray-900 text-"
                       >
                         Country Code
                       </label>
@@ -478,18 +480,22 @@ export default function Form() {
               {formError ? (
                 <>
                   <h2 className="text-base font-semibold leading-7 text-red-900">
-                    Oups !!!!
+                    Oops !!!!
                   </h2>
-                  <p className="mt-1 px-4 text-center text-sm leading-6 text-gray-600">
-                    {`${formError}. Please try again to register your account to start managing your account. If the problem persists, don't hesitate to contact us for help or try again later.`}
-                  </p>
-                  <button
+                  <div className="mt-1 px-4 text-center text-sm leading-6 text-gray-600">
+                    <span className="font-black text-md">{formError}</span>
+                    <br />
+                    Please try again to register your account to start managing
+                    your account. If the problem persists, don't hesitate to
+                    contact us for help or try again later.
+                  </div>
+                  <Button
                     type="button"
                     onClick={() => window.location.reload()}
                     className="inline-flex my-5 items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Try Again
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <>
@@ -520,17 +526,17 @@ export default function Form() {
 
           <div className="mt-8 flex justify-between">
             {currentStep > 0 && currentStep < steps.length - 1 && (
-              <button
+              <Button
                 type="button"
                 onClick={prev}
                 disabled={isSubmitting}
                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Back
-              </button>
+              </Button>
             )}
             {currentStep < steps.length - 1 && (
-              <button
+              <Button
                 type="button"
                 onClick={next}
                 className="rounded bg-white px-2 py-1 text-sm font-semibold text-sky-900 shadow-sm ring-1 ring-inset ring-background hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -541,22 +547,9 @@ export default function Form() {
                 ) : currentStep === steps.length - 2 ? (
                   <span className="px-4">Finish</span>
                 ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth="1.5"
-                    stroke="currentColor"
-                    className="h-6 w-6"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                    />
-                  </svg>
+                  <ArrowRight />
                 )}
-              </button>
+              </Button>
             )}
           </div>
         </form>

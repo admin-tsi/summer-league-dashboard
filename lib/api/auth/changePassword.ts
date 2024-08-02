@@ -2,7 +2,6 @@ import axios from "axios";
 
 interface AskChangePasswordProps {
   email: string;
-  token: string;
 }
 
 interface ChangePasswordProps {
@@ -12,22 +11,11 @@ interface ChangePasswordProps {
 
 const api = process.env.NEXT_PUBLIC_BASE_URL;
 
-export const AskChangePassword = async ({
-  email,
-  token,
-}: AskChangePasswordProps) => {
+export const AskChangePassword = async ({ email }: AskChangePasswordProps) => {
   try {
-    const response = await axios.post(
-      `${api}/auth/forget-password`,
-      {
-        email,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.post(`${api}/auth/forget-password`, {
+      email,
+    });
 
     if (response.status === 200) {
       return {

@@ -6,6 +6,7 @@
 export const publicRoutes: string[] = [
   "/login",
   "/change-password",
+  "/forget-password",
   "/register",
 ];
 
