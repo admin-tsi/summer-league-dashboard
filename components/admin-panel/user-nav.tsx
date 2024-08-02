@@ -53,7 +53,6 @@ export function UserNav() {
 
         const result = await AskChangePassword({
           email: emailToSend,
-          token,
         });
 
         if (result.success) {
