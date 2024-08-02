@@ -16,6 +16,9 @@ import { teamCreationSchema } from "@/schemas/teamShema";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
 import { teamNames } from "@/constants/team/teamConstant";
+import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
+import { createTeam } from "@/lib/api/teams/teams";
+import LoadingSpinner from "../loading-spinner";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -25,11 +28,12 @@ const TeamCreationForm = (props: Props) => {
   const currentUser: any = useCurrentUser();
   const [divisions, setDivisions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState("");
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setValue,
     watch,
   } = useForm<TeamCreationFormData>({
@@ -45,6 +49,7 @@ const TeamCreationForm = (props: Props) => {
           "selectedCompetitionId"
         );
         if (selectedCompetitionId && gender) {
+          setSelectedCompetitionId(selectedCompetitionId);
           const divisionsData = await getDivisions(
             selectedCompetitionId,
             gender
@@ -62,9 +67,32 @@ const TeamCreationForm = (props: Props) => {
     if (gender) {
       fetchDivisions();
     }
-  }, [gender, currentUser.accessToken]);
+  }, [gender]);
 
-  const onSubmit = (data: TeamCreationFormData) => {
+  const onSubmit = async (data: TeamCreationFormData) => {
+    const newAccessToken = await verifyTokenExpiration(
+      currentUser.accessToken,
+      currentUser.refreshToken
+    );
+    if (newAccessToken) {
+      try {
+        console.log("1", currentUser.accessToken);
+        console.log("2", newAccessToken);
+
+        if (currentUser.accessToken) {
+          await createTeam(data, newAccessToken, selectedCompetitionId);
+          console.log("Team created successfully");
+        } else {
+          console.error("No access token available");
+          setError("No access token available");
+        }
+      } catch (error) {
+        console.error("Failed to create team", error);
+        setError("Failed to create team");
+      }
+    } else {
+      console.log("Impossible to get a new access token.");
+    }
     console.log(data);
   };
 
@@ -150,7 +178,14 @@ const TeamCreationForm = (props: Props) => {
         </div>
 
         <Button className="mt-3 bg-background border text-primary hover:text-white">
-          Create my team
+          {isSubmitting ? (
+            <div>
+              {" "}
+              <LoadingSpinner text="Loading..." />{" "}
+            </div>
+          ) : (
+            <span>Create my team</span>
+          )}
         </Button>
       </div>
       {error && <div className="text-red-600 text-sm">{error}</div>}
