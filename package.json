@@ -45,12 +45,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "commitlint": "^19.3.0",
-<<<<<<< HEAD
     "framer-motion": "^11.3.19",
-=======
-    "date-fns": "^3.6.0",
-    "framer-motion": "^11.3.17",
->>>>>>> a05fa055d0c3c0e9c09410ba5fdfa0a055aaed6b
     "jsonwebtoken": "^9.0.2",
     "lint-staged": "^15.2.7",
     "lucide-react": "^0.400.0",

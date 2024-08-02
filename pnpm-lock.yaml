@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@hookform/resolvers':
     specifier: ^3.7.0
@@ -82,18 +86,9 @@ dependencies:
   commitlint:
     specifier: ^19.3.0
     version: 19.3.0(@types/node@20.0.0)(typescript@5.0.2)
-<<<<<<< HEAD
   framer-motion:
     specifier: ^11.3.19
     version: 11.3.19(react-dom@18.0.0)(react@18.0.0)
-=======
-  date-fns:
-    specifier: ^3.6.0
-    version: 3.6.0
-  framer-motion:
-    specifier: ^11.3.17
-    version: 11.3.17(react-dom@18.0.0)(react@18.0.0)
->>>>>>> a05fa055d0c3c0e9c09410ba5fdfa0a055aaed6b
   jsonwebtoken:
     specifier: ^9.0.2
     version: 9.0.2
@@ -3424,13 +3419,8 @@ packages:
       mime-types: 2.1.35
     dev: false
 
-<<<<<<< HEAD
   /framer-motion@11.3.19(react-dom@18.0.0)(react@18.0.0):
     resolution: {integrity: sha512-+luuQdx4AsamyMcvzW7jUAJYIKvQs1KE7oHvKkW3eNzmo0S+3PSDWjBuQkuIP9WyneGnKGMLUSuHs8OP7jKpQg==}
-=======
-  /framer-motion@11.3.17(react-dom@18.0.0)(react@18.0.0):
-    resolution: {integrity: sha512-LZcckvZL8Rjod03bud8LQcp+R0PLmWIlOSu+NVc+v6Uh43fQr4IBsEAX7sSn7CdBQ1L0fZ/IqSXZVPnGFSMxHw==}
->>>>>>> a05fa055d0c3c0e9c09410ba5fdfa0a055aaed6b
     peerDependencies:
       '@emotion/is-prop-valid': '*'
       react: ^18.0.0
@@ -5814,7 +5804,3 @@ packages:
       react: 18.0.0
       use-sync-external-store: 1.2.0(react@18.0.0)
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
