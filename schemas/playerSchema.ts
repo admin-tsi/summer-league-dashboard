@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_FILE_TYPES = ["image/jpeg", "image/png", "application/pdf"];
+const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "application/pdf",
+  "image/webp",
+];
 
 const fileSchema = z.object({
   name: z.string(),
@@ -22,17 +27,27 @@ export const playerSchema = z.object({
       message: "Player image is required",
     }
   ),
-  dorseyNumber: z.string().min(1, { message: "Dorsey Number is required" }),
+  dorseyNumber: z
+    .number({ message: "Dorsey Number is required and must be a number" })
+    .positive("Dorsey Number must be a positive number"),
   college: z.string().min(1, { message: "College is required" }),
   nationality: z.string().min(1, { message: "Nationality is required" }),
   email: z.string().email({ message: "Invalid email address" }),
-  fullNumber: z.string().min(1, { message: "Full Number is required" }),
+  countryCode: z.string().min(1, "Country code is required"),
+  fullNumber: z
+    .number({ message: "Phone Number is required and must be a number" })
+    .positive("Height must be a positive number"),
   yearsOfExperience: z
     .string()
     .min(1, { message: "Years of Experience is required" }),
   position: z.string().min(1, { message: "Position is required" }),
-  height: z.string().min(1, { message: "Height is required" }),
-  weight: z.string().min(1, { message: "Weight is required" }),
+  height: z
+    .number({ message: "Height is required and must be a number" })
+    .positive("Height must be a positive number"),
+  weight: z
+    .number({ message: "Weight is required and must be a number" })
+    .positive("Weight must be a positive number")
+    .min(1, { message: "Weight is required" }),
   birthCertificate: fileSchema.refine(
     (data: FileSchemaType) => data !== undefined && data !== null,
     {

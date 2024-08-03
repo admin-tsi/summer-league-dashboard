@@ -6,15 +6,13 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 
 type Props = {};
 
-function TeamCreation({}: Props) {
+function AboutTeam({}: Props) {
   const currentUser: any = useCurrentUser();
   const [start, setStart] = useState(false);
   const [creationSuccess, setCreationSuccess] = useState(false);
   const [teamId, setTeamId] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log(currentUser);
-
     if (currentUser && currentUser.isManageTeam) {
       setTeamId(currentUser.isManageTeam);
       setCreationSuccess(true);
@@ -44,4 +42,4 @@ function TeamCreation({}: Props) {
   );
 }
 
-export default TeamCreation;
+export default AboutTeam;

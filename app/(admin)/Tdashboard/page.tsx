@@ -1,7 +1,7 @@
 "use client";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
-import TeamCreation from "@/components/Tdashboard/teamCreation";
+import AboutTeam from "@/components/Tdashboard/teamCreation";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 export default function Page() {
@@ -41,7 +41,7 @@ export default function Page() {
             to see if your account has been validated.
           </p>
         ) : (
-          <TeamCreation />
+          <AboutTeam />
         )}
       </div>
     </ContentLayout>

@@ -168,7 +168,6 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
           <Select
             onValueChange={(value) => setValue("division", value)}
             value={division}
-            // disabled={isDivisionsLoading}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Division" />
@@ -200,7 +199,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
         >
           {isSubmitting ? (
             <div>
-              <LoadingSpinner text="Loading..." />{" "}
+              <LoadingSpinner text="Loading..." />
             </div>
           ) : (
             <span>Create my team</span>

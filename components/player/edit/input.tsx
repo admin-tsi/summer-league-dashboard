@@ -6,7 +6,6 @@ interface InputProps {
   id?: string;
   label?: string;
   type?: string;
-  value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   errorMessage?: string;
@@ -18,8 +17,7 @@ interface InputProps {
 const Editinput: React.FC<InputProps> = ({
   id,
   label,
-  type = "text",
-  value,
+  type,
   onChange,
   onBlur,
   errorMessage,
@@ -35,8 +33,7 @@ const Editinput: React.FC<InputProps> = ({
       </label>
       <Input
         id={id}
-        type={type}
-        value={value}
+        type={type ? type : "text"}
         onChange={onChange}
         onBlur={onBlur}
         placeholder={placeholder}
