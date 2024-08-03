@@ -1,15 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import TeamCreationForm from "./teamCreationForm";
+import TeamStats from "./teamStats";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 type Props = {};
 
 function TeamCreation({}: Props) {
+  const currentUser: any = useCurrentUser();
   const [start, setStart] = useState(false);
+  const [creationSuccess, setCreationSuccess] = useState(false);
+  const [teamId, setTeamId] = useState<string | null>(null);
+
+  useEffect(() => {
+    console.log(currentUser);
+
+    if (currentUser && currentUser.isManageTeam) {
+      setTeamId(currentUser.isManageTeam);
+      setCreationSuccess(true);
+    }
+  }, [currentUser]);
+
+  const handleSuccess = (id: string) => {
+    setTeamId(id);
+    setCreationSuccess(true);
+  };
+
   return (
     <>
-      {start ? (
-        <TeamCreationForm />
+      {creationSuccess && teamId ? (
+        <TeamStats teamId={teamId} />
+      ) : start ? (
+        <TeamCreationForm onSuccess={handleSuccess} />
       ) : (
         <Button
           className="w-1/2 md:w-1/4 bg-primary-yellow text-primary hover:text-white"

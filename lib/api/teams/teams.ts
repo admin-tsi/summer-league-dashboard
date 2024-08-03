@@ -18,6 +18,12 @@ export async function createTeam(
     return response.data;
   } catch (error) {
     console.error("Failed to create team", error);
-    throw new Error("Failed to create team");
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        `Failed to create team: ${error.response.data.message || error.response.statusText}`
+      );
+    } else {
+      throw new Error("Failed to create team: Network or server error");
+    }
   }
 }

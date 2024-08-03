@@ -15,6 +15,7 @@ export type MyUserType = {
   createdAt: string;
   updatedAt: string;
   __v: number;
+  isManageTeam: string | null;
 };
 
 const api = process.env.NEXT_PUBLIC_BASE_URL;
@@ -52,6 +53,7 @@ export const {
               createdAt: user.createdAt,
               updatedAt: user.updatedAt,
               __v: user.__v,
+              isManageTeam: user.isManageTeam || null,
             };
 
             return formattedUser;

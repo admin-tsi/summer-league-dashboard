@@ -93,11 +93,9 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-2">
-            <div className="w-1/2">
-              <Badge variant="outline" className="">
-                {role}
-              </Badge>
-            </div>
+            <Badge variant="outline" className="w-fit px-2 py-2">
+              {role}
+            </Badge>
             <p className="text-sm font-medium leading-none">
               {firstName} {lastName}
             </p>

@@ -22,13 +22,16 @@ import LoadingSpinner from "../loading-spinner";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
-type Props = {};
+type Props = {
+  onSuccess: (teamId: string) => void;
+};
 
-const TeamCreationForm = (props: Props) => {
+const TeamCreationForm = ({ onSuccess }: Props) => {
   const currentUser: any = useCurrentUser();
   const [divisions, setDivisions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedCompetitionId, setSelectedCompetitionId] = useState("");
+  const [isDivisionsLoading, setIsDivisionsLoading] = useState(false);
 
   const {
     register,
@@ -40,19 +43,20 @@ const TeamCreationForm = (props: Props) => {
     resolver: zodResolver(teamCreationSchema),
   });
 
-  const gender = watch("gender");
+  const teamGender = watch("teamGender");
 
   useEffect(() => {
     const fetchDivisions = async () => {
       try {
+        setIsDivisionsLoading(true);
         const selectedCompetitionId = localStorage.getItem(
           "selectedCompetitionId"
         );
-        if (selectedCompetitionId && gender) {
+        if (selectedCompetitionId && teamGender) {
           setSelectedCompetitionId(selectedCompetitionId);
           const divisionsData = await getDivisions(
             selectedCompetitionId,
-            gender
+            teamGender
           );
           setDivisions(divisionsData);
         } else {
@@ -61,13 +65,15 @@ const TeamCreationForm = (props: Props) => {
       } catch (error) {
         setError("Failed to load divisions");
         console.error("Failed to load divisions", error);
+      } finally {
+        setIsDivisionsLoading(false);
       }
     };
 
-    if (gender) {
+    if (teamGender) {
       fetchDivisions();
     }
-  }, [gender]);
+  }, [teamGender]);
 
   const onSubmit = async (data: TeamCreationFormData) => {
     const newAccessToken = await verifyTokenExpiration(
@@ -76,19 +82,21 @@ const TeamCreationForm = (props: Props) => {
     );
     if (newAccessToken) {
       try {
-        console.log("1", currentUser.accessToken);
-        console.log("2", newAccessToken);
-
         if (currentUser.accessToken) {
-          await createTeam(data, newAccessToken, selectedCompetitionId);
+          const response = await createTeam(
+            data,
+            newAccessToken,
+            selectedCompetitionId
+          );
           console.log("Team created successfully");
+          onSuccess(response._id);
         } else {
           console.error("No access token available");
           setError("No access token available");
         }
-      } catch (error) {
-        console.error("Failed to create team", error);
-        setError("Failed to create team");
+      } catch (error: any) {
+        console.error(error.message);
+        setError(error.message);
       }
     } else {
       console.log("Impossible to get a new access token.");
@@ -97,7 +105,7 @@ const TeamCreationForm = (props: Props) => {
   };
 
   const division = watch("division");
-  const name = watch("name");
+  const teamName = watch("teamName");
 
   return (
     <form
@@ -109,8 +117,8 @@ const TeamCreationForm = (props: Props) => {
         <div className="w-full flex flex-col gap-2">
           <span className="text-sm">Team Name</span>
           <Select
-            onValueChange={(value) => setValue("name", value)}
-            value={name}
+            onValueChange={(value) => setValue("teamName", value)}
+            value={teamName}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select team name" />
@@ -123,8 +131,10 @@ const TeamCreationForm = (props: Props) => {
               ))}
             </SelectContent>
           </Select>
-          {errors.name && (
-            <span className="text-red-600 text-sm">{errors.name.message}</span>
+          {errors.teamName && (
+            <span className="text-red-600 text-sm">
+              {errors.teamName.message}
+            </span>
           )}
         </div>
         <Editinput
@@ -136,8 +146,8 @@ const TeamCreationForm = (props: Props) => {
         <div className="w-full flex flex-col gap-2">
           <span className="text-sm">Gender</span>
           <Select
-            onValueChange={(value) => setValue("gender", value)}
-            value={gender}
+            onValueChange={(value) => setValue("teamGender", value)}
+            value={teamGender}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Gender" />
@@ -147,9 +157,9 @@ const TeamCreationForm = (props: Props) => {
               <SelectItem value="girls">Girls</SelectItem>
             </SelectContent>
           </Select>
-          {errors.gender && (
+          {errors.teamGender && (
             <span className="text-red-600 text-sm">
-              {errors.gender.message}
+              {errors.teamGender.message}
             </span>
           )}
         </div>
@@ -158,16 +168,23 @@ const TeamCreationForm = (props: Props) => {
           <Select
             onValueChange={(value) => setValue("division", value)}
             value={division}
+            // disabled={isDivisionsLoading}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Division" />
             </SelectTrigger>
             <SelectContent>
-              {divisions.map((division) => (
-                <SelectItem key={division._id} value={division._id}>
-                  {division.divisionName}
-                </SelectItem>
-              ))}
+              {isDivisionsLoading ? (
+                <div className="flex justify-center items-center py-4">
+                  <LoadingSpinner text="Loading of divisions" />
+                </div>
+              ) : (
+                divisions.map((division) => (
+                  <SelectItem key={division._id} value={division._id}>
+                    {division.divisionName}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
           {errors.division && (
@@ -177,10 +194,12 @@ const TeamCreationForm = (props: Props) => {
           )}
         </div>
 
-        <Button className="mt-3 bg-background border text-primary hover:text-white">
+        <Button
+          disabled={isSubmitting}
+          className="mt-3 bg-background border text-primary hover:text-white"
+        >
           {isSubmitting ? (
             <div>
-              {" "}
               <LoadingSpinner text="Loading..." />{" "}
             </div>
           ) : (
@@ -188,7 +207,11 @@ const TeamCreationForm = (props: Props) => {
           )}
         </Button>
       </div>
-      {error && <div className="text-red-600 text-sm">{error}</div>}
+      {error && (
+        <div className="text-red-600 text-sm w-full flex justify-center items-center">
+          <span>{error}</span>
+        </div>
+      )}
     </form>
   );
 };
