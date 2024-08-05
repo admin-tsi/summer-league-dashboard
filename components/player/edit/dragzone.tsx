@@ -58,7 +58,9 @@ const Dropzone: React.FC<DropzoneProps> = ({ type, setValue, attribute }) => {
     setValue(attribute, null);
   };
 
-  const accept: Accept = type === "image" ? { "image/*": [] } : {};
+  const accept: Accept = {
+    "image/*": [".jpeg", ".png", ".jpg", ".gif"],
+  };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept,
@@ -71,7 +73,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ type, setValue, attribute }) => {
         className={`border rounded-md text-center cursor-pointer transition-colors duration-300
           ${type === "file" ? "w-full" : "h-[300px] w-[300px]"} ${isDragActive ? "border-blue-500 bg-blue-100" : "border-gray-300 bg-white"}`}
       >
-        <input {...getInputProps()} />
+        <input {...getInputProps()} type="file" />
         {!imageSrc && !progress && (
           <div
             className={`flex flex-col justify-center items-center bg-[#8C8B86] rounded-md ${type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"}`}

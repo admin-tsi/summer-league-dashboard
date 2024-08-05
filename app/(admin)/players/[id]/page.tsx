@@ -65,17 +65,23 @@ export default function Page({
 
       const formData = new FormData();
 
-      for (const key in data) {
-        if (data[key] instanceof FileList) {
-          Array.from(data[key]).forEach((file) => {
+      Object.entries(data).forEach(([key, value]) => {
+        if (value == null) {
+          return;
+        }
+
+        if (value instanceof FileList) {
+          Array.from(value).forEach((file) => {
             formData.append(key, file);
           });
-        } else if (data[key] instanceof File) {
-          formData.append(key, data[key]);
+        } else if (value instanceof File) {
+          formData.append(key, value);
+        } else if (typeof value === "object" || Array.isArray(value)) {
+          formData.append(key, JSON.stringify(value));
         } else {
-          formData.append(key, data[key]);
+          formData.append(key, value.toString());
         }
-      }
+      });
 
       const competeId = localStorage.getItem("selectedCompetitionId");
 
@@ -84,22 +90,19 @@ export default function Page({
         currentUser.refreshToken
       );
 
-      console.log("old :", currentUser.accessToken);
-      console.log("new :", newAccessToken);
-
       if (newAccessToken) {
-        const newPlayer = await createPlayer(
+        await createPlayer(
           currentUser.accessToken,
           currentUser.isManageTeam,
           formData,
           competeId
         );
-        console.log("Player created successfully:", newPlayer);
+        localStorage.removeItem("formData");
+        reset({});
       } else {
         setError("Failed to refresh access token");
       }
     } catch (error: any) {
-      console.error("Error creating player:", error);
       setError(error.message);
     }
   };
@@ -288,13 +291,17 @@ export default function Page({
                 attribute="birthCertificate"
               />
               {errors.birthCertificate && (
-                <p>{errors.birthCertificate.message}</p>
+                <p className="text-red-500 text-sm">
+                  {errors.birthCertificate.message}
+                </p>
               )}
             </div>
             <div className="w-full md:w-1/2 flex flex-col space-y-2">
               <span>CIP certificate</span>
               <Dropzone type="file" setValue={setValue} attribute="cipFile" />
-              {errors.cipFile && <p>{errors.cipFile.message}</p>}
+              {errors.cipFile && (
+                <p className="text-red-500 text-sm">{errors.cipFile.message}</p>
+              )}
             </div>
           </div>
         </div>

@@ -1,32 +1,9 @@
 import { z } from "zod";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_FILE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "application/pdf",
-  "image/webp",
-];
-
-const fileSchema = z.object({
-  name: z.string(),
-  size: z.number().max(MAX_FILE_SIZE, "File size must be less than 5MB"),
-  type: z.string().refine((type: any) => ALLOWED_FILE_TYPES.includes(type), {
-    message: `Invalid file type. Allowed types: ${ALLOWED_FILE_TYPES.join(", ")}`,
-  }),
-});
-
-type FileSchemaType = z.infer<typeof fileSchema>;
-
 export const playerSchema = z.object({
   firstName: z.string().min(1, { message: "First Name is required" }),
   lastName: z.string().min(1, { message: "Last Name is required" }),
-  playerImage: fileSchema.refine(
-    (data: FileSchemaType) => data !== undefined && data !== null,
-    {
-      message: "Player image is required",
-    }
-  ),
+  playerImage: z.instanceof(File, { message: "Player Image file is required" }),
   dorseyNumber: z
     .number({ message: "Dorsey Number is required and must be a number" })
     .positive("Dorsey Number must be a positive number"),
@@ -64,16 +41,8 @@ export const playerSchema = z.object({
       }
       return age >= 15;
     }, "You must be at least 15 years old"),
-  birthCertificate: fileSchema.refine(
-    (data: FileSchemaType) => data !== undefined && data !== null,
-    {
-      message: "Birth certificate is required",
-    }
-  ),
-  cipFile: fileSchema.refine(
-    (data: FileSchemaType) => data !== undefined && data !== null,
-    {
-      message: "CIP certificate is required",
-    }
-  ),
+  birthCertificate: z.instanceof(File, {
+    message: "Birth certificate file is required",
+  }),
+  cipFile: z.instanceof(File, { message: "CIP certificate file is required" }),
 });
