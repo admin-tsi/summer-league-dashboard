@@ -12,4 +12,5 @@ export type User = {
   phoneNumber: string;
   dateOfBirth: string;
   address: string;
+  accountStatus: boolean;
 };
