@@ -46,7 +46,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-import { deleteUser, getAllUsers, promoteUser } from "@/lib/api/users/users";
+import {
+  deleteUser,
+  getAllUsers,
+  promoteUser,
+  validateAccount,
+} from "@/lib/api/users/users";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any>([]);
@@ -87,6 +92,26 @@ export default function UsersPage() {
     }
   };
 
+  const handleStatusChange = async (userId: string, newStatus: boolean) => {
+    try {
+      setLoading(true);
+
+      await validateAccount(userId, token);
+
+      toast.success("User status updated successfully");
+
+      setUsers(
+        users.map((user: { _id: string }) =>
+          user._id === userId ? { ...user, accountStatus: newStatus } : user,
+        ),
+      );
+    } catch (error) {
+      toast.error("Failed to update user status");
+      console.error("Failed to update user status", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleClick = async (id: any) => {
     router.push(`/users/${id}`);
   };
@@ -109,7 +134,12 @@ export default function UsersPage() {
 
   const table = useReactTable({
     data: users,
-    columns: columns(handleDeleteUser, handleClick, handleRoleChange),
+    columns: columns(
+      handleDeleteUser,
+      handleClick,
+      handleRoleChange,
+      handleStatusChange,
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

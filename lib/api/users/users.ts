@@ -81,6 +81,35 @@ export async function updateUser(
   }
 }
 
+export async function validateAccount(
+  userId: string,
+  token: string | undefined,
+): Promise<void> {
+  const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+  try {
+    await axios.post(
+      `${baseUrl}/users/${userId}/validate-account`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data.message ||
+          "An error occurred while validating user",
+      );
+    } else {
+      throw new Error("A non-Axios error occurred");
+    }
+  }
+}
+
 export async function deleteUser(
   userId: string,
   token: string | undefined,

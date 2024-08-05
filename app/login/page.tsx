@@ -115,14 +115,14 @@ export default function Page() {
                     <FormItem>
                       <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
-                        <div className="relative mt-2">
+                        <div className="relative">
                           <Input
                             {...field}
                             disabled={isPending}
-                            type={showPassword ? "text" : "password"} // Set type dynamically
+                            type={showPassword ? "text" : "password"}
                             placeholder="********"
                             required
-                            className="block w-full px-2 rounded-md border-[1px] placeholder:px-2 py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
+                            className="block w-full px-2 h-10 rounded-md border-[1px] text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm focus-visible:outline-none"
                           />
                           <Button
                             type="button"

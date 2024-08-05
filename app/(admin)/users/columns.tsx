@@ -28,11 +28,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch"; // Make sure to import your custom Switch
 
 export const columns = (
   handleDelete: (userId: string) => void,
   handleEdit: (userId: string) => void,
   handleRoleChange: (userId: string, newRole: string) => void,
+  handleStatusChange: (userId: string, newStatus: boolean) => void, // Add this function
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -96,17 +98,40 @@ export const columns = (
   },
   {
     accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        <Badge
-          variant={"outline"}
-          className="bg-primary-yellow/20 text-primary-yellow border-primary-yellow"
-        >
-          {row.getValue("role") || "-"}
-        </Badge>
-      </div>
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0"
+      >
+        Role
+        <ArrowUpDown className="h-4 w-4" />
+      </Button>
     ),
+    cell: ({ row }) => {
+      const role = row.getValue("role") || "-";
+      let badgeClass: string;
+
+      switch (role) {
+        case "admin":
+          badgeClass = "bg-destructive/80 text-primary-foreground";
+          break;
+        case "team-manager":
+          badgeClass = "bg-primary-yellow/80 text-primary-foreground";
+          break;
+        case "user":
+          badgeClass = "bg-primary-green/80 text-primary-foreground";
+          break;
+        default:
+          badgeClass = "bg-gray-100 text-gray-700";
+      }
+
+      return (
+        <div onClick={() => handleEdit(row.original._id)}>
+          <Badge className={`${badgeClass} truncate`}>{String(role)}</Badge>
+        </div>
+      );
+    },
   },
 
   {
@@ -143,9 +168,15 @@ export const columns = (
     header: "Status",
     cell: ({ row }) => {
       const status: boolean = row.getValue("accountStatus");
-      const statusColor = status ? "text-primary-green" : "text-destructive";
-      const statusText = status ? "Verified" : "Not Verified";
-      return <div className={`${statusColor} font-semibold`}>{statusText}</div>;
+      return (
+        <Switch
+          checked={status}
+          onCheckedChange={(newStatus) =>
+            handleStatusChange(row.original._id, newStatus)
+          }
+          className="focus:outline-none focus:ring-2 focus:ring-offset-2"
+        />
+      );
     },
   },
   {
