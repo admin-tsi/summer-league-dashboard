@@ -1,29 +1,28 @@
 "use client";
-import { useEffect, useState } from "react";
+import LoadingSpinner from "@/components/loading-spinner";
 import Dropzone from "@/components/player/edit/dragzone";
 import Editinput from "@/components/player/edit/input";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { playerSchema } from "@/schemas/playerSchema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Pencil } from "lucide-react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
-import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
-import { createPlayer } from "@/lib/api/players/players";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import LoadingSpinner from "@/components/loading-spinner";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { positions } from "@/constants/player/playerPositionConstant";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
+import { createPlayer } from "@/lib/api/players/players";
+import { playerSchema } from "@/schemas/playerSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Pencil } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 export default function Page({
   params,
@@ -78,18 +77,22 @@ export default function Page({
         }
       }
 
-      console.log(formData);
+      const competeId = localStorage.getItem("selectedCompetitionId");
 
       const newAccessToken = await verifyTokenExpiration(
         currentUser.accessToken,
         currentUser.refreshToken
       );
 
+      console.log("old :", currentUser.accessToken);
+      console.log("new :", newAccessToken);
+
       if (newAccessToken) {
         const newPlayer = await createPlayer(
           currentUser.accessToken,
           currentUser.isManageTeam,
-          formData
+          formData,
+          competeId
         );
         console.log("Player created successfully:", newPlayer);
       } else {
@@ -177,16 +180,24 @@ export default function Page({
                 errorMessage={errors.nationality?.message as string}
               />
               <Editinput
-                id="email"
+                id="playerEmail"
                 label="email"
                 placeholder="Enter email"
-                register={register("email")}
-                errorMessage={errors.email?.message as string}
+                register={register("playerEmail")}
+                errorMessage={errors.playerEmail?.message as string}
               />
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+          <Editinput
+            id="birthdate"
+            label="Birth date"
+            type="date"
+            placeholder="+229"
+            register={register("birthdate")}
+            errorMessage={errors.birthdate?.message as string}
+          />
           <Editinput
             id="countryCode"
             label="Country Code"
@@ -195,12 +206,12 @@ export default function Page({
             errorMessage={errors.countryCode?.message as string}
           />
           <Editinput
-            id="fullNumber"
+            id="phoneNumber"
             label="Phone Number"
             placeholder="96000000"
-            register={register("fullNumber", { valueAsNumber: true })}
+            register={register("phoneNumber", { valueAsNumber: true })}
             type="number"
-            errorMessage={errors.fullNumber?.message as string}
+            errorMessage={errors.phoneNumber?.message as string}
           />
           <Editinput
             id="yearsOfExperience"

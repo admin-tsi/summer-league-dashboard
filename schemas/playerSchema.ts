@@ -32,9 +32,9 @@ export const playerSchema = z.object({
     .positive("Dorsey Number must be a positive number"),
   college: z.string().min(1, { message: "College is required" }),
   nationality: z.string().min(1, { message: "Nationality is required" }),
-  email: z.string().email({ message: "Invalid email address" }),
+  playerEmail: z.string().email({ message: "Invalid email address" }),
   countryCode: z.string().min(1, "Country code is required"),
-  fullNumber: z
+  phoneNumber: z
     .number({ message: "Phone Number is required and must be a number" })
     .positive("Height must be a positive number"),
   yearsOfExperience: z
@@ -48,6 +48,22 @@ export const playerSchema = z.object({
     .number({ message: "Weight is required and must be a number" })
     .positive("Weight must be a positive number")
     .min(1, { message: "Weight is required" }),
+  birthdate: z
+    .string()
+    .min(1, "Date of birth is required")
+    .refine((value) => {
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+      return age >= 15;
+    }, "You must be at least 15 years old"),
   birthCertificate: fileSchema.refine(
     (data: FileSchemaType) => data !== undefined && data !== null,
     {

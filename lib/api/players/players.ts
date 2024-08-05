@@ -1,12 +1,13 @@
-import axios from "axios";
 import { Player } from "@/lib/types/players/players";
+import axios from "axios";
 
 const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 
 export const createPlayer = async (
   token: string,
   teamId: string,
-  formData: FormData
+  formData: FormData,
+  competitionId: string | null
 ) => {
   try {
     if (!teamId) {
@@ -14,7 +15,7 @@ export const createPlayer = async (
         "You are not managing any team for the summer league. Go to your dashboard and create your team to be able to start creating players. If any problem occurs while creating your team, please contact us."
       );
     }
-
+    console.log("FormData entries:", Array.from(formData.entries()));
     const response = await axios.post(
       `${baseUrl}/players/teams/${teamId}`,
       formData,
@@ -22,13 +23,16 @@ export const createPlayer = async (
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
+          "x-competition-id": competitionId,
         },
       }
     );
 
     return response.data;
   } catch (error: any) {
-    console.error("Failed to create player:", error.message);
+    //console.error("Failed to create player:", error.message);
+    console.log(error);
+
     throw error;
   }
 };
