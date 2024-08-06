@@ -22,6 +22,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export default function Page({
@@ -97,13 +98,18 @@ export default function Page({
           formData,
           competeId
         );
+        toast("The player has been successfully created.");
         localStorage.removeItem("formData");
         reset({});
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
       } else {
         setError("Failed to refresh access token");
       }
     } catch (error: any) {
       setError(error.message);
+      toast(`${error.message}`);
     }
   };
 
@@ -317,11 +323,6 @@ export default function Page({
           )}
         </Button>
       </div>
-      {error && (
-        <div className="w-full flex justify-center items-center">
-          <span className="text-sm text-red-500 text-center">{error}</span>
-        </div>
-      )}
     </form>
   );
 }

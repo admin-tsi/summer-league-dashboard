@@ -38,15 +38,19 @@ export const createPlayer = async (
 };
 
 export async function getAllPlayers(
-  token: string | undefined
+  token: string | undefined,
+  teamId: string
 ): Promise<Player[]> {
   try {
-    const response = await axios.get<Player[]>(`${baseUrl}/players`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get<Player[]>(
+      `${baseUrl}/players/specific/teams/${teamId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {

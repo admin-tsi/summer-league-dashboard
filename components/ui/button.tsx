@@ -22,6 +22,7 @@ const buttonVariants = cva(
           "px-0 py-0 hover:border hover:bg-secondary hover:text-primary group",
         dropdownBtn:
           "border-l-0 rounded-l-none bg-black text-white hover:font-bold flex justify-center items-center",
+        def: "",
       },
       size: {
         default: "h-10 px-4 py-2",
