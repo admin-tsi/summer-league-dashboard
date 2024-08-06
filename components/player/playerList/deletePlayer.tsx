@@ -52,7 +52,7 @@ export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription className="text-primary">
             This action cannot be undone. This will permanently delete the
-            player and remove their data from our servers.
+            player and remove his data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

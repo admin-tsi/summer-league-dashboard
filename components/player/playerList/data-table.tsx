@@ -30,6 +30,13 @@ import {
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
 } from "@radix-ui/react-dropdown-menu";
+import {
+  ChevronsUpDown,
+  LayoutGrid,
+  TableProperties,
+  UserPlus,
+} from "lucide-react";
+import Link from "next/link";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -68,43 +75,57 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter first name..."
-          value={
-            (table.getColumn("firstName")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("firstName")?.setFilterValue(event.target.value)
-          }
-          className="w-full focus-visible:outline-none focus-visible:ring-0"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-center w-full mb-4 gap-3">
+        <div className="flex justify-center items-center border rounded-md w-full">
+          <Input
+            placeholder="Filter first name..."
+            value={
+              (table.getColumn("firstName")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("firstName")?.setFilterValue(event.target.value)
+            }
+            className="w-full focus-visible:outline-none focus-visible:ring-0 border-0"
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="bg-background">
+              <Button
+                variant="outline"
+                className="bg-black text-white flex justify-center items-center "
+              >
+                <span>Columns</span>
+                <ChevronsUpDown className="h-4 mt-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="flex justify-center items-center gap-1">
+          <Link
+            href="/players/New"
+            className="h-10 px-4 py-2 border rounded-md hover:bg-muted"
+          >
+            <UserPlus size={20} strokeWidth={1.5} />
+          </Link>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

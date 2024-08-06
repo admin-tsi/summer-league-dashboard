@@ -2,6 +2,13 @@
 const nextConfig = {
   images: {
     domains: ["cdn.nba.com"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "summer-league-backend-staging.up.railway.app",
+        pathname: "/uploads/players/profiles/**",
+      },
+    ],
   },
 };
 
