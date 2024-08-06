@@ -16,7 +16,8 @@ import {
 import { positions } from "@/constants/player/playerPositionConstant";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
-import { createPlayer } from "@/lib/api/players/players";
+import { createPlayer, getPlayerById } from "@/lib/api/players/players";
+import { Player } from "@/lib/types/players/players";
 import { playerSchema } from "@/schemas/playerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil } from "lucide-react";
@@ -25,14 +26,62 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
+type PartialPlayer = Partial<Player>;
+
 export default function Page({
   params,
 }: {
   params: { id: string; token: string };
 }) {
   type Formfields = z.infer<typeof playerSchema>;
+
   const currentUser: any = useCurrentUser();
+  const [defPlayerValue, setDefPlayerValue] = useState<PartialPlayer>();
   const [error, setError] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(params.id !== "New");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [breadcrumbPaths, setBreadcrumbPaths] = useState([
+    { label: "Home", href: "/" },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Players", href: "/players" },
+    { label: params.id === "New" ? "New Player" : "Loading..." },
+  ]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (isEditing) {
+          setIsLoading(true);
+          const newAccessToken = await verifyTokenExpiration(
+            currentUser.accessToken,
+            currentUser.refreshToken
+          );
+
+          if (newAccessToken) {
+            const player = await getPlayerById(params.id, newAccessToken);
+            setDefPlayerValue(player);
+            console.log("playerrrrrrr: ", player);
+
+            setBreadcrumbPaths([
+              { label: "Home", href: "/" },
+              { label: "Dashboard", href: "/dashboard" },
+              { label: "Players", href: "/players" },
+              { label: `${player.firstName} ${player.lastName}` },
+            ]);
+            reset(player);
+            setIsLoading(false);
+          } else {
+            setError("Failed to refresh access token");
+          }
+        }
+      } catch (error: any) {
+        setError(error.message);
+        toast(error.message);
+      }
+    };
+
+    fetchData();
+  }, [params.id, currentUser, isEditing]);
   const {
     register,
     handleSubmit,
@@ -42,6 +91,26 @@ export default function Page({
     reset,
   } = useForm<Formfields>({
     resolver: zodResolver(playerSchema),
+    defaultValues:
+      params.id === "New"
+        ? {}
+        : {
+            firstName: defPlayerValue?.firstName,
+            lastName: defPlayerValue?.lastName,
+            dorseyNumber: defPlayerValue?.dorseyNumber,
+            college: defPlayerValue?.college,
+            nationality: defPlayerValue?.nationality,
+            playerEmail: defPlayerValue?.playerEmail,
+            birthdate: defPlayerValue?.birthdate,
+            countryCode: defPlayerValue?.countryCode,
+            phoneNumber:
+              defPlayerValue?.phoneNumber !== undefined
+                ? Number(defPlayerValue.phoneNumber)
+                : undefined,
+            yearOfExperience: defPlayerValue?.yearOfExperience,
+            height: defPlayerValue?.height,
+            weight: defPlayerValue?.weight,
+          },
   });
 
   const position = watch("position");
@@ -60,10 +129,20 @@ export default function Page({
     }
   }, [reset]);
 
+  const updatePlayer = async (
+    data: FormData,
+    playerId: string,
+    accessToken: string
+  ) => {
+    // Implement the logic to update an existing player
+    // Use an appropriate API method, for example PUT or PATCH
+    // This is a placeholder function, replace with actual API call
+    console.log("Updating player", playerId, "with data", data);
+    // await updatePlayerAPI(playerId, data, accessToken);
+  };
+
   const onSubmit = async (data: any) => {
     try {
-      console.log(data);
-
       const formData = new FormData();
 
       Object.entries(data).forEach(([key, value]) => {
@@ -92,13 +171,18 @@ export default function Page({
       );
 
       if (newAccessToken) {
-        await createPlayer(
-          currentUser.accessToken,
-          currentUser.isManageTeam,
-          formData,
-          competeId
-        );
-        toast("The player has been successfully created.");
+        if (isEditing) {
+          await updatePlayer(formData, params.id, newAccessToken);
+          toast("The player has been successfully updated.");
+        } else {
+          await createPlayer(
+            currentUser.accessToken,
+            currentUser.isManageTeam,
+            formData,
+            competeId
+          );
+          toast("The player has been successfully created.");
+        }
         localStorage.removeItem("formData");
         reset({});
         setTimeout(() => {
@@ -113,20 +197,17 @@ export default function Page({
     }
   };
 
-  const breadcrumbPaths = [
-    { label: "Home", href: "/" },
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Players", href: "/players" },
-    { label: params.id === "New" ? "New Player" : `${params.id}` },
-  ];
-
-  return (
+  return isLoading ? (
+    <div className="h-screen w-full flex justify-center items-center">
+      <LoadingSpinner text="Loading..." />
+    </div>
+  ) : (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="pt-10 pb-14 px-5 flex flex-col space-y-6 container mx-auto md:justify-center"
     >
       <DynamicBreadcrumbs paths={breadcrumbPaths} />
-      <div className="flex flex-col space-y-3">
+      <div className="flex flex-col space-y-8">
         <div className="w-full flex flex-col justify-center items-center md:flex md:flex-row md:justify-normal gap-3">
           <div className="flex flex-col space-y-2">
             <Dropzone
@@ -141,7 +222,7 @@ export default function Page({
             )}
           </div>
           <div className="w-full flex flex-col gap-3">
-            {params.id != "New" && (
+            {isEditing && (
               <div className="flex justify-between items-center">
                 <Badge variant="outline" className="w-fit py-3 px-6">
                   Player Status
@@ -190,7 +271,7 @@ export default function Page({
               />
               <Editinput
                 id="playerEmail"
-                label="email"
+                label="Email"
                 placeholder="Enter email"
                 register={register("playerEmail")}
                 errorMessage={errors.playerEmail?.message as string}
@@ -223,11 +304,12 @@ export default function Page({
             errorMessage={errors.phoneNumber?.message as string}
           />
           <Editinput
-            id="yearsOfExperience"
+            id="yearOfExperience"
             label="Years of Experience"
-            placeholder="1 years"
-            register={register("yearsOfExperience")}
-            errorMessage={errors.yearsOfExperience?.message as string}
+            placeholder="1"
+            register={register("yearOfExperience", { valueAsNumber: true })}
+            type="number"
+            errorMessage={errors.yearOfExperience?.message as string}
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -291,22 +373,37 @@ export default function Page({
           <div className="w-full flex flex-col md:flex-row gap-5">
             <div className="w-full md:w-1/2 flex flex-col space-y-2">
               <span>Birth certificate</span>
-              <Dropzone
-                type="file"
-                setValue={setValue}
-                attribute="birthCertificate"
-              />
-              {errors.birthCertificate && (
-                <p className="text-red-500 text-sm">
-                  {errors.birthCertificate.message}
-                </p>
+
+              {!isEditing && (
+                <div>
+                  <Dropzone
+                    type="file"
+                    setValue={setValue}
+                    attribute="birthCertificate"
+                  />
+                  {errors.birthCertificate && (
+                    <p className="text-red-500 text-sm">
+                      {errors.birthCertificate.message}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
             <div className="w-full md:w-1/2 flex flex-col space-y-2">
               <span>CIP certificate</span>
-              <Dropzone type="file" setValue={setValue} attribute="cipFile" />
-              {errors.cipFile && (
-                <p className="text-red-500 text-sm">{errors.cipFile.message}</p>
+              {!isEditing && (
+                <div>
+                  <Dropzone
+                    type="file"
+                    setValue={setValue}
+                    attribute="cipFile"
+                  />
+                  {errors.cipFile && (
+                    <p className="text-red-500 text-sm">
+                      {errors.cipFile.message}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -319,7 +416,7 @@ export default function Page({
               <LoadingSpinner text="Loading..." />
             </div>
           ) : (
-            <span>Create my player</span>
+            <span>{isEditing ? "Update player" : "Create player"}</span>
           )}
         </Button>
       </div>

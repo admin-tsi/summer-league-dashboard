@@ -15,7 +15,6 @@ export default function PlayersPage() {
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [disposition, setDisposition] = useState<"list" | "grid">("list");
   const currentUser: any = useCurrentUser();
 
   useEffect(() => {

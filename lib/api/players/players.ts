@@ -30,9 +30,6 @@ export const createPlayer = async (
 
     return response.data;
   } catch (error: any) {
-    //console.error("Failed to create player:", error.message);
-    console.log(error);
-
     throw error;
   }
 };

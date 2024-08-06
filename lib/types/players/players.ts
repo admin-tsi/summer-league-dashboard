@@ -1,24 +1,35 @@
-type PlayerTeam = {
-  _id: string;
-  teamName: string;
-  city: string;
-};
-
 export type Player = {
-  __v: number;
   _id: string;
-  birthdate: string;
-  countryCode: string;
-  dorseyNumber: number;
   firstName: string;
-  height: number;
   lastName: string;
-  nationality: string;
-  phoneNumber: string;
-  playerEmail: string;
-  playerTeam: PlayerTeam;
   position: string;
-  saison: string;
-  weight: number;
+  college: string;
+  playerEmail: string;
+  birthdate: string;
+  height: number;
   yearOfExperience: number;
+  dorseyNumber: number;
+  weight: number;
+  nationality: string;
+  countryCode: string;
+  phoneNumber: string;
+  playerImage: string;
+  cipFile: string;
+  birthCertificate: string;
+  saison: string;
+  playerTeam: {
+    _id: string;
+    teamName: string;
+    city: string;
+    teamManager: string;
+    divisionName: string;
+    teamGender: string;
+    saison: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };

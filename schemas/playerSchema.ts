@@ -14,9 +14,11 @@ export const playerSchema = z.object({
   phoneNumber: z
     .number({ message: "Phone Number is required and must be a number" })
     .positive("Height must be a positive number"),
-  yearsOfExperience: z
-    .string()
-    .min(1, { message: "Years of Experience is required" }),
+  yearOfExperience: z
+    .number({ message: "years of experience must be a number" })
+    .min(1, {
+      message: "Years of Experience is required and must be a number",
+    }),
   position: z.string().min(1, { message: "Position is required" }),
   height: z
     .number({ message: "Height is required and must be a number" })
