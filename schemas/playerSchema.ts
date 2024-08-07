@@ -48,3 +48,22 @@ export const playerSchema = z.object({
   }),
   cipFile: z.instanceof(File, { message: "CIP certificate file is required" }),
 });
+
+export const playerEditSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  playerImage: z.union([z.string(), z.instanceof(File)]).optional(),
+  dorseyNumber: z.number().positive().optional(),
+  college: z.string().optional(),
+  nationality: z.string().optional(),
+  playerEmail: z.string().email().optional(),
+  countryCode: z.string().optional(),
+  phoneNumber: z.number().positive().optional(),
+  yearOfExperience: z.number().min(1).optional(),
+  position: z.string().optional(),
+  height: z.number().positive().optional(),
+  weight: z.number().positive().optional(),
+  birthdate: z.string().optional(),
+  birthCertificate: z.union([z.string(), z.instanceof(File)]).optional(),
+  cipFile: z.union([z.string(), z.instanceof(File)]).optional(),
+});

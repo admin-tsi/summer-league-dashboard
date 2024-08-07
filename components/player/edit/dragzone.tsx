@@ -11,9 +11,17 @@ interface DropzoneProps {
   type: "image" | "file";
   setValue: UseFormSetValue<any>;
   attribute: string;
+  playerImage?: string | File;
+  title?: string;
 }
 
-const Dropzone: React.FC<DropzoneProps> = ({ type, setValue, attribute }) => {
+const Dropzone: React.FC<DropzoneProps> = ({
+  type,
+  setValue,
+  attribute,
+  playerImage,
+  title,
+}) => {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [fileName, setFileName] = useState<string>("");
@@ -60,6 +68,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ type, setValue, attribute }) => {
 
   const accept: Accept = {
     "image/*": [".jpeg", ".png", ".jpg", ".gif"],
+    "application/*": [".pdf"],
   };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -73,33 +82,45 @@ const Dropzone: React.FC<DropzoneProps> = ({ type, setValue, attribute }) => {
         className={`border rounded-md text-center cursor-pointer transition-colors duration-300
           ${type === "file" ? "w-full" : "h-[300px] w-[300px]"} ${isDragActive ? "border-blue-500 bg-blue-100" : "border-gray-300 bg-white"}`}
       >
-        <input {...getInputProps()} type="file" />
+        <input {...getInputProps()} />
         {!imageSrc && !progress && (
           <div
-            className={`flex flex-col justify-center items-center bg-[#8C8B86] rounded-md ${type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"}`}
+            className={`flex flex-col justify-center items-center relative bg-[#8C8B86] rounded-md ${type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"}`}
           >
-            <p>
-              {isDragActive ? (
-                type === "image" ? (
-                  "Déposez l'image ici ..."
-                ) : (
-                  "Déposez le fichier ici ..."
-                )
-              ) : (
-                <div className="flex flex-col justify-center items-center text-background">
-                  {type === "image" ? (
-                    <Camera size={48} />
+            {playerImage ? (
+              <Image
+                src={playerImage as string}
+                alt="Player Image"
+                fill
+                objectFit="cover"
+                className="rounded-md"
+              />
+            ) : (
+              <div>
+                {isDragActive ? (
+                  type === "image" ? (
+                    "Déposez l'image ici ..."
                   ) : (
-                    <Upload size={30} />
-                  )}
-                  <span className="text-background">
-                    {type === "image"
-                      ? "Click to add a picture"
-                      : "Click to add a file"}
-                  </span>
-                </div>
-              )}
-            </p>
+                    "Déposez le fichier ici ..."
+                  )
+                ) : (
+                  <div className="flex flex-col justify-center items-center text-background">
+                    {type === "image" ? (
+                      <Camera size={48} />
+                    ) : (
+                      <Upload size={30} />
+                    )}
+                    <span className="text-background">
+                      {type === "image"
+                        ? "Click to add a picture"
+                        : title
+                          ? "Click to update this file"
+                          : "Click to add a file"}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         {imageSrc && type === "image" && (
@@ -108,7 +129,7 @@ const Dropzone: React.FC<DropzoneProps> = ({ type, setValue, attribute }) => {
               <Image
                 src={imageSrc}
                 alt="Preview"
-                fill
+                layout="fill"
                 className="object-cover rounded-md"
               />
             </div>

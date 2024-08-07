@@ -86,34 +86,65 @@ export async function getPlayerById(
   }
 }
 
-export async function updatePlayer(
+export const updatePlayer = async (
+  updateData: any,
   playerId: string,
-  player: Player,
-  token: string | undefined
-): Promise<Player> {
+  accessToken: string
+): Promise<void> => {
   try {
-    const response = await axios.patch<Player>(
-      `${baseUrl}/players/${playerId}`,
-      player,
+    const response = await axios.patch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/players/${playerId}`,
+      updateData,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
       }
     );
-    return response.data;
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      throw new Error(
-        error.response?.data.message ||
-          "An error occurred while updating player"
-      );
-    } else {
-      throw new Error("A non-Axios error occurred");
+
+    if (response.status !== 200) {
+      throw new Error("Failed to update player data");
     }
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message ||
+        error.message ||
+        "An error occurred while updating the player"
+    );
   }
-}
+};
+
+export const updatePlayerFiles = async (
+  formData: any,
+  playerId: string,
+  accessToken: string
+): Promise<void> => {
+  try {
+    const response = await axios.patch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/players/${playerId}/uploads-files`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error("Failed to update player data");
+    }
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message ||
+        error.message ||
+        "An error occurred while updating the player"
+    );
+  }
+};
 
 export async function deletePlayer(
   playerId: string,
