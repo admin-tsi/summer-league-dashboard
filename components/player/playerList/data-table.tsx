@@ -13,6 +13,8 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -21,22 +23,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import React from "react";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import {
-  ChevronsUpDown,
-  LayoutGrid,
-  TableProperties,
-  UserPlus,
-} from "lucide-react";
+import { ChevronsUpDown, UserPlus } from "lucide-react";
 import Link from "next/link";
+import React, { useEffect } from "react";
+import { toast } from "sonner";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -54,6 +50,18 @@ export function DataTable<TData, TValue>({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+
+  useEffect(() => {
+    const initialLength = data.length;
+    localStorage.setItem("playersCount", initialLength.toString());
+  }, [data.length]);
+
+  const handleAddPlayerClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (data.length >= 8) {
+      event.preventDefault();
+      toast.error("Your team already has 8 players. You cannot add more.");
+    }
+  };
   const table = useReactTable({
     data,
     columns,
@@ -122,6 +130,7 @@ export function DataTable<TData, TValue>({
           <Link
             href="/players/New"
             className="h-10 px-4 py-2 border rounded-md hover:bg-muted"
+            onClick={handleAddPlayerClick}
           >
             <UserPlus size={20} strokeWidth={1.5} />
           </Link>
