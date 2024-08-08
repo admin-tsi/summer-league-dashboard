@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import Dropzone from "@/components/player/edit/dragzone";
 import { Player } from "@/lib/types/players/players";
+import { DialogDemo } from "./fileReader";
 
 type PartialPlayer = Partial<Player>;
 
@@ -43,17 +44,16 @@ export function DocumentsSection({
                 <>
                   <div className="flex items-center gap-2">
                     <FileText size={32} />
-                    <Link
-                      href={defPlayerValue?.birthCertificate || "#"}
-                      className="font-bold"
-                    >
+                    <span className="font-bold">
                       {defPlayerValue?.firstName} {defPlayerValue?.lastName}{" "}
                       Birth Certificate
-                    </Link>
+                    </span>
                   </div>
-                  <div className="w-full flex justify-end items-center">
+                  <div className="w-full flex justify-end items-center gap-2">
+                    <DialogDemo link={defPlayerValue?.birthCertificate} />
                     <Button
                       type="button"
+                      variant="outline"
                       onClick={() => setUpdateBirthCertificate(true)}
                     >
                       Update Birth Certificate file
@@ -91,7 +91,7 @@ export function DocumentsSection({
             </>
           )}
         </div>
-        <div className="w-full md:w-1/2 flex flex-col space-y-2">
+        <div className="w-full md:w-1/2 flex flex-col gap-2">
           <span className="font-semibold">CIP certificate</span>
           {isEditing ? (
             <div className="flex flex-col gap-4">
@@ -99,17 +99,16 @@ export function DocumentsSection({
                 <>
                   <div className="flex items-center gap-2">
                     <FileText size={32} />
-                    <Link
-                      href={defPlayerValue?.cipFile || "#"}
-                      className="font-bold"
-                    >
+                    <span className="font-bold">
                       {defPlayerValue?.firstName} {defPlayerValue?.lastName} CIP
                       Certificate
-                    </Link>
+                    </span>
                   </div>
-                  <div className="w-full flex justify-end items-center">
+                  <div className="w-full flex justify-end items-center gap-2">
+                    <DialogDemo link={defPlayerValue?.cipFile} />
                     <Button
                       type="button"
+                      variant="outline"
                       onClick={() => setUpdateCipCertificate(true)}
                     >
                       Update CIP file
