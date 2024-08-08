@@ -17,6 +17,10 @@ export type Player = {
   cipFile: string;
   birthCertificate: string;
   saison: string;
+  playerStatus: {
+    status: boolean;
+    comment:string;
+  };
   playerTeam: {
     _id: string;
     teamName: string;
