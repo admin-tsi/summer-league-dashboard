@@ -81,6 +81,35 @@ export async function updateUser(
   }
 }
 
+export async function validateAccount(
+  userId: string,
+  token: string | undefined,
+): Promise<void> {
+  const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+  try {
+    await axios.post(
+      `${baseUrl}/users/${userId}/validate-account`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data.message ||
+          "An error occurred while validating user",
+      );
+    } else {
+      throw new Error("A non-Axios error occurred");
+    }
+  }
+}
+
 export async function deleteUser(
   userId: string,
   token: string | undefined,
@@ -98,6 +127,39 @@ export async function deleteUser(
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data.message || "An error occurred while deleting user",
+      );
+    } else {
+      throw new Error("A non-Axios error occurred");
+    }
+  }
+}
+
+export async function promoteUser(
+  userId: string,
+  token: string | undefined,
+  role: string,
+): Promise<void> {
+  const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+  try {
+    await axios.patch(
+      `${baseUrl}/users/${userId}/promote-user`,
+      {
+        role: role,
+        userId: userId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data.message ||
+          "An error occurred while promoting user",
       );
     } else {
       throw new Error("A non-Axios error occurred");

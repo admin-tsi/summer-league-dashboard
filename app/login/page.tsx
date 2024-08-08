@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/public/logo.svg";
-import React, { useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -28,8 +28,11 @@ import FormError from "@/components/login/form-error";
 import FormSuccess from "@/components/login/form-success";
 import LoadingSpinner from "@/components/loading-spinner";
 import { login } from "@/lib/api/auth/login";
+import { Eye, EyeOff } from "lucide-react";
+
 export default function Page() {
   const [error, setError] = React.useState<string | undefined>("");
+  const [showPassword, setShowPassword] = useState(false);
   const [success, setSuccess] = React.useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -55,6 +58,10 @@ export default function Page() {
         }
       });
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -108,13 +115,28 @@ export default function Page() {
                     <FormItem>
                       <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          disabled={isPending}
-                          type="password"
-                          placeholder="********"
-                          required
-                        />
+                        <div className="relative">
+                          <Input
+                            {...field}
+                            disabled={isPending}
+                            type={showPassword ? "text" : "password"}
+                            placeholder="********"
+                            required
+                            className="block w-full px-2 h-10 rounded-md border-[1px] text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm focus-visible:outline-none"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={togglePasswordVisibility}
+                            className="absolute inset-y-0 right-2 flex items-center justify-center text-gray-400 hover:bg-transparent"
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -122,12 +144,28 @@ export default function Page() {
                   control={form.control}
                 ></FormField>
               </div>
+              <div className="flex justify-end">
+                <Button
+                  variant={"link"}
+                  className="text-primary p-0 text-right"
+                  asChild
+                >
+                  <Link
+                    href="/forget-password"
+                    className="text-primary underline"
+                  >
+                    Forgot password ?
+                  </Link>
+                </Button>
+              </div>
               <FormSuccess message={success} />
               <FormError message={error} />
               <Button
                 type="submit"
                 variant="outline"
-                className={`w-full ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`w-full space-y-0 ${
+                  isPending ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 disabled={isPending}
               >
                 {isPending ? (
@@ -138,6 +176,17 @@ export default function Page() {
                   "Login"
                 )}
               </Button>
+              <div className="text-sm text-center">
+                Don&apos;t have an account?
+                <Button variant="link" className="text-primary" asChild>
+                  <Link
+                    href="/register"
+                    className="text-primary hover:underline ml-1"
+                  >
+                    Register
+                  </Link>
+                </Button>
+              </div>
             </form>
           </Form>
         </CardContent>

@@ -46,7 +46,12 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-import { deleteUser, getAllUsers } from "@/lib/api/users/users";
+import {
+  deleteUser,
+  getAllUsers,
+  promoteUser,
+  validateAccount,
+} from "@/lib/api/users/users";
 
 export default function UsersPage() {
   const [users, setUsers] = useState<any>([]);
@@ -69,6 +74,44 @@ export default function UsersPage() {
     }
   };
 
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      setLoading(true);
+      await promoteUser(userId, token, newRole);
+      toast.success("User role updated successfully");
+      setUsers(
+        users.map((user: { _id: string; role: string }) =>
+          user._id === userId ? { ...user, role: newRole } : user,
+        ),
+      );
+    } catch (error) {
+      toast.error("Failed to update user role");
+      console.error("Failed to update user role", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (userId: string, newStatus: boolean) => {
+    try {
+      setLoading(true);
+
+      await validateAccount(userId, token);
+
+      toast.success("User status updated successfully");
+
+      setUsers(
+        users.map((user: { _id: string }) =>
+          user._id === userId ? { ...user, accountStatus: newStatus } : user,
+        ),
+      );
+    } catch (error) {
+      toast.error("Failed to update user status");
+      console.error("Failed to update user status", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleClick = async (id: any) => {
     router.push(`/users/${id}`);
   };
@@ -91,7 +134,12 @@ export default function UsersPage() {
 
   const table = useReactTable({
     data: users,
-    columns: columns(handleDeleteUser, handleClick),
+    columns: columns(
+      handleDeleteUser,
+      handleClick,
+      handleRoleChange,
+      handleStatusChange,
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

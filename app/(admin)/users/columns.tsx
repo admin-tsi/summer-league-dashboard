@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, BadgeCheck, Pencil, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -14,11 +14,27 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { User } from "@/lib/types/login/user";
-import { Badge } from "@/components/ui/badge"; // Adjust the path as necessary
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch"; // Make sure to import your custom Switch
 
 export const columns = (
   handleDelete: (userId: string) => void,
   handleEdit: (userId: string) => void,
+  handleRoleChange: (userId: string, newRole: string) => void,
+  handleStatusChange: (userId: string, newStatus: boolean) => void, // Add this function
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -82,17 +98,40 @@ export const columns = (
   },
   {
     accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        <Badge
-          variant={"outline"}
-          className="bg-primary-yellow/20 text-primary-yellow border-primary-yellow"
-        >
-          {row.getValue("role") || "-"}
-        </Badge>
-      </div>
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="p-0"
+      >
+        Role
+        <ArrowUpDown className="h-4 w-4" />
+      </Button>
     ),
+    cell: ({ row }) => {
+      const role = row.getValue("role") || "-";
+      let badgeClass: string;
+
+      switch (role) {
+        case "admin":
+          badgeClass = "bg-destructive/80 text-primary-foreground";
+          break;
+        case "team-manager":
+          badgeClass = "bg-primary-yellow/80 text-primary-foreground";
+          break;
+        case "user":
+          badgeClass = "bg-primary-green/80 text-primary-foreground";
+          break;
+        default:
+          badgeClass = "bg-gray-100 text-gray-700";
+      }
+
+      return (
+        <div onClick={() => handleEdit(row.original._id)}>
+          <Badge className={`${badgeClass} truncate`}>{String(role)}</Badge>
+        </div>
+      );
+    },
   },
 
   {
@@ -125,13 +164,19 @@ export const columns = (
     ),
   },
   {
-    accessorKey: "isVerified",
+    accessorKey: "accountStatus",
     header: "Status",
     cell: ({ row }) => {
-      const status: boolean = row.getValue("isVerified");
-      const statusColor = status ? "text-green-500" : "text-red-500";
-      const statusText = status ? "Verified" : "Not Verified";
-      return <div className={`${statusColor}`}>{statusText}</div>;
+      const status: boolean = row.getValue("accountStatus");
+      return (
+        <Switch
+          checked={status}
+          onCheckedChange={(newStatus) =>
+            handleStatusChange(row.original._id, newStatus)
+          }
+          className="focus:outline-none focus:ring-2 focus:ring-offset-2"
+        />
+      );
     },
   },
   {
@@ -176,6 +221,47 @@ export const columns = (
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              aria-label="Change Role"
+              className="p-2 rounded hover:bg-gray-100"
+              variant="ghost"
+            >
+              <BadgeCheck className="h-4 text-primary-yellow" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <h4 className="font-medium leading-none">Change User Role</h4>
+                <p className="text-sm text-muted-foreground">
+                  Select a new role for this user
+                </p>
+              </div>
+              <div className="grid gap-2">
+                <div className="grid grid-cols-3 items-center gap-4">
+                  <Label htmlFor="role">Role</Label>
+                  <Select
+                    onValueChange={(value) =>
+                      handleRoleChange(row.original._id, value)
+                    }
+                    defaultValue={row.original.role}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="team-manager">Team Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
     ),
   },
