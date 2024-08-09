@@ -1,5 +1,6 @@
 import { Player } from "@/lib/types/players/players";
 import axios from "axios";
+import { verifyTokenExpiration } from "../auth/refresh-access-provider";
 
 const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 
@@ -35,29 +36,44 @@ export const createPlayer = async (
 };
 
 export async function getAllPlayers(
-  token: string | undefined,
-  teamId: string
+  role: "admin" | "team-manager" | "kobe-bryant",
+  token: string | null,
+  teamId?: string
 ): Promise<Player[]> {
-  try {
-    const response = await axios.get<Player[]>(
-      `${baseUrl}/players/specific/teams/${teamId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+  let endpoint: string;
+
+  switch (role) {
+    case "admin":
+      endpoint = "/players";
+      break;
+    case "team-manager":
+    case "kobe-bryant":
+      if (!teamId) {
+        throw new Error(
+          "TeamId is required for team-manager and kobe-bryant roles"
+        );
       }
-    );
-    return response.data;
+      endpoint = `/players/specific/teams/${teamId}`;
+      break;
+    default:
+      throw new Error("Invalid role");
+  }
+
+  try {
+    const { data } = await axios.get<Player[]>(`${baseUrl}${endpoint}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data.message ||
           "An error occurred while fetching players"
       );
-    } else {
-      throw new Error("A non-Axios error occurred");
     }
+    throw new Error("A non-Axios error occurred");
   }
 }
 

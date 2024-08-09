@@ -67,3 +67,8 @@ export const playerEditSchema = z.object({
   birthCertificate: z.union([z.string(), z.instanceof(File)]).optional(),
   cipFile: z.union([z.string(), z.instanceof(File)]).optional(),
 });
+
+export const playerValidationSchema = z.object({
+  status: z.string().min(1, { message: "Decision is required" }),
+  comment: z.string().optional(),
+});

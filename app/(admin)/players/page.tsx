@@ -20,21 +20,34 @@ export default function PlayersPage() {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const newAccessToken = await verifyTokenExpiration(
+        const token = await verifyTokenExpiration(
           currentUser.accessToken,
           currentUser.refreshToken
         );
 
-        if (newAccessToken) {
-          const data = await getAllPlayers(
-            newAccessToken,
-            currentUser.isManageTeam
+        if (!token) {
+          setError(
+            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
           );
-
-          // @ts-ignore
-          setPlayers(data);
+          return;
         }
-      } catch {
+
+        const { role, isManageTeam } = currentUser;
+
+        if (role === "admin") {
+          const data = await getAllPlayers(role, token);
+          setPlayers(data);
+        } else if (role === "team-manager") {
+          if (isManageTeam) {
+            const data = await getAllPlayers(role, token, isManageTeam);
+            setPlayers(data);
+          } else {
+            setError(
+              "You're not managing any team at the moment. Please create your team to be able to add, delete, or edit players."
+            );
+          }
+        }
+      } catch (error) {
         setError("Failed to load players");
       } finally {
         setLoading(false);
@@ -42,7 +55,7 @@ export default function PlayersPage() {
     };
 
     fetchPlayers();
-  }, []);
+  }, [currentUser]);
 
   const handleDelete = (id: string) => {
     setPlayers(players.filter((player) => player._id !== id));
@@ -66,7 +79,7 @@ export default function PlayersPage() {
           </div>
         ) : error ? (
           <div className="h-[500px] w-full flex justify-center items-center">
-            <p>{error}</p>
+            <p className="w-[80%] md:w-1/2 lg:w-1/3">{error}</p>
           </div>
         ) : (
           <DataTable columns={columns({ handleDelete })} data={players} />

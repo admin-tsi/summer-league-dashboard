@@ -5,6 +5,7 @@ import LoadingSpinner from "@/components/loading-spinner";
 import { DocumentsSection } from "@/components/player/edit/documentsSection";
 import Dropzone from "@/components/player/edit/dragzone";
 import Editinput from "@/components/player/edit/input";
+import { PlayerValidationByAdmin } from "@/components/player/edit/playerValidationByAdmin";
 import { PositionSelect } from "@/components/player/edit/positionSelect";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Badge } from "@/components/ui/badge";
@@ -18,9 +19,8 @@ import {
   updatePlayerFiles,
 } from "@/lib/api/players/players";
 import { Player } from "@/lib/types/players/players";
-import { playerSchema, playerEditSchema } from "@/schemas/playerSchema";
+import { playerEditSchema, playerSchema } from "@/schemas/playerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -39,6 +39,7 @@ export default function Page({
   const [isEditing, setIsEditing] = useState(params.id !== "New");
   const [isLoading, setIsLoading] = useState(false);
   const [fullTeam, setFullTeam] = useState<boolean>(false);
+  const [playerStatus, setPlayerStatus] = useState("");
 
   const [breadcrumbPaths, setBreadcrumbPaths] = useState([
     { label: "Home", href: "/" },
@@ -77,6 +78,19 @@ export default function Page({
           if (newAccessToken) {
             const player = await getPlayerById(params.id, newAccessToken);
             setDefPlayerValue(player);
+
+            let statusMessage;
+            if (player?.playerStatus?.status === false) {
+              statusMessage = player?.playerStatus?.comment
+                ? "Rejected"
+                : "Verification in progress";
+            } else if (player?.playerStatus?.status === true) {
+              statusMessage = "Verified";
+            } else {
+              statusMessage = "Unknown";
+            }
+
+            setPlayerStatus(statusMessage);
 
             setBreadcrumbPaths([
               { label: "Home", href: "/" },
@@ -300,9 +314,22 @@ export default function Page({
               <div className="w-full flex flex-col gap-3">
                 {isEditing && (
                   <div className="flex justify-between items-center">
-                    <Badge variant="outline" className="w-fit py-3 px-6">
-                      {defPlayerValue?.playerStatus?.comment}
-                    </Badge>
+                    {playerStatus === "Rejected" ? (
+                      <div className="flex flex-col">
+                        <div className="flex gap-2">
+                          <span>Player status:</span>
+                          <span>{playerStatus}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span>Motif:</span>
+                          <span>{defPlayerValue?.playerStatus?.comment}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <Badge variant="outline" className="w-fit py-3 px-6">
+                        {playerStatus}
+                      </Badge>
+                    )}
                   </div>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -324,7 +351,9 @@ export default function Page({
                     id="dorseyNumber"
                     label="Dorsey Number"
                     placeholder="Enter dorsey number"
-                    register={register("dorseyNumber", { valueAsNumber: true })}
+                    register={register("dorseyNumber", {
+                      valueAsNumber: true,
+                    })}
                     errorMessage={errors.dorseyNumber?.message}
                     type="number"
                   />
@@ -380,7 +409,9 @@ export default function Page({
                 id="yearOfExperience"
                 label="Years of Experience"
                 placeholder="1"
-                register={register("yearOfExperience", { valueAsNumber: true })}
+                register={register("yearOfExperience", {
+                  valueAsNumber: true,
+                })}
                 type="number"
                 errorMessage={errors.yearOfExperience?.message}
               />
@@ -415,8 +446,9 @@ export default function Page({
               errors={errors}
             />
           </div>
-          <div className="w-full flex justify-end">
-            <Button type="submit" variant="default" className="w-full md:w-1/4">
+          <div className="w-full flex justify-end gap-3 mt-5">
+            {currentUser.role === "admin" && <PlayerValidationByAdmin />}
+            <Button type="submit" variant="default" className="w-1/2 md:w-1/6">
               {isSubmitting ? (
                 <div>
                   <LoadingSpinner text="Loading..." />
