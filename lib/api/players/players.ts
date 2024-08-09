@@ -77,6 +77,28 @@ export async function getAllPlayers(
   }
 }
 
+export const validatePlayerProfile = async (
+  token: string,
+  playerId: string,
+  data: any
+) => {
+  try {
+    const response = await axios.post(
+      `${baseUrl}/players/${playerId}/player-verification`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error posting player data:", error);
+    throw error;
+  }
+};
+
 export async function getPlayerById(
   playerId: string,
   token: string | undefined

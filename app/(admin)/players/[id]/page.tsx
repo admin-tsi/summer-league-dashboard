@@ -40,6 +40,7 @@ export default function Page({
   const [isLoading, setIsLoading] = useState(false);
   const [fullTeam, setFullTeam] = useState<boolean>(false);
   const [playerStatus, setPlayerStatus] = useState("");
+  const [playerStatusComment, setPlayerStatusComment] = useState("");
 
   const [breadcrumbPaths, setBreadcrumbPaths] = useState([
     { label: "Home", href: "/" },
@@ -160,6 +161,13 @@ export default function Page({
     } catch (error: any) {
       setError(error.message);
       toast.error(`${error.message}`);
+    }
+  };
+
+  const updatePlayerStatus = (newStatus: string, newComment?: string) => {
+    setPlayerStatus(newStatus);
+    if (newComment) {
+      setPlayerStatusComment(newComment);
     }
   };
 
@@ -322,7 +330,11 @@ export default function Page({
                         </div>
                         <div className="flex gap-2">
                           <span>Motif:</span>
-                          <span>{defPlayerValue?.playerStatus?.comment}</span>
+                          <span>
+                            {playerStatusComment != ""
+                              ? playerStatusComment
+                              : defPlayerValue?.playerStatus?.comment}
+                          </span>
                         </div>
                       </div>
                     ) : (
@@ -447,7 +459,12 @@ export default function Page({
             />
           </div>
           <div className="w-full flex justify-end gap-3 mt-5">
-            {currentUser.role === "admin" && <PlayerValidationByAdmin />}
+            {currentUser.role === "admin" && (
+              <PlayerValidationByAdmin
+                playerId={defPlayerValue?._id}
+                updatePlayerStatus={updatePlayerStatus}
+              />
+            )}
             <Button type="submit" variant="default" className="w-1/2 md:w-1/6">
               {isSubmitting ? (
                 <div>

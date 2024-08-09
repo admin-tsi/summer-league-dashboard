@@ -4,6 +4,7 @@ import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import { columns } from "@/components/player/playerList/columns";
 import { DataTable } from "@/components/player/playerList/data-table";
+import { Saison } from "@/components/player/playerList/saisonSelector";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
@@ -61,6 +62,10 @@ export default function PlayersPage() {
     setPlayers(players.filter((player) => player._id !== id));
   };
 
+  const handleSaisonFilter = (id: string) => {
+    setPlayers(players.filter((player) => player.saison !== id));
+  };
+
   const breadcrumbPaths = [
     { label: "Home", href: "/" },
     { label: "Dashboard", href: "/dashboard" },
@@ -71,6 +76,7 @@ export default function PlayersPage() {
     <ContentLayout title="Players">
       <div className="flex justify-between items-center">
         <DynamicBreadcrumbs paths={breadcrumbPaths} />
+        <Saison handleSaisonFilter={handleSaisonFilter} />
       </div>
       <div className="py-10">
         {loading ? (

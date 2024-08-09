@@ -24,16 +24,30 @@ import { playerValidationSchema } from "@/schemas/playerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
+import { validatePlayerProfile } from "@/lib/api/players/players";
+import { Span } from "next/dist/trace";
+import LoadingSpinner from "@/components/loading-spinner";
 
 type FormValues = z.infer<typeof playerValidationSchema>;
 
-export function PlayerValidationByAdmin() {
+interface PlayerValidationByAdminProps {
+  playerId?: string;
+  updatePlayerStatus: (newStatus: string, newComment?: string) => void;
+}
+
+export function PlayerValidationByAdmin({
+  playerId,
+  updatePlayerStatus,
+}: PlayerValidationByAdminProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
+  const currentUser: any = useCurrentUser();
   const {
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isSubmitting, isSubmitted },
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(playerValidationSchema),
@@ -43,21 +57,49 @@ export function PlayerValidationByAdmin() {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     setError("");
-    const decision = {
-      status: data.status === "approved",
-      comment: data.comment,
+    const playerDecision = {
+      status: data?.status === "approved",
+      comment: data?.comment,
     };
-    if (!decision.status && decision.comment === "") {
+
+    if (!playerDecision.status && playerDecision.comment === "") {
       setError(
         "When you make a decision to reject something, it is necessary to provide a reason for your decision. This helps ensure clarity and understanding regarding the grounds for the rejection."
       );
       return;
-    } else {
-      console.log(decision);
-      setOpen(false);
-      reset();
+    }
+
+    try {
+      const accessToken = await verifyTokenExpiration(
+        currentUser.accessToken,
+        currentUser.refreshToken
+      );
+
+      if (!accessToken) {
+        throw new Error("Failed to verify token expiration");
+      }
+      if (playerId) {
+        const response = await validatePlayerProfile(
+          accessToken,
+          playerId,
+          playerDecision
+        );
+        if (data.status === "approved") {
+          updatePlayerStatus("Verified");
+        } else {
+          updatePlayerStatus("Rejected", data.comment);
+        }
+        console.log("Player validated successfully:", response.data);
+        setOpen(false);
+        reset();
+      } else {
+        setError("Player ID is required to validate the player profile.");
+      }
+    } catch (error) {
+      console.error("Error validating player:", error);
+      setError("There was an error validating the player. Please try again.");
     }
   };
 
@@ -121,7 +163,13 @@ export function PlayerValidationByAdmin() {
           </div>
         </div>
         <DialogFooter>
-          <Button onClick={handleSubmit(onSubmit)}>Save changes</Button>
+          <Button onClick={handleSubmit(onSubmit)}>
+            {isSubmitting ? (
+              <LoadingSpinner text="Loading..." />
+            ) : (
+              "Saves Changes"
+            )}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
