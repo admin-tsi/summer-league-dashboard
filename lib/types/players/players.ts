@@ -1,27 +1,39 @@
 export type Player = {
-  dorseyNumber: number;
-  player_status: boolean;
   _id: string;
-  player_name: string;
+  firstName: string;
+  lastName: string;
   position: string;
-  date_of_birth: Date;
+  college: string;
+  playerEmail: string;
+  birthdate: string;
   height: number;
+  yearOfExperience: number;
+  dorseyNumber: number;
   weight: number;
   nationality: string;
-  phone_number: string;
-  player_image: string;
-  player_stats: {
-    three_points: number;
-    two_points: number;
-    lancer_franc: number;
-    assists: number;
-    rebonds: number;
-    turn_over: number;
-    blocks: number;
-    steal: number;
-    fouls: number;
-    _id: string;
-  };
+  countryCode: string;
+  phoneNumber: string;
+  playerImage: string;
+  cipFile: string;
+  birthCertificate: string;
   saison: string;
-  player_team: string;
+  playerStatus: {
+    status: boolean;
+    comment:string;
+  };
+  playerTeam: {
+    _id: string;
+    teamName: string;
+    city: string;
+    teamManager: string;
+    divisionName: string;
+    teamGender: string;
+    saison: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };

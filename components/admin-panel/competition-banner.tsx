@@ -25,6 +25,7 @@ const CompetitionSelector: React.FC = () => {
     const fetchCompetitions = async () => {
       try {
         const data = await getAllCompetitions(token);
+
         setCompetitions(data);
         if (data.length > 0) {
           setSelectedCompetition(data[0]);
@@ -39,6 +40,12 @@ const CompetitionSelector: React.FC = () => {
 
     fetchCompetitions();
   }, [token]);
+
+  useEffect(() => {
+    if (selectedCompetition) {
+      localStorage.setItem("selectedCompetitionId", selectedCompetition._id);
+    }
+  }, [selectedCompetition]);
 
   const handleSelectCompetition = (competition: Competition) => {
     setSelectedCompetition(competition);
