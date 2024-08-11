@@ -22,14 +22,20 @@ const Stat = ({ playerStats, value, onIncrement, onDecrement }: Props) => {
           <Button
             variant="def"
             className="bg-primary-yellow rounded-none border border-black size-14"
-            onClick={onIncrement}
+            onClick={() => {
+              console.log(`Increment clicked for ${playerStats}`);
+              onIncrement();
+            }}
           >
             +
           </Button>
           <Button
             variant="def"
             className="bg-primary-yellow rounded-none border border-black size-14"
-            onClick={onDecrement}
+            onClick={() => {
+              console.log(`Decrement clicked for ${playerStats}`);
+              onDecrement();
+            }}
           >
             -
           </Button>

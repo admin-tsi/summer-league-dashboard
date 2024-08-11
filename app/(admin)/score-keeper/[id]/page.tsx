@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { PlayerButton } from "@/components/score-keeer/playerButton";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
+import { ActionButton } from "@/components/score-keeer/actionButton";
+import { PlayerButton } from "@/components/score-keeer/playerButton";
+import { ScoreDisplay } from "@/components/score-keeer/scoreDisplay";
 import Stat from "@/components/score-keeer/stat";
 import { playerStats } from "@/constants/stat/gameStatName";
-import { ActionButton } from "@/components/score-keeer/actionButton";
-import { ScoreDisplay } from "@/components/score-keeer/scoreDisplay";
+import React, { useState } from "react";
 
 const scoreImpact: Record<string, number> = {
   "03 Points": 3,
@@ -17,7 +17,6 @@ type PlayerStat = Record<string, number>;
 
 const Page: React.FC = () => {
   const [activePlayer, setActivePlayer] = useState<number | null>(null);
-
   const initializePlayerStats = () => {
     const initialStats: Record<number, PlayerStat> = {};
     for (let i = 0; i < 8; i++) {
@@ -38,7 +37,11 @@ const Page: React.FC = () => {
   const updateScore = (stat: string, increment: boolean) => {
     if (stat in scoreImpact) {
       const change = increment ? scoreImpact[stat] : -scoreImpact[stat];
-      setTotalScore((prevScore) => Math.max(0, prevScore + change));
+      setTotalScore((prevScore) => {
+        const newScore = Math.max(0, prevScore + change);
+        console.log(`Total score updated from ${prevScore} to ${newScore}`);
+        return newScore;
+      });
     }
   };
 
@@ -58,11 +61,14 @@ const Page: React.FC = () => {
   const handleDecrement = (stat: string) => {
     if (activePlayer !== null) {
       setPlayersData((prevData) => {
-        const newValue = Math.max(0, (prevData[activePlayer][stat] || 0) - 1);
-        if (newValue === prevData[activePlayer][stat]) {
+        const currentValue = prevData[activePlayer][stat] || 0;
+        if (currentValue === 0) {
+          console.log(`${stat} already at 0, no change`);
           return prevData;
         }
-        updateScore(stat, false);
+
+        const newValue = currentValue - 1;
+
         return {
           ...prevData,
           [activePlayer]: {
@@ -71,6 +77,14 @@ const Page: React.FC = () => {
           },
         };
       });
+
+      if (stat in scoreImpact) {
+        const change = -scoreImpact[stat];
+        setTotalScore((prevScore) => {
+          const newScore = Math.max(0, prevScore + change);
+          return newScore;
+        });
+      }
     }
   };
 
