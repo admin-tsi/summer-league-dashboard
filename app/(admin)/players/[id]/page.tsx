@@ -55,8 +55,7 @@ export default function Page({
   }));
 
   const [breadcrumbPaths, setBreadcrumbPaths] = useState([
-    { label: "Home", href: "/" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Management", href: "/" },
     { label: "Players", href: "/players" },
     { label: params.id === "new" ? "New Player" : "Loading..." },
   ]);
@@ -102,8 +101,7 @@ export default function Page({
             setPlayerStatus(statusMessage);
 
             setBreadcrumbPaths([
-              { label: "Home", href: "/" },
-              { label: "Dashboard", href: "/dashboard" },
+              { label: "Management", href: "/players" },
               { label: "Players", href: "/players" },
               { label: `${player.firstName} ${player.lastName}` },
             ]);

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileText, TriangleAlert, Upload } from "lucide-react";
+import { FileText, Info, TriangleAlert, Upload } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "@/components/players/edit/dragzone";
 import { Player } from "@/lib/types/players/players";
@@ -93,8 +93,8 @@ export function DocumentsSection({
 
   return (
     <div className="w-full space-y-6">
-      <Alert variant="destructive" className="mb-6">
-        <TriangleAlert className="h-4 w-4" />
+      <Alert variant="info" className="mb-6">
+        <Info className="h-4 w-4" />
         <AlertTitle>Documents</AlertTitle>
         <AlertDescription>
           Upload the secure birth certificate of the player to be registered on

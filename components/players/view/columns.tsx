@@ -131,7 +131,7 @@ export const columns = ({
           statusText = "Rejected";
         } else {
           badgeVariant = "default";
-          statusText = "in progress";
+          statusText = "In progress";
         }
       }
 
@@ -179,7 +179,7 @@ export const columns = ({
           </Button>
           <DeletePlayer
             playerId={playerId}
-            handleDelete={() => handleDelete(playerId)}
+            onDelete={() => handleDelete(playerId)}
           />
         </div>
       );

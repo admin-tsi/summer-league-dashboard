@@ -1,4 +1,4 @@
-import { Users, Settings, LayoutGrid, Shield } from "lucide-react";
+import { Users, Settings, LayoutGrid, Shield, Calendar } from "lucide-react";
 
 type Submenu = {
   href: string;
@@ -99,6 +99,13 @@ export function getMenuList(pathname: string): Group[] {
           label: "Players",
           active: pathname.includes("/players"),
           icon: Shield,
+          submenus: [],
+        },
+        {
+          href: "/schedules",
+          label: "Schedules",
+          active: pathname.includes("/schedules"),
+          icon: Calendar,
           submenus: [],
         },
       ],

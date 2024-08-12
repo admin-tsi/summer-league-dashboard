@@ -1,3 +1,4 @@
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,8 +10,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { deletePlayer } from "@/lib/api/players/players";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useCurrentToken } from "@/hooks/use-current-token";
@@ -20,13 +19,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { deletePlayer } from "@/lib/api/players/players";
 
 interface DeletePlayerProps {
   playerId: string;
-  handleDelete: () => void;
+  onDelete: () => void;
 }
 
-export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
+export function DeletePlayer({ playerId, onDelete }: DeletePlayerProps) {
   const token = useCurrentToken();
 
   const handleDeletePlayer = async () => {
@@ -34,7 +34,7 @@ export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
       try {
         await deletePlayer(playerId, token);
         toast.success("Player deleted successfully");
-        handleDelete();
+        onDelete();
       } catch (error) {
         toast.error("Failed to delete player");
       }
@@ -43,30 +43,26 @@ export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          aria-label="Delete"
-          className="p-2 rounded hover:bg-gray-100"
-          variant="ghost"
-        >
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
+      <TooltipProvider>
+        <Tooltip>
+          <AlertDialogTrigger asChild>
+            <TooltipTrigger asChild>
+              <button className="p-2 rounded hover:bg-gray-100">
                 <Trash2 className="h-4 text-red-500" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <span>Delete user</span>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </Button>
-      </AlertDialogTrigger>
+              </button>
+            </TooltipTrigger>
+          </AlertDialogTrigger>
+          <TooltipContent>
+            <span>Delete user</span>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription className="text-primary">
             This action cannot be undone. This will permanently delete the
-            player and remove his data from our servers.
+            player and remove their data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -90,8 +90,7 @@ export default function UsersPage() {
   console.log(users);
 
   const breadcrumbPaths = [
-    { label: "Home", href: "/" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Settings", href: "/users" },
     { label: "Users" },
   ];
 

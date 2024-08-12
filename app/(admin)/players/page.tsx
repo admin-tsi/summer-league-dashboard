@@ -63,8 +63,7 @@ export default function PlayersPage() {
   };
 
   const breadcrumbPaths = [
-    { label: "Home", href: "/" },
-    { label: "Dashboard", href: "/dashboard" },
+    { label: "Management", href: "/players" },
     { label: "Players" },
   ];
 
