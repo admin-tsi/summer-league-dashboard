@@ -28,6 +28,7 @@ import { z } from "zod";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { validatePlayerProfile } from "@/lib/api/players/players";
 import LoadingSpinner from "@/components/loading-spinner";
+import { toast } from "sonner";
 
 const playerValidationSchema = z.object({
   status: z.enum(["approved", "rejected"]),
@@ -80,8 +81,6 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
   };
 
   const onSubmit = async (data: FormValues) => {
-    console.log(currentUser);
-
     setError("");
     const playerDecision = {
       status: data.status === "approved",
@@ -104,6 +103,9 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
         await validatePlayerProfile(accessToken, playerId, playerDecision);
         const newStatus = data.status === "approved" ? "Verified" : "Rejected";
         onStatusUpdate(newStatus, data.comment);
+        toast.success(
+          "The player validation status has been successfully changed."
+        );
         setIsOpen(false);
         reset();
       } else {

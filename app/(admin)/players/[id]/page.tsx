@@ -45,11 +45,13 @@ export default function Page({
   const [playerStatusComment, setPlayerStatusComment] = useState("");
 
   const nationalityOptions = countryCodes.map((country) => ({
+    id: country.id,
     value: country.country,
     label: `${country.emoji} ${country.country}`,
   }));
 
   const countryCodeOptions = countryCodes.map((country) => ({
+    id: country.id,
     value: country.code,
     label: `${country.emoji} ${country.country} (${country.code})`,
   }));
@@ -116,7 +118,7 @@ export default function Page({
         } else {
           const currentCount = parseInt(
             localStorage.getItem("playersCount") || "0",
-            10,
+            10
           );
           if (currentCount >= 8) {
             setFullTeam(true);
@@ -159,8 +161,6 @@ export default function Page({
       }
 
       if (isEditing) {
-        console.log(data);
-
         await handleUpdatePlayer(data, params.id, token);
       } else {
         await handleCreatePlayer(data, currentUser);
@@ -181,25 +181,15 @@ export default function Page({
   const handleUpdatePlayer = async (
     data: FormFields,
     playerId: string,
-    newAccessToken: string,
+    newAccessToken: string
   ) => {
     const updateData: Partial<Player> = extractPlayerUpdateData(data);
     const updateFiles = createUpdateFilesFormData(data);
 
-    const dataResponse = await updatePlayer(
-      updateData,
-      playerId,
-      newAccessToken,
-    );
-    console.log("dataResponse: ", dataResponse);
+    await updatePlayer(updateData, playerId, newAccessToken);
 
     if (hasUpdateFiles(updateFiles)) {
-      const fileResponse = await updatePlayerFiles(
-        updateFiles,
-        playerId,
-        newAccessToken,
-      );
-      console.log("fileResponse: ", fileResponse);
+      await updatePlayerFiles(updateFiles, playerId, newAccessToken);
     }
 
     toast("The player has been successfully updated.");
@@ -213,7 +203,7 @@ export default function Page({
       currentUser.accessToken,
       currentUser.isManageTeam,
       formData,
-      competeId,
+      competeId
     );
     updatePlayersCount();
     toast.success("The player has been successfully created.");
@@ -227,7 +217,7 @@ export default function Page({
   const updatePlayersCount = () => {
     let currentCount = parseInt(
       localStorage.getItem("playersCount") || "0",
-      10,
+      10
     );
     currentCount += 1;
     localStorage.setItem("playersCount", currentCount.toString());
