@@ -2,12 +2,15 @@
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
+import { CustomSelect } from "@/components/players/edit/custom-select";
 import { DocumentsSection } from "@/components/players/edit/documents-section";
 import Dropzone from "@/components/players/edit/dragzone";
 import EditInput from "@/components/players/edit/input";
+import InteractiveStatusBadge from "@/components/players/edit/interactive-player-status-badge";
 import { PositionSelect } from "@/components/players/edit/position-select";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Button } from "@/components/ui/button";
+import { countryCodes } from "@/constants/data/country-code";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   createPlayer,
@@ -15,23 +18,13 @@ import {
   updatePlayer,
   updatePlayerFiles,
 } from "@/lib/api/players/players";
-import { Player } from "@/lib/types/players/players";
 import { playerEditSchema, players } from "@/lib/schemas/players/players";
+import { Player } from "@/lib/types/players/players";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { countryCodes } from "@/constants/data/country-code";
-import { Label } from "@/components/ui/label";
-import InteractiveStatusBadge from "@/components/players/edit/interactive-player-status-badge";
 
 type PartialPlayer = Partial<Player>;
 
@@ -48,6 +41,16 @@ export default function Page({
   const [fullTeam, setFullTeam] = useState<boolean>(false);
   const [playerStatus, setPlayerStatus] = useState("");
   const [playerStatusComment, setPlayerStatusComment] = useState("");
+
+  const nationalityOptions = countryCodes.map((country) => ({
+    value: country.country,
+    label: `${country.emoji} ${country.country}`,
+  }));
+
+  const countryCodeOptions = countryCodes.map((country) => ({
+    value: country.code,
+    label: `${country.emoji} ${country.country} (${country.code})`,
+  }));
 
   const [breadcrumbPaths, setBreadcrumbPaths] = useState([
     { label: "Home", href: "/" },
@@ -67,7 +70,6 @@ export default function Page({
     setValue,
     watch,
     reset,
-    control,
   } = useForm<FormFields>({
     resolver: zodResolver(schema),
   });
@@ -156,6 +158,8 @@ export default function Page({
       }
 
       if (isEditing) {
+        console.log(data);
+
         await handleUpdatePlayer(data, params.id, token);
       } else {
         await handleCreatePlayer(data, currentUser);
@@ -364,38 +368,14 @@ export default function Page({
                     register={register("college")}
                     errorMessage={errors.college?.message}
                   />
-                  <div>
-                    <Label htmlFor="nationality">Nationality</Label>
-                    <Controller
-                      name="nationality"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select nationality" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countryCodes.map((country) => (
-                              <SelectItem
-                                key={country.country}
-                                value={country.country}
-                              >
-                                {country.emoji} {country.country}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
-                    {errors.nationality && (
-                      <p className="text-sm text-destructive">
-                        {errors.nationality.message}
-                      </p>
-                    )}
-                  </div>
+                  <CustomSelect
+                    label="Nationality"
+                    placeholder="Select nationality"
+                    options={nationalityOptions}
+                    value={watch("nationality")}
+                    onValueChange={(value) => setValue("nationality", value)}
+                    error={errors.nationality?.message}
+                  />
                   <EditInput
                     id="playerEmail"
                     label="Email"
@@ -416,38 +396,14 @@ export default function Page({
                 errorMessage={errors.birthdate?.message}
               />
               <div className="col-span-2 flex space-x-4 justify-center">
-                <div className="w-1/3">
-                  <Label htmlFor="countryCode">Country Code</Label>
-                  <Controller
-                    name="countryCode"
-                    control={control}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countryCodes.map((country) => (
-                            <SelectItem
-                              key={country.code + country.country}
-                              value={country.code}
-                            >
-                              {country.emoji} {country.country} ({country.code})
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  {errors.countryCode && (
-                    <p className="text-sm text-destructive">
-                      {errors.countryCode.message}
-                    </p>
-                  )}
-                </div>
+                <CustomSelect
+                  label="Country Code"
+                  placeholder="Select country code"
+                  options={countryCodeOptions}
+                  value={watch("countryCode")}
+                  onValueChange={(value) => setValue("countryCode", value)}
+                  error={errors.countryCode?.message}
+                />
                 <div className="flex-grow">
                   <EditInput
                     id="phoneNumber"
