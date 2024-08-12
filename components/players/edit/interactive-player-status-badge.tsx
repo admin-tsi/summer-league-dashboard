@@ -130,7 +130,7 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
             Update Player Status
           </DialogTitle>
           <DialogDescription>
-            Make a decision on the player's profile. Provide a comment if
+            Make a decision on the player&apos;s profile. Provide a comment if
             rejecting.
           </DialogDescription>
         </DialogHeader>
@@ -173,7 +173,10 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
                 control={control}
                 render={({ field }) => (
                   <Textarea
-                    {...field}
+                    id={field.name}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
                     placeholder="Type your comment about this player validation here."
                     className="border-2 border-input focus:ring-2 focus:ring-ring focus:border-transparent"
                   />

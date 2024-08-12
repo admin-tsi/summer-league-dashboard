@@ -54,9 +54,6 @@ export default function PlayersPage() {
     fetchPlayers();
   }, [currentUser]);
 
-  const handleDeletePlayer = async () => {
-    const token = useCurrentToken();
-  };
   const handleDelete = (id: string) => {
     setPlayers(players.filter((player) => player._id !== id));
   };
