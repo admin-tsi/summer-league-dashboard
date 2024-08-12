@@ -27,8 +27,9 @@ interface DeletePlayerProps {
 }
 
 export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
+  const token = useCurrentToken();
+
   const handleDeletePlayer = async () => {
-    const token = useCurrentToken();
     if (token) {
       try {
         await deletePlayer(playerId, token);
