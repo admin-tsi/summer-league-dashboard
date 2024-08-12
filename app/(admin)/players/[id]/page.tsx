@@ -25,6 +25,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useCurrentToken } from "@/hooks/use-current-token";
 
 type PartialPlayer = Partial<Player>;
 
@@ -33,10 +34,11 @@ export default function Page({
 }: {
   params: { id: string; token: string };
 }) {
+  const token = useCurrentToken();
   const currentUser: any = useCurrentUser();
   const [defPlayerValue, setDefPlayerValue] = useState<PartialPlayer>();
   const [error, setError] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(params.id !== "New");
+  const [isEditing, setIsEditing] = useState(params.id !== "new");
   const [isLoading, setIsLoading] = useState(false);
   const [fullTeam, setFullTeam] = useState<boolean>(false);
   const [playerStatus, setPlayerStatus] = useState("");
@@ -56,7 +58,7 @@ export default function Page({
     { label: "Home", href: "/" },
     { label: "Dashboard", href: "/dashboard" },
     { label: "Players", href: "/players" },
-    { label: params.id === "New" ? "New Player" : "Loading..." },
+    { label: params.id === "new" ? "New Player" : "Loading..." },
   ]);
 
   const schema = isEditing ? playerEditSchema : players;
@@ -81,7 +83,6 @@ export default function Page({
       try {
         if (isEditing) {
           setIsLoading(true);
-          const token = currentUser.accessToken;
 
           if (token) {
             const player = await getPlayerById(params.id, token);
