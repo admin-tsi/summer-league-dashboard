@@ -7,12 +7,12 @@ export const createPlayer = async (
   token: string,
   teamId: string,
   formData: FormData,
-  competitionId: string | null,
+  competitionId: string | null
 ) => {
   try {
     if (!teamId) {
       throw new Error(
-        "You are not managing any team for the summer league. Go to your dashboard and create your team to be able to start creating players. If any problem occurs while creating your team, please contact us.",
+        "You are not managing any team for the summer league. Go to your dashboard and create your team to be able to start creating players. If any problem occurs while creating your team, please contact us."
       );
     }
     console.log("FormData entries:", Array.from(formData.entries()));
@@ -25,7 +25,7 @@ export const createPlayer = async (
           "Content-Type": "multipart/form-data",
           "x-competition-id": competitionId,
         },
-      },
+      }
     );
 
     return response.data;
@@ -37,7 +37,7 @@ export const createPlayer = async (
 export async function getAllPlayers(
   role: "admin" | "team-manager" | "kobe-bryant",
   token: string | null,
-  teamId?: string,
+  teamId?: string
 ): Promise<Player[]> {
   let endpoint: string;
 
@@ -49,7 +49,7 @@ export async function getAllPlayers(
     case "kobe-bryant":
       if (!teamId) {
         throw new Error(
-          "TeamId is required for team-manager and kobe-bryant roles",
+          "TeamId is required for team-manager and kobe-bryant roles"
         );
       }
       endpoint = `/players/specific/teams/${teamId}`;
@@ -69,7 +69,7 @@ export async function getAllPlayers(
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data.message ||
-          "An error occurred while fetching players",
+          "An error occurred while fetching players"
       );
     }
     throw new Error("A non-Axios error occurred");
@@ -79,7 +79,7 @@ export async function getAllPlayers(
 export const validatePlayerProfile = async (
   token: string,
   playerId: string,
-  data: any,
+  data: any
 ) => {
   try {
     const response = await axios.post(
@@ -89,7 +89,7 @@ export const validatePlayerProfile = async (
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      },
+      }
     );
     return response.data;
   } catch (error) {
@@ -100,7 +100,7 @@ export const validatePlayerProfile = async (
 
 export async function getPlayerById(
   playerId: string,
-  token: string | undefined,
+  token: string | undefined
 ): Promise<Player> {
   try {
     const response = await axios.get<Player>(`${baseUrl}/players/${playerId}`, {
@@ -109,13 +109,12 @@ export async function getPlayerById(
         "Content-Type": "application/json",
       },
     });
-    console.log(response.data);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data.message ||
-          "An error occurred while fetching player by ID",
+          "An error occurred while fetching player by ID"
       );
     } else {
       throw new Error("A non-Axios error occurred");
@@ -126,7 +125,7 @@ export async function getPlayerById(
 export const updatePlayer = async (
   updateData: any,
   playerId: string,
-  accessToken: string,
+  accessToken: string
 ): Promise<void> => {
   try {
     const response = await axios.patch(
@@ -137,7 +136,7 @@ export const updatePlayer = async (
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
         },
-      },
+      }
     );
 
     if (response.status !== 200) {
@@ -148,7 +147,7 @@ export const updatePlayer = async (
     throw new Error(
       error.response?.data?.message ||
         error.message ||
-        "An error occurred while updating the player",
+        "An error occurred while updating the player"
     );
   }
 };
@@ -156,7 +155,7 @@ export const updatePlayer = async (
 export const updatePlayerFiles = async (
   formData: any,
   playerId: string,
-  accessToken: string,
+  accessToken: string
 ): Promise<void> => {
   try {
     const response = await axios.patch(
@@ -167,7 +166,7 @@ export const updatePlayerFiles = async (
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "multipart/form-data",
         },
-      },
+      }
     );
 
     if (response.status !== 200) {
@@ -178,14 +177,14 @@ export const updatePlayerFiles = async (
     throw new Error(
       error.response?.data?.message ||
         error.message ||
-        "An error occurred while updating the player",
+        "An error occurred while updating the player"
     );
   }
 };
 
 export async function deletePlayer(
   playerId: string,
-  token: string | undefined,
+  token: string | undefined
 ): Promise<void> {
   try {
     await axios.delete(`${baseUrl}/players/${playerId}`, {
@@ -198,7 +197,7 @@ export async function deletePlayer(
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data.message ||
-          "An error occurred while deleting player",
+          "An error occurred while deleting player"
       );
     } else {
       throw new Error("A non-Axios error occurred");

@@ -10,6 +10,7 @@ import {
 import { Label } from "@/components/ui/label";
 
 interface Option {
+  id: number;
   value: string;
   label: string;
 }
@@ -43,7 +44,7 @@ export function CustomSelect({
         <SelectContent>
           <SelectGroup>
             {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.id} value={option.value}>
                 {option.label}
               </SelectItem>
             ))}

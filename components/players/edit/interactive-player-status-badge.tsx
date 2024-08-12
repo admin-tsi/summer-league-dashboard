@@ -28,6 +28,7 @@ import { z } from "zod";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { validatePlayerProfile } from "@/lib/api/players/players";
 import LoadingSpinner from "@/components/loading-spinner";
+import { toast } from "sonner";
 
 const playerValidationSchema = z.object({
   status: z.enum(["approved", "rejected"]),
@@ -92,7 +93,7 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
     }
 
     try {
-      const accessToken = currentUser?.token;
+      const accessToken = currentUser.accessToken;
 
       if (!accessToken) {
         throw new Error("Failed to verify token expiration");
@@ -102,6 +103,9 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
         await validatePlayerProfile(accessToken, playerId, playerDecision);
         const newStatus = data.status === "approved" ? "Verified" : "Rejected";
         onStatusUpdate(newStatus, data.comment);
+        toast.success(
+          "The player validation status has been successfully changed."
+        );
         setIsOpen(false);
         reset();
       } else {
@@ -115,15 +119,23 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Badge
-            className={`cursor-pointer py-2 px-4 font-semibold rounded-full transition-all duration-300 ease-in-out ${getBadgeStyle(currentStatus)}`}
-          >
-            {currentStatus}
-          </Badge>
-        </motion.div>
-      </DialogTrigger>
+      {currentUser && currentUser.role === "admin" ? (
+        <DialogTrigger asChild>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Badge
+              className={`cursor-pointer py-2 px-4 font-semibold rounded-full transition-all duration-300 ease-in-out ${getBadgeStyle(currentStatus)}`}
+            >
+              {currentStatus}
+            </Badge>
+          </motion.div>
+        </DialogTrigger>
+      ) : (
+        <Badge
+          className={`py-2 px-4 font-semibold rounded-full transition-all duration-300 ease-in-out ${getBadgeStyle(currentStatus)}`}
+        >
+          {currentStatus}
+        </Badge>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold text-primary">
@@ -134,75 +146,63 @@ const InteractiveStatusBadge: React.FC<InteractiveStatusBadgeProps> = ({
             rejecting.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="status">Decision</Label>
-              <Controller
-                name="status"
-                control={control}
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Your decision" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Player profile validation</SelectLabel>
-                        <SelectItem value="approved">
-                          Profile Approved
-                        </SelectItem>
-                        <SelectItem value="rejected">
-                          Profile Rejected
-                        </SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-              {errors.status && (
-                <p className="text-destructive text-sm">
-                  {errors.status.message}
-                </p>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-1 gap-2">
+            <Label htmlFor="status">Decision</Label>
+            <Controller
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Your decision" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Player profile validation</SelectLabel>
+                      <SelectItem value="approved">Profile Approved</SelectItem>
+                      <SelectItem value="rejected">Profile Rejected</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               )}
-            </div>
-            <div className="grid grid-cols-1 gap-2">
-              <Label htmlFor="comment">Comment</Label>
-              <Controller
-                name="comment"
-                control={control}
-                render={({ field }) => (
-                  <Textarea
-                    id={field.name}
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    placeholder="Type your comment about this player validation here."
-                    className="border-2 border-input focus:ring-2 focus:ring-ring focus:border-transparent"
-                  />
-                )}
-              />
-              {errors.comment && (
-                <p className="text-destructive text-sm">
-                  {errors.comment.message}
-                </p>
-              )}
-            </div>
-            {error && <p className="text-destructive text-sm">{error}</p>}
+            />
+            {errors.status && (
+              <p className="text-destructive text-sm">
+                {errors.status.message}
+              </p>
+            )}
           </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-2 px-4 rounded transition-all duration-300 ease-in-out"
-            >
-              {isSubmitting ? (
-                <LoadingSpinner text="Updating..." />
-              ) : (
-                "Update Status"
+          <div className="grid grid-cols-1 gap-2">
+            <Label htmlFor="comment">Comment</Label>
+            <Controller
+              name="comment"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  placeholder="Type your comment about this player validation here."
+                  className="border-2 border-input focus:ring-2 focus:ring-ring focus:border-transparent"
+                />
               )}
-            </Button>
-          </DialogFooter>
-        </form>
+            />
+            {errors.comment && (
+              <p className="text-destructive text-sm">
+                {errors.comment.message}
+              </p>
+            )}
+          </div>
+          {error && <p className="text-destructive text-sm">{error}</p>}
+        </div>
+        <DialogFooter>
+          <Button onClick={handleSubmit(onSubmit)}>
+            {isSubmitting ? (
+              <LoadingSpinner text="Loading..." />
+            ) : (
+              "Saves Changes"
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
