@@ -24,7 +24,7 @@ import { useState, useEffect } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
 import { AskChangePassword } from "@/lib/api/auth/changePassword";
-import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
+import { useCurrentToken } from "@/hooks/use-current-token";
 
 export function UserNav() {
   const user = useCurrentUser();
@@ -46,7 +46,7 @@ export function UserNav() {
     const { accessToken, refreshToken } = user ?? {};
 
     if (accessToken && refreshToken) {
-      const token = await verifyTokenExpiration(accessToken, refreshToken);
+      const token = useCurrentToken();
 
       if (token) {
         const emailToSend = email || "";

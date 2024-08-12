@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const playerSchema = z.object({
+export const players = z.object({
   firstName: z.string().min(1, { message: "First Name is required" }),
   lastName: z.string().min(1, { message: "Last Name is required" }),
   playerImage: z.instanceof(File, { message: "Player Image file is required" }),
@@ -30,6 +30,7 @@ export const playerSchema = z.object({
   birthdate: z
     .string()
     .min(1, "Date of birth is required")
+    .max(25, "Invalid date of birth")
     .refine((value) => {
       const today = new Date();
       const birthDate = new Date(value);

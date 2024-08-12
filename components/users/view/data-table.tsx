@@ -23,16 +23,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ChevronsUpDown } from "lucide-react";
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
-import { ChevronsUpDown, UserPlus } from "lucide-react";
-import Link from "next/link";
-import React, { useEffect } from "react";
-import { toast } from "sonner";
+} from "@/components/ui/dropdown-menu";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -45,23 +43,12 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  useEffect(() => {
-    const initialLength = data.length;
-    localStorage.setItem("playersCount", initialLength.toString());
-  }, [data.length]);
-
-  const handleAddPlayerClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    if (data.length >= 8) {
-      event.preventDefault();
-      toast.error("Your team already has 8 players. You cannot add more.");
-    }
-  };
   const table = useReactTable({
     data,
     columns,
@@ -84,7 +71,7 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="flex items-center w-full mb-4 gap-3">
-        <div className="flex justify-center items-center border rounded-md w-full">
+        <div className="flex justify-center items-center border rounded-lg w-full">
           <Input
             placeholder="Filter first name..."
             value={
@@ -105,7 +92,7 @@ export function DataTable<TData, TValue>({
                 <ChevronsUpDown className="h-4 mt-1" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuContent align="end" className="bg-muted">
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -116,7 +103,7 @@ export function DataTable<TData, TValue>({
                       className="capitalize"
                       checked={column.getIsVisible()}
                       onCheckedChange={(value) =>
-                        column.toggleVisibility(!!value)
+                        column.toggleVisibility(value)
                       }
                     >
                       {column.id}
@@ -125,15 +112,6 @@ export function DataTable<TData, TValue>({
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-        <div className="flex justify-center items-center gap-1">
-          <Link
-            href="/players/New"
-            className="h-10 px-4 py-2 border rounded-md hover:bg-muted"
-            onClick={handleAddPlayerClick}
-          >
-            <UserPlus size={20} strokeWidth={1.5} />
-          </Link>
         </div>
       </div>
       <div className="rounded-md border">
@@ -148,7 +126,7 @@ export function DataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -167,7 +145,7 @@ export function DataTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
