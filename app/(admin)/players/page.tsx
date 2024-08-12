@@ -24,7 +24,7 @@ export default function PlayersPage() {
       try {
         if (!token) {
           setError(
-            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us.",
+            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
           );
           return;
         }
@@ -40,7 +40,7 @@ export default function PlayersPage() {
             setPlayers(data);
           } else {
             setError(
-              "You're not managing any team at the moment. Please create your team to be able to add, delete, or edit players.",
+              "You're not managing any team at the moment. Please create your team to be able to add, delete, or edit players."
             );
           }
         }
@@ -54,9 +54,6 @@ export default function PlayersPage() {
     fetchPlayers();
   }, [currentUser]);
 
-  const handleDeletePlayer = async () => {
-    const token = useCurrentToken();
-  };
   const handleDelete = (id: string) => {
     setPlayers(players.filter((player) => player._id !== id));
   };

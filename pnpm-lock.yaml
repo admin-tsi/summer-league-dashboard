@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@hookform/resolvers':
     specifier: ^3.7.0
@@ -64,9 +68,6 @@ dependencies:
   '@tanstack/react-table':
     specifier: ^8.19.2
     version: 8.19.2(react-dom@18.0.0)(react@18.0.0)
-  '@types/react-datepicker':
-    specifier: ^7.0.0
-    version: 7.0.0(react-dom@18.0.0)(react@18.0.0)
   axios:
     specifier: ^1.7.2
     version: 1.7.2
@@ -1950,16 +1951,6 @@ packages:
 
   /@types/prop-types@15.7.12:
     resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
-
-  /@types/react-datepicker@7.0.0(react-dom@18.0.0)(react@18.0.0):
-    resolution: {integrity: sha512-4tWwOUq589tozyQPBVEqGNng5DaZkomx5IVNuur868yYdgjH6RaL373/HKiVt1IDoNNXYiTGspm1F7kjrarM8Q==}
-    deprecated: This is a stub types definition. react-datepicker provides its own type definitions, so you do not need this installed.
-    dependencies:
-      react-datepicker: 7.3.0(react-dom@18.0.0)(react@18.0.0)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-    dev: false
 
   /@types/react-dom@18.0.0:
     resolution: {integrity: sha512-49897Y0UiCGmxZqpC8Blrf6meL8QUla6eb+BBhn69dTXlmuOlzkfr7HHY/O8J25e1lTUMs+YYxSlVDAaGHCOLg==}
@@ -5813,7 +5804,3 @@ packages:
       react: 18.0.0
       use-sync-external-store: 1.2.0(react@18.0.0)
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
