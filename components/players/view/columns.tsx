@@ -4,7 +4,14 @@ import { ArrowUpDown, Pencil } from "lucide-react";
 import Link from "next/link";
 import { DeletePlayer } from "./deletePlayer";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface ColumnsProps {
   handleDelete: (playerId: string) => void;
@@ -108,6 +115,43 @@ export const columns = ({
     ),
   },
   {
+    accessorKey: "playerStatus",
+    header: () => <div className="text-left">Status</div>,
+    cell: ({ row }) => {
+      const status = row.original.playerStatus?.status;
+      let badgeVariant: any = "default";
+      let statusText = "Unknown";
+
+      if (status === true) {
+        badgeVariant = "success";
+        statusText = "Verified";
+      } else if (status === false) {
+        if (row.original.playerStatus?.comment) {
+          badgeVariant = "destructive";
+          statusText = "Rejected";
+        } else {
+          badgeVariant = "default";
+          statusText = "in progress";
+        }
+      }
+
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Badge variant={badgeVariant} className="text-xs">
+                {statusText}
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>
+              {row.original.playerStatus?.comment || statusText}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
+  },
+  {
     id: "actions",
     header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) => {
@@ -115,9 +159,24 @@ export const columns = ({
 
       return (
         <div className="flex justify-center items-center gap-3">
-          <Link href={`/players/${playerId}`} className="">
-            <Pencil className="h-4 text-blue-500" />
-          </Link>
+          <Button
+            className="p-2 rounded hover:bg-gray-100"
+            variant="ghost"
+            asChild
+          >
+            <Link href={`/players/${playerId}`} className="">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Pencil className="h-4 text-blue-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span>Edit player</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Link>
+          </Button>
           <DeletePlayer
             playerId={playerId}
             handleDelete={() => handleDelete(playerId)}

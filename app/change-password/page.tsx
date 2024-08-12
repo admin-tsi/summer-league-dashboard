@@ -22,7 +22,6 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { ChangePasswordSchema } from "@/schemas";
 import * as z from "zod";
 import FormError from "@/components/login/form-error";
 import FormSuccess from "@/components/login/form-success";
@@ -30,6 +29,7 @@ import LoadingSpinner from "@/components/loading-spinner";
 import { changePassword } from "@/lib/api/auth/changePassword";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { ChangePasswordSchema } from "@/lib/schemas/auth/change-password";
 export default function Page() {
   const router = useRouter();
   const [error, setError] = useState<string | undefined>("");

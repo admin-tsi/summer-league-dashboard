@@ -7,7 +7,7 @@ interface DecodedToken extends JwtPayload {
 
 export const verifyTokenExpiration = async (
   accessToken: string,
-  refreshToken: string
+  refreshToken: string,
 ): Promise<string | null> => {
   const checkTokenExpiration = (token: string): boolean => {
     try {
@@ -31,8 +31,7 @@ export const verifyTokenExpiration = async (
 
   if (refreshToken) {
     try {
-      const newAccessToken = await fetchNewAccessToken(refreshToken);
-      return newAccessToken;
+      return await fetchNewAccessToken(refreshToken);
     } catch (error) {
       console.error("Failed to refresh access token:", error);
       return null;

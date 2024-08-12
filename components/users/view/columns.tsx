@@ -14,7 +14,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { User } from "@/lib/types/login/user";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -28,13 +27,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch"; // Make sure to import your custom Switch
+import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { RoleBadge } from "@/components/users/role-badge";
+import React from "react";
 
 export const columns = (
   handleDelete: (userId: string) => void,
   handleEdit: (userId: string) => void,
   handleRoleChange: (userId: string, newRole: string) => void,
-  handleStatusChange: (userId: string, newStatus: boolean) => void, // Add this function
+  handleStatusChange: (userId: string, newStatus: boolean) => void,
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -61,18 +68,38 @@ export const columns = (
     enableHiding: false,
   },
   {
-    id: "identity",
-    header: "Identity",
+    accessorKey: "firstName",
+    header: "Firstname",
     cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        {`${row.original.firstName} ${row.original.lastName}`} <br />
-        <span className="text-sm text-gray-500">{row.original.email}</span>
-      </div>
+      <div className="capitalize">{row.getValue("firstName") || "-"}</div>
     ),
   },
   {
+    accessorKey: "lastName",
+    header: "Lastname",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("lastName") || "-"}</div>
+    ),
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => <div>{row.getValue("email") || "-"}</div>,
+  },
+  {
     accessorKey: "dateOfBirth",
-    header: "Age",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0"
+        >
+          Age
+          <ArrowUpDown className="h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => {
       const dob = new Date(row.getValue("dateOfBirth"));
       const today = new Date();
@@ -81,17 +108,15 @@ export const columns = (
       if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
         age--;
       }
-      return (
-        <div onClick={() => handleEdit(row.original._id)}>{age || "-"}</div>
-      );
+      return <div>{age || "-"}</div>;
     },
   },
   {
     accessorKey: "phoneNumber",
     header: "Phone",
     cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        {row.original.countryCode ? `+${row.original.countryCode} ` : ""}
+      <div>
+        {row.original.countryCode ? `${row.original.countryCode} ` : ""}
         {row.getValue("phoneNumber") || "-"}
       </div>
     ),
@@ -110,25 +135,9 @@ export const columns = (
     ),
     cell: ({ row }) => {
       const role = row.getValue("role") || "-";
-      let badgeClass: string;
-
-      switch (role) {
-        case "admin":
-          badgeClass = "bg-destructive/80 text-primary-foreground";
-          break;
-        case "team-manager":
-          badgeClass = "bg-primary-yellow/80 text-primary-foreground";
-          break;
-        case "user":
-          badgeClass = "bg-primary-green/80 text-primary-foreground";
-          break;
-        default:
-          badgeClass = "bg-gray-100 text-gray-700";
-      }
-
       return (
-        <div onClick={() => handleEdit(row.original._id)}>
-          <Badge className={`${badgeClass} truncate`}>{String(role)}</Badge>
+        <div>
+          <RoleBadge role={String(role)}></RoleBadge>
         </div>
       );
     },
@@ -149,18 +158,14 @@ export const columns = (
       );
     },
     cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("specialization") || "-"}
-      </div>
+      <div className="capitalize">{row.getValue("specialization") || "-"}</div>
     ),
   },
   {
     accessorKey: "address",
     header: "Address",
     cell: ({ row }) => (
-      <div onClick={() => handleEdit(row.original._id)}>
-        {row.getValue("address") || "-"}
-      </div>
+      <div className="capitalize">{row.getValue("address") || "-"}</div>
     ),
   },
   {
@@ -190,7 +195,16 @@ export const columns = (
           variant="ghost"
           onClick={() => handleEdit(row.original._id)}
         >
-          <Pencil className="h-4 text-blue-500" />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Pencil className="h-4 text-blue-500" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <span>Edit user</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </Button>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -199,7 +213,16 @@ export const columns = (
               className="p-2 rounded hover:bg-gray-100"
               variant="ghost"
             >
-              <Trash2 className="h-4 text-red-500" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Trash2 className="h-4 text-red-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span>Delete user</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
@@ -228,7 +251,16 @@ export const columns = (
               className="p-2 rounded hover:bg-gray-100"
               variant="ghost"
             >
-              <BadgeCheck className="h-4 text-primary-yellow" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <BadgeCheck className="h-4 text-primary-yellow" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <span>Change user role</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80">
@@ -252,9 +284,17 @@ export const columns = (
                       <SelectValue placeholder="Select a role" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="team-manager">Team Manager</SelectItem>
+                      <SelectContent>
+                        <SelectItem value="admin">
+                          <RoleBadge role="admin" />
+                        </SelectItem>
+                        <SelectItem value="user">
+                          <RoleBadge role="user" />
+                        </SelectItem>
+                        <SelectItem value="team-manager">
+                          <RoleBadge role="team-manager" />
+                        </SelectItem>
+                      </SelectContent>
                     </SelectContent>
                   </Select>
                 </div>

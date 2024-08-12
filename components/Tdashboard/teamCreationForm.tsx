@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Editinput from "../player/edit/input";
+import EditInput from "@/components/players/edit/input";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,13 +12,13 @@ import {
   SelectContent,
   SelectItem,
 } from "../ui/select";
-import { teamCreationSchema } from "@/schemas/teamShema";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
 import { teamNames } from "@/constants/team/teamConstant";
-import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
+
 import { createTeam } from "@/lib/api/teams/teams";
 import LoadingSpinner from "../loading-spinner";
+import { teamCreationSchema } from "@/lib/schemas/team/team";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -50,13 +50,13 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       try {
         setIsDivisionsLoading(true);
         const selectedCompetitionId = localStorage.getItem(
-          "selectedCompetitionId"
+          "selectedCompetitionId",
         );
         if (selectedCompetitionId && teamGender) {
           setSelectedCompetitionId(selectedCompetitionId);
           const divisionsData = await getDivisions(
             selectedCompetitionId,
-            teamGender
+            teamGender,
           );
           setDivisions(divisionsData);
         } else {
@@ -76,18 +76,11 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
   }, [teamGender]);
 
   const onSubmit = async (data: TeamCreationFormData) => {
-    const newAccessToken = await verifyTokenExpiration(
-      currentUser.accessToken,
-      currentUser.refreshToken
-    );
-    if (newAccessToken) {
+    const token = currentUser.accessToken;
+    if (token) {
       try {
         if (currentUser.accessToken) {
-          const response = await createTeam(
-            data,
-            newAccessToken,
-            selectedCompetitionId
-          );
+          const response = await createTeam(data, token, selectedCompetitionId);
           console.log("Team created successfully");
           onSuccess(response._id);
         } else {
@@ -137,7 +130,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
             </span>
           )}
         </div>
-        <Editinput
+        <EditInput
           label="City"
           placeholder="Your team city"
           errorMessage={errors.city?.message}

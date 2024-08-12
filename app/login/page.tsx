@@ -22,13 +22,13 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { LoginSchema } from "@/schemas";
 import * as z from "zod";
 import FormError from "@/components/login/form-error";
 import FormSuccess from "@/components/login/form-success";
 import LoadingSpinner from "@/components/loading-spinner";
 import { login } from "@/lib/api/auth/login";
 import { Eye, EyeOff } from "lucide-react";
+import { LoginSchema } from "@/lib/schemas/auth/login";
 
 export default function Page() {
   const [error, setError] = React.useState<string | undefined>("");

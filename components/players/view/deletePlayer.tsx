@@ -10,11 +10,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
 import { deletePlayer } from "@/lib/api/players/players";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useCurrentToken } from "@/hooks/use-current-token";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DeletePlayerProps {
   playerId: string;
@@ -22,16 +27,11 @@ interface DeletePlayerProps {
 }
 
 export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
-  const currentUser: any = useCurrentUser();
-
   const handleDeletePlayer = async () => {
-    const newAccessToken = await verifyTokenExpiration(
-      currentUser.accessToken,
-      currentUser.refreshToken
-    );
-    if (newAccessToken) {
+    const token = useCurrentToken();
+    if (token) {
       try {
-        await deletePlayer(playerId, newAccessToken);
+        await deletePlayer(playerId, token);
         toast.success("Player deleted successfully");
         handleDelete();
       } catch (error) {
@@ -43,8 +43,21 @@ export function DeletePlayer({ playerId, handleDelete }: DeletePlayerProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="def">
-          <Trash2 className="h-4 text-red-500" />
+        <Button
+          aria-label="Delete"
+          className="p-2 rounded hover:bg-gray-100"
+          variant="ghost"
+        >
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <Trash2 className="h-4 text-red-500" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <span>Delete user</span>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
