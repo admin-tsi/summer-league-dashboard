@@ -2,16 +2,13 @@
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
-import { DocumentsSection } from "@/components/player/edit/documentsSection";
-import Dropzone from "@/components/player/edit/dragzone";
-import Editinput from "@/components/player/edit/input";
-import { PlayerValidationByAdmin } from "@/components/player/edit/playerValidationByAdmin";
-import { PositionSelect } from "@/components/player/edit/positionSelect";
+import { DocumentsSection } from "@/components/players/edit/documents-section";
+import Dropzone from "@/components/players/edit/dragzone";
+import EditInput from "@/components/players/edit/input";
+import { PositionSelect } from "@/components/players/edit/position-select";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
 import {
   createPlayer,
   getPlayerById,
@@ -19,12 +16,22 @@ import {
   updatePlayerFiles,
 } from "@/lib/api/players/players";
 import { Player } from "@/lib/types/players/players";
-import { playerEditSchema, playerSchema } from "@/schemas/playerSchema";
+import { playerEditSchema, players } from "@/lib/schemas/players/players";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/data/country-code";
+import { Label } from "@/components/ui/label";
+import InteractiveStatusBadge from "@/components/players/edit/interactive-player-status-badge";
 
 type PartialPlayer = Partial<Player>;
 
@@ -49,7 +56,7 @@ export default function Page({
     { label: params.id === "New" ? "New Player" : "Loading..." },
   ]);
 
-  const schema = isEditing ? playerEditSchema : playerSchema;
+  const schema = isEditing ? playerEditSchema : players;
 
   type FormFields = z.infer<typeof schema>;
 
@@ -60,6 +67,7 @@ export default function Page({
     setValue,
     watch,
     reset,
+    control,
   } = useForm<FormFields>({
     resolver: zodResolver(schema),
   });
@@ -71,13 +79,10 @@ export default function Page({
       try {
         if (isEditing) {
           setIsLoading(true);
-          const newAccessToken = await verifyTokenExpiration(
-            currentUser.accessToken,
-            currentUser.refreshToken
-          );
+          const token = currentUser.accessToken;
 
-          if (newAccessToken) {
-            const player = await getPlayerById(params.id, newAccessToken);
+          if (token) {
+            const player = await getPlayerById(params.id, token);
             setDefPlayerValue(player);
 
             let statusMessage;
@@ -108,7 +113,7 @@ export default function Page({
         } else {
           const currentCount = parseInt(
             localStorage.getItem("playersCount") || "0",
-            10
+            10,
           );
           if (currentCount >= 8) {
             setFullTeam(true);
@@ -143,18 +148,15 @@ export default function Page({
 
   const onSubmit = async (data: FormFields) => {
     try {
-      const newAccessToken = await verifyTokenExpiration(
-        currentUser.accessToken,
-        currentUser.refreshToken
-      );
+      const token = currentUser.accessToken;
 
-      if (!newAccessToken) {
+      if (!token) {
         setError("Failed to refresh access token");
         return;
       }
 
       if (isEditing) {
-        await handleUpdatePlayer(data, params.id, newAccessToken);
+        await handleUpdatePlayer(data, params.id, token);
       } else {
         await handleCreatePlayer(data, currentUser);
       }
@@ -174,7 +176,7 @@ export default function Page({
   const handleUpdatePlayer = async (
     data: FormFields,
     playerId: string,
-    newAccessToken: string
+    newAccessToken: string,
   ) => {
     const updateData: Partial<Player> = extractPlayerUpdateData(data);
     const updateFiles = createUpdateFilesFormData(data);
@@ -182,7 +184,7 @@ export default function Page({
     const dataResponse = await updatePlayer(
       updateData,
       playerId,
-      newAccessToken
+      newAccessToken,
     );
     console.log("dataResponse: ", dataResponse);
 
@@ -190,7 +192,7 @@ export default function Page({
       const fileResponse = await updatePlayerFiles(
         updateFiles,
         playerId,
-        newAccessToken
+        newAccessToken,
       );
       console.log("fileResponse: ", fileResponse);
     }
@@ -199,14 +201,14 @@ export default function Page({
   };
 
   const handleCreatePlayer = async (data: FormFields, currentUser: any) => {
-    const formData = createCreatePlayerFormData(data);
+    const formData = createPlayerFormData(data);
     const competeId = localStorage.getItem("selectedCompetitionId");
 
     await createPlayer(
       currentUser.accessToken,
       currentUser.isManageTeam,
       formData,
-      competeId
+      competeId,
     );
     updatePlayersCount();
     toast.success("The player has been successfully created.");
@@ -220,7 +222,7 @@ export default function Page({
   const updatePlayersCount = () => {
     let currentCount = parseInt(
       localStorage.getItem("playersCount") || "0",
-      10
+      10,
     );
     currentCount += 1;
     localStorage.setItem("playersCount", currentCount.toString());
@@ -252,7 +254,7 @@ export default function Page({
     return updateFiles;
   };
 
-  const createCreatePlayerFormData = (data: FormFields): FormData => {
+  const createPlayerFormData = (data: FormFields): FormData => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value == null) {
@@ -322,44 +324,30 @@ export default function Page({
               <div className="w-full flex flex-col gap-3">
                 {isEditing && (
                   <div className="flex justify-between items-center">
-                    {playerStatus === "Rejected" ? (
-                      <div className="flex flex-col">
-                        <div className="flex gap-2">
-                          <span>Player status:</span>
-                          <span>{playerStatus}</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <span>Motif:</span>
-                          <span>
-                            {playerStatusComment != ""
-                              ? playerStatusComment
-                              : defPlayerValue?.playerStatus?.comment}
-                          </span>
-                        </div>
-                      </div>
-                    ) : (
-                      <Badge variant="outline" className="w-fit py-3 px-6">
-                        {playerStatus}
-                      </Badge>
-                    )}
+                    <InteractiveStatusBadge
+                      currentStatus={playerStatus}
+                      currentComment={playerStatusComment}
+                      playerId={params.id}
+                      onStatusUpdate={updatePlayerStatus}
+                    />
                   </div>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <Editinput
+                  <EditInput
                     id="firstName"
                     label="First Name"
                     placeholder="Enter first name"
                     register={register("firstName")}
                     errorMessage={errors.firstName?.message}
                   />
-                  <Editinput
+                  <EditInput
                     id="lastName"
                     label="Last Name"
                     placeholder="Enter last name"
                     register={register("lastName")}
                     errorMessage={errors.lastName?.message}
                   />
-                  <Editinput
+                  <EditInput
                     id="dorseyNumber"
                     label="Dorsey Number"
                     placeholder="Enter dorsey number"
@@ -369,21 +357,46 @@ export default function Page({
                     errorMessage={errors.dorseyNumber?.message}
                     type="number"
                   />
-                  <Editinput
+                  <EditInput
                     id="college"
                     label="College"
                     placeholder="Enter college"
                     register={register("college")}
                     errorMessage={errors.college?.message}
                   />
-                  <Editinput
-                    id="nationality"
-                    label="Nationality"
-                    placeholder="Enter nationality"
-                    register={register("nationality")}
-                    errorMessage={errors.nationality?.message}
-                  />
-                  <Editinput
+                  <div>
+                    <Label htmlFor="nationality">Nationality</Label>
+                    <Controller
+                      name="nationality"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select nationality" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {countryCodes.map((country) => (
+                              <SelectItem
+                                key={country.country}
+                                value={country.country}
+                              >
+                                {country.emoji} {country.country}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                    {errors.nationality && (
+                      <p className="text-sm text-destructive">
+                        {errors.nationality.message}
+                      </p>
+                    )}
+                  </div>
+                  <EditInput
                     id="playerEmail"
                     label="Email"
                     placeholder="Enter email"
@@ -394,30 +407,59 @@ export default function Page({
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-              <Editinput
+              <EditInput
                 id="birthdate"
                 label="Birth date"
                 type="date"
-                placeholder="+229"
+                placeholder="YYYY-MM-DD"
                 register={register("birthdate")}
                 errorMessage={errors.birthdate?.message}
               />
-              <Editinput
-                id="countryCode"
-                label="Country Code"
-                placeholder="+229"
-                register={register("countryCode")}
-                errorMessage={errors.countryCode?.message}
-              />
-              <Editinput
-                id="phoneNumber"
-                label="Phone Number"
-                placeholder="96000000"
-                register={register("phoneNumber", { valueAsNumber: true })}
-                type="number"
-                errorMessage={errors.phoneNumber?.message}
-              />
-              <Editinput
+              <div className="col-span-2 flex space-x-4 justify-center">
+                <div className="w-1/3">
+                  <Label htmlFor="countryCode">Country Code</Label>
+                  <Controller
+                    name="countryCode"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((country) => (
+                            <SelectItem
+                              key={country.code + country.country}
+                              value={country.code}
+                            >
+                              {country.emoji} {country.country} ({country.code})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.countryCode && (
+                    <p className="text-sm text-destructive">
+                      {errors.countryCode.message}
+                    </p>
+                  )}
+                </div>
+                <div className="flex-grow">
+                  <EditInput
+                    id="phoneNumber"
+                    label="Phone Number"
+                    placeholder="96000000"
+                    register={register("phoneNumber", { valueAsNumber: true })}
+                    type="number"
+                    errorMessage={errors.phoneNumber?.message}
+                  />
+                </div>
+              </div>
+              <EditInput
                 id="yearOfExperience"
                 label="Years of Experience"
                 placeholder="1"
@@ -427,14 +469,14 @@ export default function Page({
                 type="number"
                 errorMessage={errors.yearOfExperience?.message}
               />
-            </div>
+            </div>{" "}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <PositionSelect
                 position={position}
                 setValue={setValue}
                 errors={errors}
               />
-              <Editinput
+              <EditInput
                 id="height"
                 label="Height ( cm )"
                 placeholder="Enter height"
@@ -442,7 +484,7 @@ export default function Page({
                 register={register("height", { valueAsNumber: true })}
                 errorMessage={errors.height?.message}
               />
-              <Editinput
+              <EditInput
                 id="weight"
                 label="Weight ( kg )"
                 placeholder="Enter weight"
@@ -454,17 +496,12 @@ export default function Page({
             <DocumentsSection
               isEditing={isEditing}
               defPlayerValue={defPlayerValue}
+              // @ts-ignore
               setValue={setValue}
               errors={errors}
             />
           </div>
           <div className="w-full flex justify-end gap-3 mt-5">
-            {currentUser.role === "admin" && (
-              <PlayerValidationByAdmin
-                playerId={defPlayerValue?._id}
-                updatePlayerStatus={updatePlayerStatus}
-              />
-            )}
             <Button type="submit" variant="default" className="w-1/2 md:w-1/6">
               {isSubmitting ? (
                 <div>

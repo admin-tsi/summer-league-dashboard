@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import { useCurrentToken } from "@/hooks/use-current-token";
 import { useForm, FormProvider } from "react-hook-form";
@@ -10,17 +11,24 @@ import {
   FormLabel,
   FormItem,
   FormMessage,
-  Form,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { User } from "@/lib/types/login/user";
 import LoadingSpinner from "@/components/loading-spinner";
 import CustomBreadcrumb from "@/components/custom-breadcumb";
 import { getUserById, updateUser } from "@/lib/api/users/users";
 import { UserSchema } from "@/lib/schemas/users/users";
-import { formatDate } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { countryCodes } from "@/constants/data/country-code";
+import { RoleBadge } from "@/components/users/role-badge";
 
 type UserFormData = z.infer<typeof UserSchema>;
 
@@ -31,6 +39,7 @@ export default function Page({
 }) {
   const token = useCurrentToken();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
   const form = useForm<UserFormData>({
@@ -40,8 +49,6 @@ export default function Page({
       lastName: "",
       email: "",
       role: "",
-      createdAt: "",
-      updatedAt: "",
       specialization: "",
       countryCode: "",
       phoneNumber: "",
@@ -50,7 +57,7 @@ export default function Page({
     },
   });
 
-  const { setValue, handleSubmit } = form;
+  const { setValue, handleSubmit, watch, control } = form;
 
   useEffect(() => {
     setIsLoading(true);
@@ -58,48 +65,57 @@ export default function Page({
       .then((data) => {
         setUser(data);
         Object.keys(data).forEach((key) => {
-          if (key in form.getValues()) {
-            setValue(key as keyof UserFormData, data[key as keyof User] ?? "");
+          if (key === "dateOfBirth" && data[key]) {
+            const date = new Date(data[key]);
+            const formattedDate = date.toISOString().split("T")[0];
+            setValue(key as keyof UserFormData, formattedDate);
+          } else {
+            setValue(key as keyof UserFormData, data[key as keyof User] as any);
           }
         });
       })
       .catch((error) => {
+        toast.error("Failed to fetch user");
         console.error("Failed to fetch user", error);
       })
       .finally(() => {
         setIsLoading(false);
       });
-  }, [params.id, token, setValue, form]);
+  }, [params.id, token, setValue]);
 
   const onSubmit = async (data: UserFormData) => {
-    console.log("Form Submitted:", data);
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       await updateUser(params.id, data, token);
-      alert("User updated successfully!");
+      toast.success("User updated successfully");
     } catch (error) {
+      toast.error("Failed to update user");
       console.error("Failed to update user", error);
-      alert("Failed to update user");
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
+
+  const dateOfBirth = watch("dateOfBirth");
+
+  if (isLoading) {
+    return (
+      <div className="w-full flex justify-center items-center h-screen">
+        <LoadingSpinner text="Loading..." />
+      </div>
+    );
+  }
 
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-12">
         <CustomBreadcrumb />
-        {isLoading && (
-          <div className="w-full flex justify-center items-center">
-            <LoadingSpinner text="Loading..." />
-          </div>
-        )}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {!isLoading && user && (
+          {user && (
             <>
               <FormField
                 name="firstName"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="firstName">First Name</FormLabel>
@@ -108,7 +124,6 @@ export default function Page({
                         {...field}
                         id="firstName"
                         placeholder="First Name"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </FormControl>
                     <FormMessage />
@@ -117,17 +132,12 @@ export default function Page({
               />
               <FormField
                 name="lastName"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="lastName">Last Name</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        id="lastName"
-                        placeholder="Last Name"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
+                      <Input {...field} id="lastName" placeholder="Last Name" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,54 +145,87 @@ export default function Page({
               />
               <FormField
                 name="email"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="email">Email</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        id="email"
-                        placeholder="Email"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
+                      <Input {...field} id="email" placeholder="Email" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                name="phoneNumber"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="phoneNumber">Phone</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="phoneNumber"
-                        placeholder="Phone"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
+              <div className="col-span-1 md:col-span-2 flex space-x-4">
+                <FormField
+                  name="countryCode"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem className="flex-shrink-0 w-1/3">
+                      <FormLabel htmlFor="countryCode" className="truncate">
+                        Code
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {countryCodes.map((country) => (
+                            <SelectItem
+                              key={country.code + country.country}
+                              value={country.code}
+                            >
+                              {country.country} ({country.code})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  name="phoneNumber"
+                  control={control}
+                  render={({ field }) => (
+                    <FormItem className="flex-grow">
+                      <FormLabel htmlFor="phoneNumber">Phone Number</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          id="phoneNumber"
+                          placeholder="Phone Number"
+                          type="number"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 name="dateOfBirth"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="dateOfBirth">Date of Birth</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
+                        type="date"
                         id="dateOfBirth"
                         placeholder="Date of Birth"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                        value={formatDate(field.value)}
-                        onChange={(e) => field.onChange(e.target.value)}
+                        max={new Date().toISOString().split("T")[0]}
+                        value={dateOfBirth || ""}
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -191,25 +234,38 @@ export default function Page({
               />
               <FormField
                 name="role"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="role">Role</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="role"
-                        placeholder="Role"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="admin">
+                          <RoleBadge role="admin" />
+                        </SelectItem>
+                        <SelectItem value="user">
+                          <RoleBadge role="user" />
+                        </SelectItem>
+                        <SelectItem value="team-manager">
+                          <RoleBadge role="team-manager" />
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 name="specialization"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="specialization">
@@ -220,25 +276,6 @@ export default function Page({
                         {...field}
                         id="specialization"
                         placeholder="Specialization"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                name="countryCode"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="countryCode">Country Code</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        id="countryCode"
-                        placeholder="Country Code"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
                       />
                     </FormControl>
                     <FormMessage />
@@ -247,25 +284,31 @@ export default function Page({
               />
               <FormField
                 name="address"
-                control={form.control}
+                control={control}
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="address">Address</FormLabel>
                     <FormControl>
-                      <Input
-                        {...field}
-                        id="address"
-                        placeholder="Address"
-                        className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-                      />
+                      <Input {...field} id="address" placeholder="Address" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <div className="col-span-1 md:col-span-2 flex justify-center">
-                <Button type="submit" variant="outline" disabled={isLoading}>
-                  {isLoading ? <LoadingSpinner text="Saving..." /> : "Save"}
+                <Button
+                  type="submit"
+                  variant="default"
+                  disabled={isSaving}
+                  size={"lg"}
+                >
+                  {isSaving ? (
+                    <>
+                      <LoadingSpinner text={"Saving..."} />
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </Button>
               </div>
             </>

@@ -14,7 +14,7 @@ interface InputProps {
   register?: UseFormRegisterReturn;
 }
 
-const Editinput: React.FC<InputProps> = ({
+const EditInput: React.FC<InputProps> = ({
   id,
   label,
   type,
@@ -47,4 +47,4 @@ const Editinput: React.FC<InputProps> = ({
   );
 };
 
-export default Editinput;
+export default EditInput;

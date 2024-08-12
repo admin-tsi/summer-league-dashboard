@@ -12,11 +12,11 @@ import { useCurrentToken } from "@/hooks/use-current-token";
 import { Competition } from "@/lib/types/competitions/competitions";
 import { getAllCompetitions } from "@/lib/api/competitions/competitions";
 
-interface saisonSelectorProps {
-  handleSaisonFilter: (playerId: string) => void;
+interface seasonSelectorProps {
+  handleSeasonFilter: (playerId: string) => void;
 }
 
-export function Saison({ handleSaisonFilter }: saisonSelectorProps) {
+export function Season({ handleSeasonFilter }: seasonSelectorProps) {
   const [competitions, setCompetitions] = React.useState<Competition[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
@@ -46,13 +46,13 @@ export function Saison({ handleSaisonFilter }: saisonSelectorProps) {
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>Summer League Saison</SelectLabel>
+          <SelectLabel>Summer League Season</SelectLabel>
           {competitions.map((competition) => (
             <SelectItem
               key={competition._id}
               value={competition._id}
               onClick={() => {
-                handleSaisonFilter(competition._id);
+                handleSeasonFilter(competition._id);
               }}
               className="cursor-pointer p-2 hover:bg-gray-200 rounded bg-secondary border mb-2"
             >

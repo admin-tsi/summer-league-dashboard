@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Camera, FileText, Upload } from "lucide-react";
@@ -56,7 +57,7 @@ const Dropzone: React.FC<DropzoneProps> = ({
         reader.readAsDataURL(file);
       }
     },
-    [type, setValue, attribute]
+    [type, setValue, attribute],
   );
 
   const handleDelete = () => {
@@ -76,16 +77,23 @@ const Dropzone: React.FC<DropzoneProps> = ({
   });
 
   return (
-    <div>
+    <div className="w-full">
       <div
         {...getRootProps()}
-        className={`border rounded-md text-center cursor-pointer transition-colors duration-300
-          ${type === "file" ? "w-full" : "h-[300px] w-[300px]"} ${isDragActive ? "border-blue-500 bg-blue-100" : "border-gray-300 bg-white"}`}
+        className={`border-2 border-dashed rounded-custom-radius text-center cursor-pointer transition-all duration-300 ${
+          type === "file" ? "w-full p-8" : "h-[300px] w-[300px]"
+        } ${
+          isDragActive
+            ? "border-primary bg-primary/10"
+            : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted"
+        }`}
       >
         <input {...getInputProps()} />
         {!imageSrc && !progress && (
           <div
-            className={`flex flex-col justify-center items-center relative bg-[#8C8B86] rounded-md ${type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"}`}
+            className={`flex flex-col justify-center items-center relative ${
+              type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"
+            }`}
           >
             {playerImage ? (
               <Image
@@ -93,30 +101,31 @@ const Dropzone: React.FC<DropzoneProps> = ({
                 alt="Player Image"
                 fill
                 objectFit="cover"
-                className="rounded-md"
+                className="rounded-custom-radius"
               />
             ) : (
-              <div>
+              <div className="text-muted-foreground">
                 {isDragActive ? (
-                  type === "image" ? (
-                    "Déposez l'image ici ..."
-                  ) : (
-                    "Déposez le fichier ici ..."
-                  )
+                  <p className="text-primary font-medium">
+                    {type === "image"
+                      ? "Déposez l'image ici ..."
+                      : "Déposez le fichier ici ..."}
+                  </p>
                 ) : (
-                  <div className="flex flex-col justify-center items-center text-background">
+                  <div className="flex flex-col items-center space-y-2">
                     {type === "image" ? (
-                      <Camera size={48} />
+                      <Camera className="h-12 w-12 text-primary" />
                     ) : (
-                      <Upload size={30} />
+                      <Upload className="h-12 w-12 text-primary" />
                     )}
-                    <span className="text-background">
+                    <span className="font-medium">
                       {type === "image"
                         ? "Click to add a picture"
                         : title
                           ? "Click to update this file"
                           : "Click to add a file"}
                     </span>
+                    <p className="text-sm">or drag and drop</p>
                   </div>
                 )}
               </div>
@@ -124,30 +133,30 @@ const Dropzone: React.FC<DropzoneProps> = ({
           </div>
         )}
         {imageSrc && type === "image" && (
-          <>
-            <div className="h-[300px] w-[300px] relative">
-              <Image
-                src={imageSrc}
-                alt="Preview"
-                layout="fill"
-                className="object-cover rounded-md"
-              />
-            </div>
-          </>
+          <div className="h-[300px] w-[300px] relative">
+            <Image
+              src={imageSrc}
+              alt="Preview"
+              layout="fill"
+              className="object-cover rounded-custom-radius"
+            />
+          </div>
         )}
       </div>
       {type === "file" && progress > 0 && (
-        <>
-          <div className="mt-4 h-fit w-full space-x-2 flex justify-center items-center rounded-md bg-background">
-            <FileText size={48} className="text-primary" />
-            <div className="w-full flex flex-col space-y-2">
-              <div className="w-full flex justify-between items-center">
-                <span>{fileName}</span>
-                <span>{progress}%</span>
+        <div className="mt-4 p-4 rounded-custom-radius bg-card">
+          <div className="flex items-center space-x-4">
+            <FileText className="h-8 w-8 text-primary" />
+            <div className="flex-1">
+              <div className="flex justify-between items-center mb-1">
+                <span className="font-medium text-sm">{fileName}</span>
+                <span className="text-sm text-muted-foreground">
+                  {progress}%
+                </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-muted rounded-full h-2">
                 <motion.div
-                  className="bg-primary h-2 rounded-md"
+                  className="bg-primary h-2 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.2 }}
@@ -155,17 +164,19 @@ const Dropzone: React.FC<DropzoneProps> = ({
               </div>
             </div>
           </div>
-          {progress === 100 && (
-            <div className="w-full flex justify-between items-center space-x-2 mt-4">
-              <Button
-                className="bg-background border text-primary hover:text-white px-2 py-2 text-sm h-7"
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          )}
-        </>
+        </div>
+      )}
+      {progress === 100 && (
+        <div className="w-full flex justify-end mt-4">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleDelete}
+            className="px-4 py-2 text-sm"
+          >
+            Delete
+          </Button>
+        </div>
       )}
     </div>
   );

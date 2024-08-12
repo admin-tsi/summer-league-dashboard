@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import axios from "axios";
+import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
 
 export type MyUserType = {
   id: string;
@@ -75,6 +76,22 @@ export const {
     jwt: async ({ token, user }) => {
       if (user) {
         token.user = user as MyUserType;
+      }
+
+      if (token.user) {
+        const newAccessToken = await verifyTokenExpiration(
+          // @ts-ignore
+          token.user.accessToken,
+          // @ts-ignore
+          token.user.refreshToken,
+        );
+
+        if (newAccessToken) {
+          // @ts-ignore
+          token.user.accessToken = newAccessToken;
+        } else {
+          delete token.user;
+        }
       }
 
       return token;

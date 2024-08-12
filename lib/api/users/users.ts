@@ -1,5 +1,9 @@
 import { User } from "@/lib/types/login/user";
 import axios from "axios";
+import { z } from "zod";
+import { UserSchema } from "@/lib/schemas/users/users";
+
+type UserFormData = z.infer<typeof UserSchema>;
 
 export async function getAllUsers(token: string | undefined): Promise<User[]> {
   const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -53,7 +57,7 @@ export async function getUserById(
 
 export async function updateUser(
   userId: string,
-  user: User,
+  user: UserFormData,
   token: string | undefined,
 ): Promise<User> {
   const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
@@ -89,8 +93,8 @@ export async function validateAccount(
 
   try {
     await axios.post(
-      `${baseUrl}/users/${userId}/validate-account`,
-      {},
+      `${baseUrl}/users/validate-account`,
+      { userId: userId },
       {
         headers: {
           Authorization: `Bearer ${token}`,

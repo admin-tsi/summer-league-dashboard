@@ -1,7 +1,6 @@
 "use client";
 
 import { submitForm } from "@/lib/api/auth/register";
-import { RegisterSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { ArrowRight, Eye, EyeOff } from "lucide-react";
@@ -16,6 +15,7 @@ import Image from "next/image";
 import Confetti, { ConfettiRef } from "../magicui/confetti";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { RegisterSchema } from "@/lib/schemas/auth/register";
 
 type Inputs = z.infer<typeof RegisterSchema>;
 
