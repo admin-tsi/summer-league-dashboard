@@ -28,6 +28,7 @@ import { useCurrentToken } from "@/hooks/use-current-token";
 
 export function UserNav() {
   const user = useCurrentUser();
+  const token = useCurrentToken();
   const [firstName, setFirstName] = useState<string | undefined>(undefined);
   const [lastName, setLastName] = useState<string | undefined>(undefined);
   const [email, setEmail] = useState<string | undefined>(undefined);
@@ -43,28 +44,24 @@ export function UserNav() {
   }, [user]);
 
   const handleChangePassword = async () => {
-    const { accessToken, refreshToken } = user ?? {};
+    if (user?.accessToken && user?.refreshToken && token) {
+      const emailToSend = email ?? "";
 
-    if (accessToken && refreshToken) {
-      const token = useCurrentToken();
-
-      if (token) {
-        const emailToSend = email || "";
-
-        const result = await AskChangePassword({
-          email: emailToSend,
-        });
-
+      try {
+        const result = await AskChangePassword({ email: emailToSend });
         if (result.success) {
           console.log(result.message);
           toast(result.message);
         } else {
-          console.error(result.error);
+          console.error(/*result.error ??*/ "Error changing password");
         }
+      } catch (error) {
+        console.error("Error changing password:", error);
       }
+    } else {
+      console.error("Missing required tokens or user information");
     }
   };
-
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>

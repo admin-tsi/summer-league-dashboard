@@ -18,6 +18,12 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({ role }) => {
     case "user":
       badgeClass = "bg-primary-green/80 text-primary-foreground";
       break;
+    case "kobe-bryant":
+      badgeClass = "bg-primary/80 text-primary-foreground";
+      break;
+    case "content-creator":
+      badgeClass = "bg-pink-950/80 text-primary-foreground";
+      break;
     default:
       badgeClass = "bg-gray-100 text-gray-700";
   }

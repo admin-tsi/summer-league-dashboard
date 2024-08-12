@@ -294,6 +294,12 @@ export const columns = (
                         <SelectItem value="team-manager">
                           <RoleBadge role="team-manager" />
                         </SelectItem>
+                        <SelectItem value="kobe-bryant">
+                          <RoleBadge role="kobe-bryant" />
+                        </SelectItem>
+                        <SelectItem value="content-creator">
+                          <RoleBadge role="content-creator" />
+                        </SelectItem>
                       </SelectContent>
                     </SelectContent>
                   </Select>

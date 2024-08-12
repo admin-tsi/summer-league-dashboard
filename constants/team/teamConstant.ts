@@ -13,4 +13,5 @@ export const teamNames = [
   "Loko Roots",
   "Esu Tricksters",
   "Orunmila Stars",
+  "Damballah Wisdom",
 ];
