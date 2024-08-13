@@ -10,26 +10,14 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { saveOtmScheduleStat } from "@/lib/api/otm/otm";
 import { getAllPlayers } from "@/lib/api/players/players";
 import { Player } from "@/lib/types/players/players";
-import { log } from "console";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const scoreImpact: Record<string, number> = {
   "03 Points": 3,
   "02 Points": 2,
   "Free Throws": 1,
-};
-
-const statMapping: Record<string, string> = {
-  "03 Points": "threePoints",
-  "02 Points": "twoPoints",
-  "Free Throws": "lancerFranc",
-  Assists: "assists",
-  Rebounds: "rebonds",
-  Turnovers: "turnOver",
-  Blocks: "blocks",
-  Steals: "steal",
-  Fouls: "fouls",
 };
 
 const STORAGE_KEY = "basketballStats";
@@ -51,12 +39,13 @@ type PlayerStat = Record<string, number>;
 type PageProps = { params: { id: string[] } };
 
 const Page: React.FC<PageProps> = ({ params }) => {
+  const router = useRouter();
   const currentUser: any = useCurrentUser();
   const [error, setError] = useState<string | null>(null);
   const [submittingErrors, setSubmittingErrors] = useState<string | null>(null);
   const [activePlayer, setActivePlayer] = useState<string | null>(null);
   const [totalScore, setTotalScore] = useState(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [players, setPlayers] = useState<Player[]>([]);
   const [teamName, setTeamName] = useState<string | null>(null);
@@ -64,23 +53,25 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [playersData, setPlayersData] = useState<Record<string, PlayerStat>>(
     {}
   );
+  const [hasChanges, setHasChanges] = useState<boolean>(false);
 
-  const initializePlayerStats = (
-    players: Player[]
-  ): Record<string, PlayerStat> => {
-    return players.reduce(
-      (acc, player) => {
-        acc[player._id] = playerStats.reduce(
-          (statAcc, stat) => ({ ...statAcc, [stat]: 0 }),
-          {} as PlayerStat
-        );
-        return acc;
-      },
-      {} as Record<string, PlayerStat>
-    );
-  };
+  const initializePlayerStats = useCallback(
+    (players: Player[]): Record<string, PlayerStat> => {
+      return players.reduce(
+        (acc, player) => {
+          acc[player._id] = playerStats.reduce(
+            (statAcc, stat) => ({ ...statAcc, [stat]: 0 }),
+            {} as PlayerStat
+          );
+          return acc;
+        },
+        {} as Record<string, PlayerStat>
+      );
+    },
+    []
+  );
 
-  const updateScore = (stat: string, increment: boolean) => {
+  const updateScore = useCallback((stat: string, increment: boolean) => {
     if (stat in scoreImpact) {
       const change = increment ? scoreImpact[stat] : -scoreImpact[stat];
       setTotalScore((prevScore) => {
@@ -89,74 +80,89 @@ const Page: React.FC<PageProps> = ({ params }) => {
         return newScore;
       });
     }
-  };
+  }, []);
 
-  const handleIncrement = (stat: string) => {
-    if (activePlayer !== null) {
-      setPlayersData((prevData) => ({
-        ...prevData,
-        [activePlayer]: {
-          ...((prevData[activePlayer] || {}) as PlayerStat),
-          [stat]: ((prevData[activePlayer] || {})[stat] || 0) + 1,
-        },
-      }));
-      updateScore(stat, true);
-    }
-  };
-
-  const handleDecrement = (stat: string) => {
-    if (activePlayer !== null) {
-      setPlayersData((prevData) => {
-        const currentValue = ((prevData[activePlayer] || {})[stat] ||
-          0) as number;
-        if (currentValue === 0) {
-          console.log(`${stat} already at 0, no change`);
-          return prevData;
-        }
-
-        const newValue = currentValue - 1;
-
-        return {
+  const handleIncrement = useCallback(
+    (stat: string) => {
+      if (activePlayer !== null) {
+        setPlayersData((prevData) => ({
           ...prevData,
           [activePlayer]: {
             ...((prevData[activePlayer] || {}) as PlayerStat),
-            [stat]: newValue,
+            [stat]: ((prevData[activePlayer] || {})[stat] || 0) + 1,
           },
-        };
-      });
+        }));
+        updateScore(stat, true);
+        setHasChanges(true);
+      }
+    },
+    [activePlayer, updateScore]
+  );
 
-      updateScore(stat, false);
-    }
-  };
+  const handleDecrement = useCallback(
+    (stat: string) => {
+      if (activePlayer !== null) {
+        setPlayersData((prevData) => {
+          const currentValue = ((prevData[activePlayer] || {})[stat] ||
+            0) as number;
+          if (currentValue === 0) {
+            console.log(`${stat} already at 0, no change`);
+            return prevData;
+          }
 
-  const handlePlayerClick = (playerId: string) => {
-    setActivePlayer(activePlayer === playerId ? null : playerId);
-  };
+          const newValue = currentValue - 1;
 
-  const handleClear = () => {
+          return {
+            ...prevData,
+            [activePlayer]: {
+              ...((prevData[activePlayer] || {}) as PlayerStat),
+              [stat]: newValue,
+            },
+          };
+        });
+
+        updateScore(stat, false);
+        setHasChanges(true);
+      }
+    },
+    [activePlayer, updateScore]
+  );
+
+  const handlePlayerClick = useCallback(
+    (playerId: string) => {
+      setActivePlayer(activePlayer === playerId ? null : playerId);
+    },
+    [activePlayer]
+  );
+
+  const handleClear = useCallback(() => {
     setPlayersData(initializePlayerStats(players));
     setTotalScore(0);
     setActivePlayer(null);
     clearLocalStorage();
-  };
+    setHasChanges(false);
+  }, [players, initializePlayerStats]);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
+    if (!hasChanges) {
+      toast.error("No changes to save.");
+      return;
+    }
+
     setSubmittingErrors("");
     setIsSubmitting(true);
-    const mappedData = Object.entries(playersData).map(([playerId, stats]) => {
-      return {
-        player: playerId,
-        threePoints: stats.threePoints || 0,
-        twoPoints: stats.twoPoints || 0,
-        lancerFranc: stats.lancerFranc || 0,
-        assists: stats.assists || 0,
-        blocks: stats.blocks || 0,
-        fouls: stats.fouls || 0,
-        turnOver: stats.turnOver || 0,
-        steal: stats.steal || 0,
-        rebonds: stats.rebonds || 0,
-      };
-    });
+    const mappedData = Object.entries(playersData).map(([playerId, stats]) => ({
+      player: playerId,
+      threePoints: stats["03 Points"] || 0,
+      twoPoints: stats["02 Points"] || 0,
+      lancerFranc: stats["Free Throws"] || 0,
+      assists: stats.Assists || 0,
+      blocks: stats.Blocks || 0,
+      fouls: stats.Fouls || 0,
+      turnOver: stats.Turnovers || 0,
+      steal: stats.Steals || 0,
+      rebonds: stats.Rebounds || 0,
+    }));
 
     try {
       const competitionId: string | null = localStorage.getItem(
@@ -179,17 +185,25 @@ const Page: React.FC<PageProps> = ({ params }) => {
       console.log("Mapped Data:", mappedData);
 
       await saveOtmScheduleStat(competitionId, scheduleId, token, stat);
-      toast.success("This schedule stat has been successfully saved.");
+      toast.success("This schedule stats has been successfully saved.");
+      router.push("/score-keeper");
 
       handleClear();
     } catch (error: any) {
-      setSubmittingErrors(error);
+      setSubmittingErrors(error.message);
       console.error("Error saving schedule stats from OTM:", error);
     } finally {
       setIsSubmitting(false);
-      clearLocalStorage();
     }
-  };
+  }, [
+    hasChanges,
+    playersData,
+    teamId,
+    currentUser,
+    params.id,
+    router,
+    handleClear,
+  ]);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -217,17 +231,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
         const savedData = loadFromLocalStorage();
         if (savedData && savedData.teamId === params.id[1]) {
-          const completePlayersData = data.reduce(
-            (acc, player) => {
-              acc[player._id] =
-                savedData.playersData[player._id] ||
-                initializePlayerStats([player])[player._id];
-              return acc;
-            },
-            {} as Record<string, PlayerStat>
-          );
-
-          setPlayersData(completePlayersData);
+          setPlayersData(savedData.playersData);
           setTotalScore(savedData.totalScore);
         } else {
           setPlayersData(initializePlayerStats(data));
@@ -240,7 +244,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
     };
 
     fetchPlayers();
-  }, [currentUser, params.id]);
+  }, [currentUser, params.id, initializePlayerStats]);
 
   useEffect(() => {
     if (teamId) {
@@ -261,6 +265,8 @@ const Page: React.FC<PageProps> = ({ params }) => {
           </div>
         ) : error ? (
           <div>{error}</div>
+        ) : players.length === 0 ? (
+          <div>No players available for this team.</div>
         ) : (
           <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 justify-center items-center py-5">
             <ScoreDisplay
@@ -295,8 +301,12 @@ const Page: React.FC<PageProps> = ({ params }) => {
             </div>
             <div className="w-1/2 grid grid-cols-2 gap-2">
               <ActionButton onClick={handleClear}>CLEAR</ActionButton>
-              <ActionButton destructive onClick={handleSave}>
-                {isSubmitting ? <LoadingSpinner text="Loading..." /> : "SAVE"}
+              <ActionButton
+                destructive
+                onClick={handleSave}
+                disabled={!hasChanges || isSubmitting}
+              >
+                {isSubmitting ? <LoadingSpinner text="Saving..." /> : "SAVE"}
               </ActionButton>
             </div>
           </div>
