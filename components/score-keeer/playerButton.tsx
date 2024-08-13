@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 
 interface PlayerButtonProps {
-  number: string;
+  number: number;
   isActive: boolean;
   onClick: () => void;
 }

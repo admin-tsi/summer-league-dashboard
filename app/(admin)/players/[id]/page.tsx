@@ -131,7 +131,7 @@ export default function Page({
     };
 
     fetchData();
-  }, [params.id, currentUser, isEditing, reset]);
+  }, [params.id, currentUser, isEditing, reset, token]);
 
   useEffect(() => {
     if (!isEditing) {
