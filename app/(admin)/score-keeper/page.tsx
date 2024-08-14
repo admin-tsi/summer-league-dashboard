@@ -62,15 +62,8 @@ export default function Page() {
     otmSchedule();
   }, [currentUser]);
 
-  const breadcrumbPaths: BreadcrumbPath[] = [
-    { label: "Home", href: "/" },
-    { label: "Kobe Bryant", href: "/score-keeper" },
-    { label: `${currentUser.firstName} ${currentUser.lastName}` },
-  ];
-
   return (
     <ContentLayout title="OTM">
-      <DynamicBreadcrumbs paths={breadcrumbPaths} />
       <div className="w-full">
         {isLoading ? (
           <div className="h-[600px] w-full flex justify-center items-center">

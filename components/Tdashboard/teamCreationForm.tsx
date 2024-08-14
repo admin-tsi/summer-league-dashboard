@@ -19,6 +19,7 @@ import { teamNames } from "@/constants/team/teamConstant";
 import { createTeam } from "@/lib/api/teams/teams";
 import LoadingSpinner from "../loading-spinner";
 import { teamCreationSchema } from "@/lib/schemas/team/team";
+import FormError from "../login/form-error";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -50,13 +51,13 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       try {
         setIsDivisionsLoading(true);
         const selectedCompetitionId = localStorage.getItem(
-          "selectedCompetitionId",
+          "selectedCompetitionId"
         );
         if (selectedCompetitionId && teamGender) {
           setSelectedCompetitionId(selectedCompetitionId);
           const divisionsData = await getDivisions(
             selectedCompetitionId,
-            teamGender,
+            teamGender
           );
           setDivisions(divisionsData);
         } else {
@@ -81,20 +82,18 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       try {
         if (currentUser.accessToken) {
           const response = await createTeam(data, token, selectedCompetitionId);
-          console.log("Team created successfully");
           onSuccess(response._id);
         } else {
-          console.error("No access token available");
           setError("No access token available");
         }
       } catch (error: any) {
-        console.error(error.message);
         setError(error.message);
       }
     } else {
-      console.log("Impossible to get a new access token.");
+      setError(
+        "We're having trouble logging you in. Please refresh the page or log out temporarily."
+      );
     }
-    console.log(data);
   };
 
   const division = watch("division");
@@ -201,6 +200,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       </div>
       {error && (
         <div className="text-red-600 text-sm w-full flex justify-center items-center">
+          <FormError message={error} />
           <span>{error}</span>
         </div>
       )}
