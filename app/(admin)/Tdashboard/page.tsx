@@ -33,7 +33,7 @@ export default function Page() {
       <DynamicBreadcrumbs paths={breadcrumbPaths} />
       <div className="w-full h-[85vh] flex justify-center items-center">
         {currentUser.role === "user" ? (
-          <p>
+          <p className="w-1/3 text-center">
             Hello {currentUser.firstName} {currentUser.lastName}, welcome to the
             platform for Summer League team managers. Your account is currently
             being validated. Our team is working diligently to complete this
