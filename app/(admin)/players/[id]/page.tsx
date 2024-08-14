@@ -186,12 +186,18 @@ export default function Page({
     const updateData: Partial<Player> = extractPlayerUpdateData(data);
     const updateFiles = createUpdateFilesFormData(data);
 
-    await updatePlayer(updateData, playerId, newAccessToken);
-
+    const dataResponse = await updatePlayer(
+      updateData,
+      playerId,
+      newAccessToken
+    );
     if (hasUpdateFiles(updateFiles)) {
-      await updatePlayerFiles(updateFiles, playerId, newAccessToken);
+      const fileResponse = await updatePlayerFiles(
+        updateFiles,
+        playerId,
+        newAccessToken
+      );
     }
-
     toast("The player has been successfully updated.");
   };
 
