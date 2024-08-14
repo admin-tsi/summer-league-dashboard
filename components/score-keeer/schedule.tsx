@@ -1,13 +1,15 @@
-import React from "react";
 import {
-  parseISO,
+  addHours,
+  format,
   isAfter,
   isBefore,
   isWithinInterval,
-  addHours,
+  parseISO,
 } from "date-fns";
+import { enUS } from "date-fns/locale";
+import { MapPin } from "lucide-react";
 import Link from "next/link";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import React from "react";
 
 interface Team {
   _id: string;
@@ -22,6 +24,7 @@ interface ScheduleItem {
   awayTeam: Team;
   matchType: string;
   otmTeam: Team;
+  location: string;
 }
 
 type Props = {
@@ -29,8 +32,6 @@ type Props = {
 };
 
 const Schedule: React.FC<Props> = ({ schedules }) => {
-  const currentUser: any = useCurrentUser();
-
   const getStatusColor = (date: string, hour: string): string => {
     const now = new Date();
     const [hours, minutes] = hour.split("H").map(Number);
@@ -54,48 +55,63 @@ const Schedule: React.FC<Props> = ({ schedules }) => {
     return null;
   }
 
-  const teamName = schedules[0].otmTeam.teamName.replace(/\s+/g, "-");
-  const linkHref = `/score-keeper/${teamName}/${schedules[0].otmTeam._id}/${schedules[0].schedule}`;
+  const groupSchedulesByDate = (schedules: ScheduleItem[]) => {
+    const grouped: { [key: string]: ScheduleItem[] } = {};
+    schedules.forEach((item) => {
+      const date = format(parseISO(item.date), "yyyy-MM-dd");
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(item);
+    });
+    return grouped;
+  };
+
+  const groupedSchedules = groupSchedulesByDate(schedules);
+
+  const getLinkHref = (item: ScheduleItem) => {
+    const teamName = item.otmTeam.teamName.replace(/\s+/g, "-");
+    return `/score-keeper/${teamName}/${item.otmTeam._id}/${item.schedule}`;
+  };
 
   return (
-    <Link href={linkHref} className="block hover:shadow-xl">
+    <div className="block">
       <div className="w-full flex flex-col border-2">
-        {schedules.map((item, index) => {
-          const date = new Date(item.date);
-          const formattedDate = date.toLocaleDateString("fr-FR", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-
-          const statusColor = getStatusColor(item.date, item.hour);
-
-          return (
-            <React.Fragment key={item.schedule}>
-              {index === 0 ||
-              date.getDate() !==
-                new Date(schedules[index - 1].date).getDate() ? (
-                <div className="w-full flex justify-between items-center bg-black text-background p-2 font-medium">
-                  <span>
-                    {date.toLocaleDateString("fr-FR", { weekday: "long" })}
-                  </span>
-                  <span>{formattedDate}</span>
-                </div>
-              ) : null}
-              <div className="w-full flex justify-between items-center h-20 p-2">
-                <div className="flex gap-2 items-center">
-                  <span>{item.hour}</span>
-                  <div className={`size-4 ${statusColor} rounded-full`} />
-                </div>
-                <span className="text-right w-1/2">
-                  {item.homeTeam.teamName} VS {item.awayTeam.teamName}
-                </span>
-              </div>
-            </React.Fragment>
-          );
-        })}
+        {Object.entries(groupedSchedules).map(([date, items]) => (
+          <React.Fragment key={date}>
+            <div className="w-full flex justify-between items-center bg-black text-background p-2 font-medium">
+              <span>{format(parseISO(date), "EEEE", { locale: enUS })}</span>
+              <span>
+                {format(parseISO(date), "MMMM d, yyyy", { locale: enUS })}
+              </span>
+            </div>
+            {items.map((item) => {
+              const statusColor = getStatusColor(item.date, item.hour);
+              const linkHref = getLinkHref(item);
+              return (
+                <Link
+                  href={linkHref}
+                  key={item.schedule}
+                  className="w-full grid grid-cols-8 content-center px-2 py-5 border-b-2 hover:bg-primary-foreground"
+                >
+                  <span className="col-span-4 md:col-span-2">{item.hour}</span>
+                  <div className="col-span-4 md:col-span-4 flex gap-2 items-center">
+                    <div className={`size-4 ${statusColor} rounded-full`} />
+                    <span className="w-full">
+                      {item.homeTeam.teamName} VS {item.awayTeam.teamName}
+                    </span>
+                  </div>
+                  <div className="hidden col-span-2 md:flex justify-end items-center gap-3">
+                    <MapPin size={20} />
+                    {item.location}
+                  </div>
+                </Link>
+              );
+            })}
+          </React.Fragment>
+        ))}
       </div>
-    </Link>
+    </div>
   );
 };
 

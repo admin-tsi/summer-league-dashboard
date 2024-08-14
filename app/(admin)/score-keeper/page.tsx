@@ -76,10 +76,8 @@ export default function Page() {
             <LoadingSpinner text="Loading..." />
           </div>
         ) : (
-          <div className="w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-5">
-            {schedules.map((schedule) => (
-              <Schedule key={schedule.schedule} schedules={[schedule]} />
-            ))}
+          <div className="w-full pt-5">
+            <Schedule schedules={schedules} />{" "}
           </div>
         )}
       </div>

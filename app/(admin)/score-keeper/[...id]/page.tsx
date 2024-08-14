@@ -13,6 +13,7 @@ import { Player } from "@/lib/types/players/players";
 import React, { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const scoreImpact: Record<string, number> = {
   "03 Points": 3,
@@ -20,19 +21,20 @@ const scoreImpact: Record<string, number> = {
   "Free Throws": 1,
 };
 
-const STORAGE_KEY = "basketballStats";
-
-const saveToLocalStorage = (data: any) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+const saveToLocalStorage = (data: any, teamId: string) => {
+  const key = `basketballStats_${teamId}`;
+  localStorage.setItem(key, JSON.stringify(data));
 };
 
-const loadFromLocalStorage = (): any | null => {
-  const data = localStorage.getItem(STORAGE_KEY);
+const loadFromLocalStorage = (teamId: string): any | null => {
+  const key = `basketballStats_${teamId}`;
+  const data = localStorage.getItem(key);
   return data ? JSON.parse(data) : null;
 };
 
-const clearLocalStorage = () => {
-  localStorage.removeItem(STORAGE_KEY);
+const clearLocalStorage = (teamId: string) => {
+  const key = `basketballStats_${teamId}`;
+  localStorage.removeItem(key);
 };
 
 type PlayerStat = Record<string, number>;
@@ -139,9 +141,9 @@ const Page: React.FC<PageProps> = ({ params }) => {
     setPlayersData(initializePlayerStats(players));
     setTotalScore(0);
     setActivePlayer(null);
-    clearLocalStorage();
+    if (teamId) clearLocalStorage(teamId);
     setHasChanges(false);
-  }, [players, initializePlayerStats]);
+  }, [players, initializePlayerStats, teamId]);
 
   const handleSave = useCallback(async () => {
     if (!hasChanges) {
@@ -182,8 +184,6 @@ const Page: React.FC<PageProps> = ({ params }) => {
         players: mappedData,
       };
 
-      console.log("Mapped Data:", mappedData);
-
       await saveOtmScheduleStat(competitionId, scheduleId, token, stat);
       toast.success("This schedule stats has been successfully saved.");
       router.push("/score-keeper");
@@ -210,7 +210,8 @@ const Page: React.FC<PageProps> = ({ params }) => {
       setIsLoading(true);
       const cleanTeamName = (params.id[0] as string)?.replace(/[-_]/g, " ");
       setTeamName(cleanTeamName);
-      setTeamId(params.id[1]);
+      const currentTeamId = params.id[1];
+      setTeamId(currentTeamId);
 
       try {
         if (!currentUser.accessToken) {
@@ -223,14 +224,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
         const data = await getAllPlayers(
           currentUser.role,
           currentUser.accessToken,
-          params.id[1]
+          currentTeamId
         );
         console.log(data);
 
         setPlayers(data);
 
-        const savedData = loadFromLocalStorage();
-        if (savedData && savedData.teamId === params.id[1]) {
+        const savedData = loadFromLocalStorage(currentTeamId);
+        if (savedData) {
           setPlayersData(savedData.playersData);
           setTotalScore(savedData.totalScore);
         } else {
@@ -248,11 +249,13 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
   useEffect(() => {
     if (teamId) {
-      saveToLocalStorage({
-        teamId,
-        playersData,
-        totalScore,
-      });
+      saveToLocalStorage(
+        {
+          playersData,
+          totalScore,
+        },
+        teamId
+      );
     }
   }, [playersData, totalScore, teamId]);
 
@@ -266,7 +269,16 @@ const Page: React.FC<PageProps> = ({ params }) => {
         ) : error ? (
           <div>{error}</div>
         ) : players.length === 0 ? (
-          <div>No players available for this team.</div>
+          <div className="w-full h-[800px] flex flex-col justify-center items-center gap-2">
+            <span>No players available for this team.</span>
+            <Button
+              onClick={() => {
+                router.push("/score-keeper");
+              }}
+            >
+              Go Back
+            </Button>
+          </div>
         ) : (
           <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 justify-center items-center py-5">
             <ScoreDisplay

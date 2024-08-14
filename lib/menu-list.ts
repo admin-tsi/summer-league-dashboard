@@ -4,6 +4,7 @@ import {
   LayoutGrid,
   Shield,
   Calendar,
+  TrendingUp,
   ClipboardPenLine,
 } from "lucide-react";
 
@@ -118,6 +119,18 @@ export function getMenuList(pathname: string): Group[] {
           label: "Score keeper",
           active: pathname.includes("/score-keeper"),
           icon: ClipboardPenLine,
+          submenus: [],
+        },
+      ],
+    },
+    {
+      groupLabel: "Schedule stats",
+      menus: [
+        {
+          href: "/schedule-stats",
+          label: "Schedule stats",
+          active: pathname.includes("/schedule-stats"),
+          icon: TrendingUp,
           submenus: [],
         },
       ],
