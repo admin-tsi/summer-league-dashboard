@@ -26,6 +26,7 @@ interface ScheduleItem {
   awayTeam: Team;
   matchType: string;
   otmTeam: Team;
+  location: string;
 }
 
 export default function Page() {
@@ -77,7 +78,7 @@ export default function Page() {
           </div>
         ) : (
           <div className="w-full pt-5">
-            <Schedule schedules={schedules} />{" "}
+            <Schedule schedules={schedules} />
           </div>
         )}
       </div>
