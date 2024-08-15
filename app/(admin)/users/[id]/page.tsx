@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { User } from "@/lib/types/login/user";
 import LoadingSpinner from "@/components/loading-spinner";
-import CustomBreadcrumb from "@/components/custom-breadcumb";
 import { getUserById, updateUser } from "@/lib/api/users/users";
 import { UserSchema } from "@/lib/schemas/users/users";
 import { toast } from "sonner";
@@ -29,6 +28,7 @@ import {
 } from "@/components/ui/select";
 import { countryCodes } from "@/constants/data/country-code";
 import { RoleBadge } from "@/components/users/role-badge";
+import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 
 type UserFormData = z.infer<typeof UserSchema>;
 
@@ -106,10 +106,16 @@ export default function Page({
     );
   }
 
+  const breadcrumbPaths = [
+    { label: "Settings", href: "/users" },
+    { label: "Users", href: "/users" },
+    { label: user?.email || "" },
+  ];
+
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 p-12">
-        <CustomBreadcrumb />
+        <DynamicBreadcrumbs paths={breadcrumbPaths} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {user && (
             <>

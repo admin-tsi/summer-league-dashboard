@@ -133,6 +133,13 @@ export function getMenuList(pathname: string): Group[] {
           icon: TrendingUp,
           submenus: [],
         },
+        {
+          href: "/schedules",
+          label: "Schedules",
+          active: pathname.includes("/schedules"),
+          icon: Calendar,
+          submenus: [],
+        },
       ],
     },
   ];

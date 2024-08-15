@@ -14,7 +14,7 @@ import {
 } from "../ui/select";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
-import { teamNames } from "@/constants/team/teamConstant";
+import { teamNames } from "@/constants/team/teams";
 
 import { createTeam } from "@/lib/api/teams/teams";
 import LoadingSpinner from "../loading-spinner";
