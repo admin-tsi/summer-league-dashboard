@@ -20,7 +20,7 @@ export async function createTeam(
     console.error("Failed to create team", error);
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        `Failed to create team: ${error.response.data.message || error.response.statusText}`
+        `${error.response.data.message || error.response.statusText}`
       );
     } else {
       throw new Error("Failed to create team: Network or server error");

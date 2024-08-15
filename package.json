@@ -45,6 +45,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "commitlint": "^19.3.0",
+    "date-fns": "^3.6.0",
     "framer-motion": "^11.3.19",
     "jsonwebtoken": "^9.0.2",
     "lint-staged": "^15.2.7",

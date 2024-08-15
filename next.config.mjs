@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    //domains: ["cdn.nba.com", "summer-league-backend-staging.up.railway.app"],
+    domains: [
+      "cdn.nba.com",
+      "summer-league-storage.s3.eu-north-1.amazonaws.com",
+    ],
     remotePatterns: [
       {
         protocol: "https",
