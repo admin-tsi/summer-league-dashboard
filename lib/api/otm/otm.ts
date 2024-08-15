@@ -22,8 +22,13 @@ export function getOtmSchedules(
       return response.data;
     })
     .catch((error: any) => {
-      console.error("Erreur lors de l'exportation des données OTM:", error);
-      throw error;
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          `${error.response.data.message || error.response.statusText}`
+        );
+      } else {
+        throw new Error("Failed to create team: Network or server error");
+      }
     });
 }
 
@@ -48,7 +53,12 @@ export function saveOtmScheduleStat(
       return response.data;
     })
     .catch((error: any) => {
-      console.error("Erreur lors de l'exportation des données OTM:", error);
-      throw error;
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          `${error.response.data.message || error.response.statusText}`
+        );
+      } else {
+        throw new Error("Failed to create team: Network or server error");
+      }
     });
 }

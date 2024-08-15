@@ -13,7 +13,7 @@ export function DialogDemo({ link }: DialogDemoProps) {
           View Document
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[80%] h-[80%]">
+      <DialogContent className="w-[80%] h-[80%] flex justify-center items-center">
         {link && (
           <iframe
             src={link}

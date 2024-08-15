@@ -78,7 +78,6 @@ const Page: React.FC<PageProps> = ({ params }) => {
       const change = increment ? scoreImpact[stat] : -scoreImpact[stat];
       setTotalScore((prevScore) => {
         const newScore = Math.max(0, prevScore + change);
-        console.log(`Total score updated from ${prevScore} to ${newScore}`);
         return newScore;
       });
     }
@@ -108,7 +107,6 @@ const Page: React.FC<PageProps> = ({ params }) => {
           const currentValue = ((prevData[activePlayer] || {})[stat] ||
             0) as number;
           if (currentValue === 0) {
-            console.log(`${stat} already at 0, no change`);
             return prevData;
           }
 
@@ -190,8 +188,8 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
       handleClear();
     } catch (error: any) {
+      toast.error(`${error.message}`);
       setSubmittingErrors(error.message);
-      console.error("Error saving schedule stats from OTM:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -226,7 +224,6 @@ const Page: React.FC<PageProps> = ({ params }) => {
           currentUser.accessToken,
           currentTeamId
         );
-        console.log(data);
 
         setPlayers(data);
 

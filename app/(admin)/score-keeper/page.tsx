@@ -33,10 +33,12 @@ export default function Page() {
   const currentUser: any = useCurrentUser();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const otmSchedule = async (): Promise<void> => {
       setIsLoading(true);
+      setError(null);
       try {
         const competitionId: string | null = localStorage.getItem(
           "selectedCompetitionId"
@@ -52,9 +54,8 @@ export default function Page() {
           token
         );
         setSchedules(data);
-        console.log("Données :", data);
       } catch (error: unknown) {
-        console.error("Error retrieving match from otm: ", error);
+        setError(`${error}`);
       } finally {
         setIsLoading(false);
       }
@@ -62,19 +63,20 @@ export default function Page() {
     otmSchedule();
   }, [currentUser]);
 
-  const breadcrumbPaths: BreadcrumbPath[] = [
-    { label: "Home", href: "/" },
-    { label: "Kobe Bryant", href: "/score-keeper" },
-    { label: `${currentUser.firstName} ${currentUser.lastName}` },
-  ];
-
   return (
     <ContentLayout title="OTM">
-      <DynamicBreadcrumbs paths={breadcrumbPaths} />
       <div className="w-full">
         {isLoading ? (
           <div className="h-[600px] w-full flex justify-center items-center">
             <LoadingSpinner text="Loading..." />
+          </div>
+        ) : error ? (
+          <div className="h-[600px] w-full flex justify-center items-center">
+            <p>{error}</p>
+          </div>
+        ) : schedules.length === 0 ? (
+          <div className="h-[600px] w-full flex justify-center items-center">
+            <p>No schedules available</p>
           </div>
         ) : (
           <div className="w-full pt-5">
