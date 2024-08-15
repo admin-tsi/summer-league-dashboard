@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import {
@@ -28,31 +28,68 @@ import {
   FormMessage,
   Form,
 } from "@/components/ui/form";
-import { CalendarIcon, Clock } from "lucide-react"; // Import icons
+import { CalendarIcon, Clock } from "lucide-react";
+import { MatchType, Schedule } from "@/lib/types/schedules/schedules";
+import { useCurrentToken } from "@/hooks/use-current-token";
+import { toast } from "sonner";
+import { createSchedule } from "@/lib/api/schedules/schedules";
+import { teamNames } from "@/constants/team/teams";
 
 export default function Page() {
+  const token = useCurrentToken();
+
   const breadcrumbPaths = [
     { label: "Management", href: "/" },
     { label: "Schedules" },
   ];
 
-  const form = useForm({
+  const form = useForm<Omit<Schedule, "_id">>({
     defaultValues: {
-      matchType: "",
+      match_type: "" as MatchType,
       division: "",
       notes: "",
-      date: "",
-      startTime: "",
-      endTime: "",
-      location: "",
-      teamA: "",
-      teamB: "",
+      date: new Date(),
+      hour: "6h30",
+      homeTeam: "",
+      awayTeam: "",
+      stadiumLocation: "",
+      conference: "",
+      homeScoreboardOfficier: "-",
+      awayScoreboardOfficier: "-",
     },
   });
 
-  const onSubmit = (data) => {
-    console.log(data);
-    // Handle form submission
+  const matchType = form.watch("match_type");
+  const homeTeam = useWatch({ control: form.control, name: "homeTeam" });
+  const awayTeam = useWatch({ control: form.control, name: "awayTeam" });
+  const getDivisionOptions = (matchType: MatchType): string[] => {
+    switch (matchType) {
+      case "division":
+        return ["Sin", "Mion", "Djo & Ayi"];
+      case "conference":
+        return ["Hwé", "Sun"];
+      case "playoffs":
+        return ["Quarterfinals", "Semifinals"];
+      case "final":
+        return ["Final"];
+      default:
+        return [];
+    }
+  };
+
+  const onSubmit: SubmitHandler<Omit<Schedule, "_id">> = async (data) => {
+    try {
+      const scheduleData = {
+        ...data,
+      };
+      const competitionId = localStorage.getItem("selectedCompetitionId");
+      await createSchedule(token, scheduleData, competitionId);
+
+      toast.success("Schedule has been created successfully.");
+    } catch (error) {
+      console.error("Failed to create schedule:", error);
+      toast.error("An error occurred while creating the schedule.");
+    }
   };
 
   return (
@@ -76,15 +113,18 @@ export default function Page() {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="matchType"
+                      name="match_type"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="font-semibold">
                             Match Type
                           </FormLabel>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={(value: MatchType) => {
+                              field.onChange(value);
+                              form.setValue("division", "");
+                            }}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="">
@@ -92,9 +132,12 @@ export default function Page() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="friendly">Friendly</SelectItem>
-                              <SelectItem value="league">League</SelectItem>
-                              <SelectItem value="cup">Cup</SelectItem>
+                              <SelectItem value="division">Division</SelectItem>
+                              <SelectItem value="conference">
+                                Conference
+                              </SelectItem>
+                              <SelectItem value="playoffs">Playoffs</SelectItem>
+                              <SelectItem value="final">Final</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -112,7 +155,7 @@ export default function Page() {
                           </FormLabel>
                           <Select
                             onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="">
@@ -120,15 +163,14 @@ export default function Page() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="premier">
-                                Premier League
-                              </SelectItem>
-                              <SelectItem value="championship">
-                                Championship
-                              </SelectItem>
-                              <SelectItem value="league1">
-                                League One
-                              </SelectItem>
+                              {getDivisionOptions(matchType).map((option) => (
+                                <SelectItem
+                                  key={option}
+                                  value={option.toLowerCase()}
+                                >
+                                  {option}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -167,6 +209,37 @@ export default function Page() {
                               <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2" />
                               <Input
                                 type="date"
+                                className="pl-10"
+                                value={
+                                  field.value instanceof Date
+                                    ? field.value.toISOString().split("T")[0]
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const date = new Date(e.target.value);
+                                  field.onChange(date);
+                                }}
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="hour"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-semibold">
+                            Start Time
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2" />
+                              <Input
+                                type="time"
                                 className=" pl-10"
                                 {...field}
                               />
@@ -176,67 +249,19 @@ export default function Page() {
                         </FormItem>
                       )}
                     />
-
-                    <div className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="startTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="font-semibold">
-                              Start Time
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2" />
-                                <Input
-                                  type="time"
-                                  className=" pl-10"
-                                  {...field}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="endTime"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="font-semibold">
-                              End Time
-                            </FormLabel>
-                            <FormControl>
-                              <div className="relative">
-                                <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2" />
-                                <Input
-                                  type="time"
-                                  className=" pl-10"
-                                  {...field}
-                                />
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
                   </div>
 
                   <FormField
                     control={form.control}
-                    name="location"
+                    name="stadiumLocation"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="font-semibold">
-                          Location
+                          Stadium Location
                         </FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Add Location"
+                            placeholder="Add Stadium Location"
                             className=""
                             {...field}
                           />
@@ -249,25 +274,32 @@ export default function Page() {
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="teamA"
+                      name="homeTeam"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="font-semibold">
-                            Team A
+                            Home Team
                           </FormLabel>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              if (value === awayTeam) {
+                                form.setValue("awayTeam", "");
+                              }
+                            }}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="">
-                                <SelectValue placeholder="Select Team A" />
+                                <SelectValue placeholder="Select Home Team" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="teamA1">Team A1</SelectItem>
-                              <SelectItem value="teamA2">Team A2</SelectItem>
-                              <SelectItem value="teamA3">Team A3</SelectItem>
+                              {teamNames.map((team) => (
+                                <SelectItem key={team} value={team}>
+                                  {team}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -277,25 +309,34 @@ export default function Page() {
 
                     <FormField
                       control={form.control}
-                      name="teamB"
+                      name="awayTeam"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="font-semibold">
-                            Team B
+                            Away Team
                           </FormLabel>
                           <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              if (value === homeTeam) {
+                                form.setValue("homeTeam", "");
+                              }
+                            }}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger className="">
-                                <SelectValue placeholder="Select Team B" />
+                                <SelectValue placeholder="Select Away Team" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="teamB1">Team B1</SelectItem>
-                              <SelectItem value="teamB2">Team B2</SelectItem>
-                              <SelectItem value="teamB3">Team B3</SelectItem>
+                              {teamNames
+                                .filter((team) => team !== homeTeam)
+                                .map((team) => (
+                                  <SelectItem key={team} value={team}>
+                                    {team}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
