@@ -51,13 +51,13 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       try {
         setIsDivisionsLoading(true);
         const selectedCompetitionId = localStorage.getItem(
-          "selectedCompetitionId"
+          "selectedCompetitionId",
         );
         if (selectedCompetitionId && teamGender) {
           setSelectedCompetitionId(selectedCompetitionId);
           const divisionsData = await getDivisions(
             selectedCompetitionId,
-            teamGender
+            teamGender,
           );
           setDivisions(divisionsData);
         } else {
@@ -91,7 +91,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       }
     } else {
       setError(
-        "We're having trouble logging you in. Please refresh the page or log out temporarily."
+        "We're having trouble logging you in. Please refresh the page or log out temporarily.",
       );
     }
   };
@@ -198,12 +198,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
           )}
         </Button>
       </div>
-      {error && (
-        <div className="text-red-600 text-sm w-full flex justify-center items-center">
-          <FormError message={error} />
-          <span>{error}</span>
-        </div>
-      )}
+      {error && <FormError message={error} />}
     </form>
   );
 };
