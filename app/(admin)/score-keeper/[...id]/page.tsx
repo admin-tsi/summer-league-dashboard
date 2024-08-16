@@ -176,10 +176,10 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
       const stat = {
         team: teamId,
-        scoreboardOfficiel: currentUser.id,
-        schedule: scheduleId,
         players: mappedData,
       };
+
+      console.log(stat);
 
       await saveOtmScheduleStat(competitionId, scheduleId, token, stat);
       toast.success("This schedule stats has been successfully saved.");

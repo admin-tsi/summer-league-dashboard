@@ -3,9 +3,9 @@ import axios, { AxiosResponse } from "axios";
 const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 
 export async function getOtmSchedules(
-    competitionId: string,
-    otmId: string,
-    token: string
+  competitionId: string,
+  otmId: string,
+  token: string
 ): Promise<any> {
   const url: string = `${baseUrl}/kb-stats/otm/schedules/${otmId}`;
 
@@ -31,7 +31,7 @@ export async function getOtmSchedules(
   }
 }
 
-export function saveOtmScheduleStat(
+export async function saveOtmScheduleStat(
   competitionId: string,
   scheduleId: string,
   token: string,

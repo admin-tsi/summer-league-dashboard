@@ -5,6 +5,8 @@ import {
   isBefore,
   isWithinInterval,
   parseISO,
+  setHours,
+  setMinutes,
 } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { MapPin } from "lucide-react";
@@ -19,7 +21,8 @@ interface Team {
 interface ScheduleItem {
   schedule: string;
   date: string;
-  hour: string;
+  startTime: string;
+  endTime: string;
   homeTeam: Team;
   awayTeam: Team;
   matchType: string;
@@ -32,12 +35,20 @@ type Props = {
 };
 
 const Schedule: React.FC<Props> = ({ schedules }) => {
-  const getStatusColor = (date: string, hour: string): string => {
+  const parseTime = (timeString: string, date: Date): Date => {
+    const [hours, minutes] = timeString.split(":").map(Number);
+    return setMinutes(setHours(date, hours), minutes);
+  };
+
+  const getStatusColor = (
+    date: string,
+    startTime: string,
+    endTime: string
+  ): string => {
     const now = new Date();
-    const [hours, minutes] = hour.split("H").map(Number);
-    const matchDateTime = parseISO(date);
-    matchDateTime.setHours(hours, minutes);
-    const matchEndTime = addHours(matchDateTime, 2);
+    const matchDate = parseISO(date);
+    const matchDateTime = parseTime(startTime, matchDate);
+    const matchEndTime = parseTime(endTime, matchDate);
 
     if (isBefore(matchEndTime, now)) {
       return "bg-destructive";
@@ -86,7 +97,11 @@ const Schedule: React.FC<Props> = ({ schedules }) => {
               </span>
             </div>
             {items.map((item) => {
-              const statusColor = getStatusColor(item.date, item.hour);
+              const statusColor = getStatusColor(
+                item.date,
+                item.startTime,
+                item.endTime
+              );
               const linkHref = getLinkHref(item);
               return (
                 <Link
@@ -94,14 +109,16 @@ const Schedule: React.FC<Props> = ({ schedules }) => {
                   key={item.schedule}
                   className="w-full grid grid-cols-8 content-center px-2 py-5 border-b-2 hover:bg-primary-foreground"
                 >
-                  <span className="col-span-4 md:col-span-2">{item.hour}</span>
+                  <span className="col-span-4 md:col-span-2">
+                    {item.startTime} - {item.endTime}
+                  </span>
                   <div className="col-span-4 md:col-span-4 flex gap-2 items-center">
                     <div className={`size-4 ${statusColor} rounded-full`} />
                     <span className="w-full">
                       {item.homeTeam.teamName} VS {item.awayTeam.teamName}
                     </span>
                   </div>
-                  <div className="hidden col-span-2 md:flex justify-end items-center gap-3">
+                  <div className="hidden md:col-span-2 md:flex justify-end items-center gap-3">
                     <MapPin size={20} />
                     {item.location}
                   </div>
