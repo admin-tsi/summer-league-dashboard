@@ -2,10 +2,10 @@ import axios, { AxiosResponse } from "axios";
 
 const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 
-export function getOtmSchedules(
-  competitionId: string,
-  otmId: string,
-  token: string
+export async function getOtmSchedules(
+    competitionId: string,
+    otmId: string,
+    token: string
 ): Promise<any> {
   const url: string = `${baseUrl}/kb-stats/otm/schedules/${otmId}`;
 
@@ -16,20 +16,19 @@ export function getOtmSchedules(
     },
   };
 
-  return axios
-    .get(url, config)
-    .then((response: AxiosResponse) => {
-      return response.data;
-    })
-    .catch((error: any) => {
-      if (axios.isAxiosError(error) && error.response) {
-        throw new Error(
+  try {
+    const response = await axios
+        .get(url, config);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
           `${error.response.data.message || error.response.statusText}`
-        );
-      } else {
-        throw new Error("Failed to create team: Network or server error");
-      }
-    });
+      );
+    } else {
+      throw new Error("Failed to create team: Network or server error");
+    }
+  }
 }
 
 export function saveOtmScheduleStat(
