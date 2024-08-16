@@ -15,7 +15,7 @@ export const submitForm = async (data: any) => {
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-        error.response.data?.message || "Une erreur est survenue."
+        error.response.data?.errors || "Une erreur est survenue."
       );
     } else {
       throw new Error("Une erreur est survenue.");

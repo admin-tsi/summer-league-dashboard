@@ -18,6 +18,8 @@ export default function Page({ params }: { params: { id: string } }) {
   const [team1, setTeam1] = useState<PlayerStats | null>(null);
   const [team2, setTeam2] = useState<PlayerStats | null>(null);
 
+  const isAdmin = currentUser?.role === "admin";
+
   useEffect(() => {
     const fetchSchedules = async () => {
       setIsLoading(true);
@@ -94,26 +96,23 @@ export default function Page({ params }: { params: { id: string } }) {
           </div>
         ) : (
           <div className="w-full pt-5 grid grid-cols-1 gap-5">
-            <div className="grid grid-cols-1 gap-3">
-              <DataTable
-                columns={columns({ handleDelete: handleDeletePlayerTeam1 })}
-                data={[team1]}
-                showHeaderAndFooter={false}
-              />
-              <div className="w-full flex justify-end items-center">
-                <Button>Delete this stats</Button>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-3">
-              <DataTable
-                columns={columns({ handleDelete: handleDeletePlayerTeam2 })}
-                data={[team2]}
-                showHeaderAndFooter={false}
-              />
-              <div className="w-full flex justify-end items-center">
-                <Button>Delete this stats</Button>
-              </div>
-            </div>
+            <DataTable
+              columns={columns({
+                handleDelete: handleDeletePlayerTeam1,
+                isAdmin,
+              })}
+              data={[team1]}
+              showHeaderAndFooter={false}
+            />
+
+            <DataTable
+              columns={columns({
+                handleDelete: handleDeletePlayerTeam2,
+                isAdmin,
+              })}
+              data={[team2]}
+              showHeaderAndFooter={false}
+            />
           </div>
         )}
       </div>

@@ -36,6 +36,7 @@ const EditInput: React.FC<InputProps> = ({
         type={type ? type : "text"}
         onChange={onChange}
         onBlur={onBlur}
+        min={0}
         placeholder={placeholder}
         className={`px-4 py-2 border rounded-md focus-visible:outline-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
           errorMessage ? "border-red-500" : "border-black"
