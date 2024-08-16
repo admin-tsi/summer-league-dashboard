@@ -10,7 +10,7 @@ import InteractiveStatusBadge from "@/components/players/edit/interactive-player
 import { PositionSelect } from "@/components/players/edit/position-select";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Button } from "@/components/ui/button";
-import { countryCodes } from "@/constants/data/country-code";
+import { countryCodes } from "@/constants/data/country-codes";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   createPlayer,
