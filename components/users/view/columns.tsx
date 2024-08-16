@@ -14,19 +14,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { User } from "@/lib/types/login/user";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
@@ -36,6 +23,19 @@ import {
 } from "@/components/ui/tooltip";
 import { RoleBadge } from "@/components/users/role-badge";
 import React from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const columns = (
   handleDelete: (userId: string) => void,
@@ -189,125 +189,112 @@ export const columns = (
     header: "Actions",
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Button
-          aria-label="Edit"
-          className="p-2 rounded hover:bg-gray-200"
-          variant="ghost"
-          onClick={() => handleEdit(row.original._id)}
-        >
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="p-2 rounded hover:bg-gray-100"
+                onClick={() => handleEdit(row.original._id)}
+              >
                 <Pencil className="h-4 text-blue-500" />
-              </TooltipTrigger>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <span>Edit user</span>
+            </TooltipContent>
+          </Tooltip>
+          <AlertDialog>
+            <Tooltip>
+              <AlertDialogTrigger asChild>
+                <TooltipTrigger asChild>
+                  <button className="p-2 rounded hover:bg-gray-100">
+                    <Trash2 className="h-4 text-red-500" />
+                  </button>
+                </TooltipTrigger>
+              </AlertDialogTrigger>
               <TooltipContent>
-                <span>Edit user</span>
+                <span>Delete user</span>
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-        </Button>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              aria-label="Delete"
-              className="p-2 rounded hover:bg-gray-100"
-              variant="ghost"
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Trash2 className="h-4 text-red-500" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span>Delete user</span>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete this
-                account and remove the data from our servers.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                className="text-white hover:bg-red-500"
-                onClick={() => handleDelete(row.original._id)}
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              aria-label="Change Role"
-              className="p-2 rounded hover:bg-gray-100"
-              variant="ghost"
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  this account and remove the data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="text-white hover:bg-red-500"
+                  onClick={() => handleDelete(row.original._id)}
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="p-2 rounded hover:bg-gray-100">
                     <BadgeCheck className="h-4 text-primary-yellow" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <span>Change user role</span>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">Change User Role</h4>
-                <p className="text-sm text-muted-foreground">
-                  Select a new role for this user
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <div className="grid grid-cols-3 items-center gap-4">
-                  <Label htmlFor="role">Role</Label>
-                  <Select
-                    onValueChange={(value) =>
-                      handleRoleChange(row.original._id, value)
-                    }
-                    defaultValue={row.original.role}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a role" />
-                    </SelectTrigger>
-                    <SelectContent>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <span>Change user role</span>
+                </TooltipContent>
+              </Tooltip>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Change User Role</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Select a new role for this user
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="role">Role</Label>
+                    <Select
+                      onValueChange={(value) =>
+                        handleRoleChange(row.original._id, value)
+                      }
+                      defaultValue={row.original.role}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">
-                          <RoleBadge role="admin" />
-                        </SelectItem>
-                        <SelectItem value="user">
-                          <RoleBadge role="user" />
-                        </SelectItem>
-                        <SelectItem value="team-manager">
-                          <RoleBadge role="team-manager" />
-                        </SelectItem>
-                        <SelectItem value="kobe-bryant">
-                          <RoleBadge role="kobe-bryant" />
-                        </SelectItem>
-                        <SelectItem value="content-creator">
-                          <RoleBadge role="content-creator" />
-                        </SelectItem>
+                        <SelectContent>
+                          <SelectItem value="admin">
+                            <RoleBadge role="admin" />
+                          </SelectItem>
+                          <SelectItem value="user">
+                            <RoleBadge role="user" />
+                          </SelectItem>
+                          <SelectItem value="team-manager">
+                            <RoleBadge role="team-manager" />
+                          </SelectItem>
+                          <SelectItem value="kobe-bryant">
+                            <RoleBadge role="kobe-bryant" />
+                          </SelectItem>
+                          <SelectItem value="content-creator">
+                            <RoleBadge role="content-creator" />
+                          </SelectItem>
+                        </SelectContent>
                       </SelectContent>
-                    </SelectContent>
-                  </Select>
+                    </Select>
+                  </div>
                 </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
+        </TooltipProvider>
       </div>
     ),
   },
