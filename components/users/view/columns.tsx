@@ -238,16 +238,9 @@ export const columns = (
 
           <Popover>
             <PopoverTrigger asChild>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="p-2 rounded hover:bg-gray-100">
-                    <BadgeCheck className="h-4 text-primary-yellow" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <span>Change user role</span>
-                </TooltipContent>
-              </Tooltip>
+              <button className="p-2 rounded hover:bg-gray-100">
+                <BadgeCheck className="h-4 text-primary-yellow" />
+              </button>
             </PopoverTrigger>
             <PopoverContent className="w-80">
               <div className="grid gap-4">
