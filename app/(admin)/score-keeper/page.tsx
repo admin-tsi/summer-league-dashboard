@@ -3,7 +3,6 @@
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import Schedule from "@/components/score-keeer/schedule";
-import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getOtmSchedules } from "@/lib/api/otm/otm";
 import { useEffect, useState } from "react";
@@ -21,7 +20,8 @@ interface Team {
 interface ScheduleItem {
   schedule: string;
   date: string;
-  hour: string;
+  startTime: string;
+  endTime: string;
   homeTeam: Team;
   awayTeam: Team;
   matchType: string;
@@ -53,6 +53,8 @@ export default function Page() {
           otmId,
           token
         );
+        console.log(data);
+
         setSchedules(data);
       } catch (error: unknown) {
         setError(`${error}`);

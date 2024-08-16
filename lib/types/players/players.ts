@@ -19,7 +19,7 @@ export type Player = {
   saison: string;
   playerStatus: {
     status: boolean;
-    comment:string;
+    comment: string;
   };
   playerTeam: {
     _id: string;
@@ -35,5 +35,52 @@ export type Player = {
   };
   createdAt: string;
   updatedAt: string;
+  __v: number;
+};
+
+export type PlayerStats = {
+  _id: string;
+  schedule: string;
+  scoreboardOfficiel: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phoneNumber: string;
+    countryCode: string;
+  };
+  team: {
+    _id: string;
+    teamName: string;
+    city: string;
+    teamManager: string;
+    divisionName: string;
+    teamGender: string;
+    saison: string;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  };
+  competition: string;
+  players: {
+    player: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      position: string;
+      dorseyNumber: number;
+      weight: number;
+      playerImage: string;
+    };
+    threePoints: number;
+    twoPoints: number;
+    lancerFranc: number;
+    assists: number;
+    blocks: number;
+    fouls: number;
+    turnOver: number;
+    steal: number;
+    rebonds: number;
+  }[];
   __v: number;
 };
