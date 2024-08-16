@@ -45,6 +45,14 @@ export function getMenuList(
           submenus: [],
           roles: [],
         },
+        {
+          href: "/dashboard-tm",
+          label: "Dashboard team manager",
+          active: pathname.includes("/dashboard-tm"),
+          icon: LayoutGrid,
+          submenus: [],
+          roles: ["team-manager"],
+        },
       ],
     },
     {
