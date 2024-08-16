@@ -198,12 +198,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
           )}
         </Button>
       </div>
-      {error && (
-        <div className="text-red-600 text-sm w-full flex justify-center items-center">
-          <FormError message={error} />
-          <span>{error}</span>
-        </div>
-      )}
+      {error && <FormError message={error} />}
     </form>
   );
 };
