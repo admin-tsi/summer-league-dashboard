@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { positions } from "@/constants/player/player-position";
+import { positions } from "@/constants/player/player-positions";
 
 export function PositionSelect({
   position,

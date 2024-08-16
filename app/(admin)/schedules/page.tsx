@@ -49,13 +49,14 @@ export default function Page() {
       division: "",
       notes: "",
       date: new Date(),
-      hour: "6h30",
       homeTeam: "",
       awayTeam: "",
       stadiumLocation: "",
       conference: "",
       homeScoreboardOfficier: "-",
       awayScoreboardOfficier: "-",
+      startTime: "",
+      endTime: "",
     },
   });
 

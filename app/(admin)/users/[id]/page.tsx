@@ -26,7 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { countryCodes } from "@/constants/data/country-code";
+import { countryCodes } from "@/constants/data/country-codes";
 import { RoleBadge } from "@/components/users/role-badge";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 
@@ -262,6 +262,9 @@ export default function Page({
                         </SelectItem>
                         <SelectItem value="team-manager">
                           <RoleBadge role="team-manager" />
+                        </SelectItem>
+                        <SelectItem value="kobe-bryant">
+                          <RoleBadge role="kobe-bryant" />
                         </SelectItem>
                       </SelectContent>
                     </Select>

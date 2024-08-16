@@ -1,11 +1,11 @@
-export interface CountryCode {
+export interface CountryCodes {
   id: number;
   code: string;
   country: string;
   emoji: string;
 }
 
-export const countryCodes: CountryCode[] = [
+export const countryCodes: CountryCodes[] = [
   { id: 1, code: "+229", country: "Benin", emoji: "🇧🇯" },
   { id: 2, code: "+234", country: "Nigeria", emoji: "🇳🇬" },
   { id: 3, code: "+225", country: "Ivory Coast", emoji: "🇨🇮" },
