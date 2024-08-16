@@ -22,21 +22,21 @@ import {
 import { deletePlayer } from "@/lib/api/players/players";
 
 interface DeletePlayerProps {
-  playerId: string;
+  scheduleId: string;
   onDelete: () => void;
 }
 
-export function DeletePlayer({ playerId, onDelete }: DeletePlayerProps) {
+export function DeletePlayer({ scheduleId, onDelete }: DeletePlayerProps) {
   const token = useCurrentToken();
 
   const handleDeletePlayer = async () => {
     if (token) {
       try {
-        await deletePlayer(playerId, token);
-        toast.success("Player deleted successfully");
+        await deletePlayer(scheduleId, token);
+        toast.success("Schedule deleted successfully");
         onDelete();
       } catch (error) {
-        toast.error("Failed to delete player");
+        toast.error("Failed to delete schedule");
       }
     }
   };
@@ -53,7 +53,7 @@ export function DeletePlayer({ playerId, onDelete }: DeletePlayerProps) {
             </TooltipTrigger>
           </AlertDialogTrigger>
           <TooltipContent>
-            <span>Delete user</span>
+            <span>Delete schedule</span>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -62,7 +62,7 @@ export function DeletePlayer({ playerId, onDelete }: DeletePlayerProps) {
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription className="text-primary">
             This action cannot be undone. This will permanently delete the
-            player and remove their data from our servers.
+            schedule and remove their data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
