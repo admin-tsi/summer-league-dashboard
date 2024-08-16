@@ -34,7 +34,7 @@ export function CustomSelect({
 }: CustomSelectProps) {
   return (
     <div className="w-full flex flex-col space-y-2">
-      <Label htmlFor={label} className="text-sm font-medium text-gray-700">
+      <Label htmlFor={label} className="text-sm font-medium text-gray-900">
         {label}
       </Label>
       <Select onValueChange={onValueChange} value={value || ""}>

@@ -12,7 +12,7 @@ export const RegisterSchema = z.object({
     .regex(/[0-9]/, "Password must contain at least one number")
     .regex(
       /[^a-zA-Z0-9]/,
-      "Password must contain at least one special character",
+      "Password must contain at least one special character"
     ),
   address: z.string().min(1, "Address is required"),
   countryCode: z.string().min(1, "Country code is required"),
@@ -36,5 +36,8 @@ export const RegisterSchema = z.object({
       }
       return age >= 15;
     }, "You must be at least 15 years old"),
-  specialization: z.string().min(1, "Specialization is required"),
+  profession: z.string().min(1, "Please provide your profession."),
+  specialization: z
+    .string()
+    .min(1, "Please specify your role in the summer league."),
 });

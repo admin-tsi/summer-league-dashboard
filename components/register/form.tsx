@@ -9,6 +9,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Checkbox } from "../ui/checkbox";
 import LoadingSpinner from "../loading-spinner";
+import { countryCodes } from "@/constants/data/country-codes";
 import Link from "next/link";
 import logo from "@/public/logo.svg";
 import Image from "next/image";
@@ -16,6 +17,8 @@ import Confetti, { ConfettiRef } from "../magicui/confetti";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RegisterSchema } from "@/lib/schemas/auth/register";
+import { CustomSelect } from "../players/edit/custom-select";
+import { userRole } from "@/constants/user/user";
 
 type Inputs = z.infer<typeof RegisterSchema>;
 
@@ -33,7 +36,7 @@ const steps = [
   {
     id: "Step 3",
     name: "Tell us more about you",
-    fields: ["specialization", "dateOfBirth"],
+    fields: ["profession", "specialization", "dateOfBirth"],
   },
   {
     id: "Step 4",
@@ -57,17 +60,29 @@ export default function Form() {
     watch,
     reset,
     trigger,
+    setValue,
     formState: { errors },
   } = useForm<Inputs>({
     resolver: zodResolver(RegisterSchema),
   });
 
+  const countryCodeOptions = countryCodes.map((country) => ({
+    id: country.id,
+    value: country.code,
+    label: `${country.emoji} ${country.country} (${country.code})`,
+  }));
+
+  const userFunctionOptions = userRole.map((functions) => ({
+    id: functions.id,
+    value: functions.role,
+    label: `${functions.role}`,
+  }));
+
   const processForm: SubmitHandler<Inputs> = async (data) => {
     try {
       setIsSubmitting(true);
-      const response = await submitForm(data);
+      await submitForm(data);
       setFormError(null);
-      console.log(response);
       localStorage.removeItem("formData");
     } catch (error: any) {
       console.error(error);
@@ -110,6 +125,18 @@ export default function Form() {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const passwordValue = watch("password");
+
+  const passwordChecklist = [
+    { label: "At least 8 characters long", regex: /.{8,}/ },
+    { label: "Contains at least one lowercase letter", regex: /[a-z]/ },
+    { label: "Contains at least one uppercase letter", regex: /[A-Z]/ },
+    { label: "Contains at least one number", regex: /[0-9]/ },
+    { label: "Contains at least one special character", regex: /[^a-zA-Z0-9]/ },
+  ];
+
+  const isConditionMet = (regex: RegExp) => regex.test(passwordValue || "");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -214,7 +241,7 @@ export default function Form() {
                     Password
                   </label>
                   <div className="relative mt-2">
-                    <Input
+                    <input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       {...register("password")}
@@ -222,6 +249,7 @@ export default function Form() {
                       placeholder="********"
                       className="block w-full px-2 rounded-md border-[1px] placeholder:px-2 py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
+
                     <Button
                       type="button"
                       variant="ghost"
@@ -234,6 +262,27 @@ export default function Form() {
                         <Eye className="h-4 w-4" />
                       )}
                     </Button>
+
+                    <div className="mt-4">
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        Password must meet the following criteria :
+                      </h3>
+                      <ul className="mt-2 space-y-1">
+                        {passwordChecklist.map((item, index) => (
+                          <li key={index} className="flex items-center">
+                            <Checkbox
+                              checked={isConditionMet(item.regex)}
+                              disabled={true}
+                              className="rounded-full"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">
+                              {item.label}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
                     {errors.password?.message && (
                       <p className="mt-2 text-sm text-red-400">
                         {errors.password.message}
@@ -308,51 +357,37 @@ export default function Form() {
                 </div>
 
                 <div className="w-full">
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-1">
-                      <label
-                        htmlFor="countryCode"
-                        className="block text-sm font-medium leading-6 text-gray-900 text-"
-                      >
-                        Country Code
-                      </label>
-                      <input
-                        type="text"
-                        id="countryCode"
-                        {...register("countryCode")}
-                        autoComplete="countryCode"
-                        placeholder="+229"
-                        className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
-                      />
-                      {errors.countryCode?.message && (
-                        <p className="mt-2 text-sm text-red-400">
-                          {errors.countryCode.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="col-span-2">
-                      <label
-                        htmlFor="lastName"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
-                        Phone number
-                      </label>
-                      <div className="">
-                        <input
-                          type="text"
-                          id="phoneNumber"
-                          {...register("phoneNumber")}
-                          autoComplete="phoneNumber"
-                          placeholder="96000000"
-                          className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
-                        />
-                        {errors.phoneNumber?.message && (
-                          <p className="mt-2 text-sm text-red-400">
-                            {errors.phoneNumber.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+                  <CustomSelect
+                    label="Country Code"
+                    placeholder="Select country code"
+                    options={countryCodeOptions}
+                    value={watch("countryCode")}
+                    onValueChange={(value) => setValue("countryCode", value)}
+                    error={errors.countryCode?.message}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Phone number
+                  </label>
+                  <div className="">
+                    <input
+                      type="text"
+                      id="phoneNumber"
+                      {...register("phoneNumber")}
+                      autoComplete="phoneNumber"
+                      placeholder="96000000"
+                      className="block w-full rounded-md border-[1px] h-10 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
+                    />
+                    {errors.phoneNumber?.message && (
+                      <p className="mt-2 text-sm text-red-400">
+                        {errors.phoneNumber.message}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -400,25 +435,36 @@ export default function Form() {
               <div className="mt-5 grid grid-cols-1 gap-4">
                 <div className="sm:col-span-3">
                   <label
-                    htmlFor="specialization"
+                    htmlFor="profession"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    Specialization
+                    What do you do for a living ? (Profession)
                   </label>
                   <div className="mt-2">
                     <input
                       type="text"
-                      id="specialization"
-                      {...register("specialization")}
-                      placeholder="Specialization"
+                      id="profession"
+                      {...register("profession")}
+                      autoComplete="profession"
+                      placeholder="e.g., Web Developer, Teacher, etc."
                       className="block w-full rounded-md border-[1px] py-1.5 text-gray-900 shadow-sm bg-background placeholder:text-gray-400 sm:text-sm sm:leading-6 focus-visible:outline-none"
                     />
-                    {errors.specialization?.message && (
+                    {errors.profession?.message && (
                       <p className="mt-2 text-sm text-red-400">
-                        {errors.specialization.message}
+                        {errors.profession.message}
                       </p>
                     )}
                   </div>
+                </div>
+                <div className="sm:col-span-3">
+                  <CustomSelect
+                    label="What is your role in the summer league ?"
+                    placeholder="Select your role"
+                    options={userFunctionOptions}
+                    value={watch("specialization")}
+                    onValueChange={(value) => setValue("specialization", value)}
+                    error={errors.specialization?.message}
+                  />
                 </div>
 
                 <div className="sm:col-span-3">
