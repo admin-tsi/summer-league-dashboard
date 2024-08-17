@@ -1,24 +1,28 @@
 "use client";
-
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import { columns } from "@/components/schedule-stats/[id]/columns";
+import { EditStatsModal } from "@/components/schedule-stats/[id]/editStatsModal";
 import { DataTable } from "@/components/schedule-stats/schedulesDataTable";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { getDetailedScheduleStats } from "@/lib/api/schedules-stats/schedules-stats";
+import {
+  deleteOtmScheduleStat,
+  getDetailedScheduleStats,
+} from "@/lib/api/schedules-stats/schedules-stats";
 import { PlayerStats } from "@/lib/types/players/players";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Page({ params }: { params: { id: string } }) {
   const currentUser = useCurrentUser();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [team1, setTeam1] = useState<PlayerStats | null>(null);
-  const [team2, setTeam2] = useState<PlayerStats | null>(null);
-
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [teams, setTeams] = useState<PlayerStats[]>([]);
   const isAdmin = currentUser?.role === "admin";
+  const [editingTeamIndex, setEditingTeamIndex] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchSchedules = async () => {
@@ -37,9 +41,9 @@ export default function Page({ params }: { params: { id: string } }) {
           competitionId,
           currentUser.accessToken
         );
-        if (Array.isArray(data) && data.length >= 2) {
-          setTeam1(data[0]);
-          setTeam2(data[1]);
+        console.log(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setTeams(data);
         } else {
           throw new Error("Unexpected data format");
         }
@@ -54,22 +58,41 @@ export default function Page({ params }: { params: { id: string } }) {
     fetchSchedules();
   }, [currentUser, params.id]);
 
-  const handleDeletePlayerTeam1 = (id: string) => {
-    if (team1) {
-      setTeam1({
-        ...team1,
-        players: team1.players.filter((player) => player.player._id !== id),
-      });
+  const handleDeletePlayer = (teamIndex: number) => (id: string) => {
+    setTeams((prevTeams) => {
+      const newTeams = [...prevTeams];
+      newTeams[teamIndex] = {
+        ...newTeams[teamIndex],
+        players: newTeams[teamIndex].players.filter(
+          (player) => player.player._id !== id
+        ),
+      };
+      return newTeams;
+    });
+  };
+
+  const handleDeleteScheduleStats = async (scheduleStatId: string) => {
+    try {
+      const competitionId = localStorage.getItem("selectedCompetitionId");
+      if (!competitionId || !currentUser?.accessToken) {
+        throw new Error("Missing competition ID or access token");
+      }
+      await deleteOtmScheduleStat(
+        competitionId,
+        scheduleStatId,
+        currentUser.accessToken
+      );
+      toast.success("This schedule stat has been deleted");
+      setTeams((prevTeams) =>
+        prevTeams.filter((team) => team._id !== scheduleStatId)
+      );
+    } catch (error) {
+      toast.error(`${error}`);
     }
   };
 
-  const handleDeletePlayerTeam2 = (id: string) => {
-    if (team2) {
-      setTeam2({
-        ...team2,
-        players: team2.players.filter((player) => player.player._id !== id),
-      });
-    }
+  const handleUpdateStats = async (updatedTeam: any) => {
+    window.location.reload();
   };
 
   const breadcrumbPaths = [
@@ -90,32 +113,68 @@ export default function Page({ params }: { params: { id: string } }) {
           <div className="h-[600px] w-full flex justify-center items-center">
             <p>{error}</p>
           </div>
-        ) : !team1 || !team2 ? (
+        ) : teams.length === 0 ? (
           <div className="h-[600px] w-full flex justify-center items-center">
             <p>No schedules stats available</p>
           </div>
         ) : (
-          <div className="w-full pt-5 grid grid-cols-1 gap-5">
-            <DataTable
-              columns={columns({
-                handleDelete: handleDeletePlayerTeam1,
-                isAdmin,
-              })}
-              data={[team1]}
-              showHeaderAndFooter={false}
-            />
-
-            <DataTable
-              columns={columns({
-                handleDelete: handleDeletePlayerTeam2,
-                isAdmin,
-              })}
-              data={[team2]}
-              showHeaderAndFooter={false}
-            />
+          <div className="grid grid-cols-1 gap-4">
+            <div className="w-full pt-5 grid grid-cols-1 gap-5">
+              {teams.map((team, index) => (
+                <div key={index}>
+                  <DataTable
+                    columns={columns({
+                      handleDelete: handleDeletePlayer(index),
+                      isAdmin,
+                    })}
+                    data={[team]}
+                    showHeaderAndFooter={false}
+                  />
+                  <div className="w-full flex justify-end items-center mt-4">
+                    <Button
+                      variant="def"
+                      className="border hover:bg-destructive hover:text-white mr-2"
+                      onClick={() => setEditingTeamIndex(index)}
+                    >
+                      Update this schedule stats
+                    </Button>
+                    <Button
+                      variant="def"
+                      className="border hover:bg-destructive hover:text-white"
+                      onClick={() => handleDeleteScheduleStats(team._id)}
+                    >
+                      {isDeleting ? (
+                        <LoadingSpinner text="Deleting..." />
+                      ) : (
+                        "Delete this schedule stats"
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {teams.length === 2 && (
+              <div className="w-full flex justify-end items-center">
+                <Button
+                  variant="def"
+                  className="border hover:bg-primary-green hover:text-white"
+                >
+                  Validate this schedule stats
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
+      {editingTeamIndex !== null && teams[editingTeamIndex] && (
+        <EditStatsModal
+          isOpen={true}
+          onClose={() => setEditingTeamIndex(null)}
+          team={teams[editingTeamIndex]}
+          onSave={handleUpdateStats}
+          scheduleStatId={teams[editingTeamIndex]._id}
+        />
+      )}
     </ContentLayout>
   );
 }
