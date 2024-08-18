@@ -1,0 +1,38 @@
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+const Standings = () => (
+  <div className="border rounded-md p-5 h-fit md:h-[550px] gap-2">
+    <div className="flex justify-between items-center text-sm">
+      <span className="text-1xl font-bold">Standings</span>
+      <span>View All</span>
+    </div>
+    <div className="w-full pt-5">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-1/12">Position</TableHead>
+            <TableHead className="w-8/12">Team</TableHead>
+            <TableHead className="w-3/12">Point</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell className="font-medium">kj</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
+  </div>
+);
+
+export default Standings;

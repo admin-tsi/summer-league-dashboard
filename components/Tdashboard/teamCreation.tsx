@@ -14,6 +14,8 @@ function AboutTeam({}: Props) {
 
   useEffect(() => {
     if (currentUser && currentUser.isManageTeam) {
+      console.log(currentUser.accessToken);
+
       setTeamId(currentUser.isManageTeam);
       setCreationSuccess(true);
     }
