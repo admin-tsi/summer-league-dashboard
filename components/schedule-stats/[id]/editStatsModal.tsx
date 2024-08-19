@@ -15,7 +15,15 @@ import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 type PlayerStat = {
-  player: string;
+  player: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    position: string;
+    dorseyNumber: number;
+    weight: number;
+    playerImage: string;
+  };
   threePoints: number;
   twoPoints: number;
   lancerFranc: number;
@@ -71,7 +79,7 @@ export function EditStatsModal({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [editedStats, setEditedStats] = useState<PlayerStat[]>(() =>
     team.players.map((player) => ({
-      player: player.player._id,
+      player: player.player,
       threePoints: player.threePoints,
       twoPoints: player.twoPoints,
       lancerFranc: player.lancerFranc,
@@ -108,41 +116,47 @@ export function EditStatsModal({
       if (!competitionId || !currentUser?.accessToken) {
         throw new Error("Competition ID or access token not found");
       }
-      const formattedStats = {
-        players: editedStats.map((stat) => ({
-          ...stat,
-          threePoints: stat.threePoints.toString(),
-          twoPoints: stat.twoPoints.toString(),
-          lancerFranc: stat.lancerFranc.toString(),
-          assists: stat.assists.toString(),
-          blocks: stat.blocks.toString(),
-          fouls: stat.fouls.toString(),
-          turnOver: stat.turnOver.toString(),
-          steal: stat.steal.toString(),
-          rebonds: stat.rebonds.toString(),
-        })),
+
+      const updatedPlayers: PlayerStat[] = team.players.map(
+        (playerData, index) => ({
+          player: playerData.player,
+          threePoints: editedStats[index].threePoints,
+          twoPoints: editedStats[index].twoPoints,
+          lancerFranc: editedStats[index].lancerFranc,
+          assists: editedStats[index].assists,
+          blocks: editedStats[index].blocks,
+          fouls: editedStats[index].fouls,
+          turnOver: editedStats[index].turnOver,
+          steal: editedStats[index].steal,
+          rebonds: editedStats[index].rebonds,
+        })
+      );
+
+      const newTeam = {
+        ...team,
+        players: updatedPlayers,
       };
 
       await updateOtmScheduleStat(
         competitionId,
         scheduleStatId,
         currentUser.accessToken,
-        formattedStats
+        { players: newTeam.players }
       );
 
       toast.success("Schedule Stat updated");
-      onSave({ players: editedStats });
+      onSave(newTeam);
       onClose();
     } catch (error) {
       toast.error("Failed to update Schedule Stat");
     } finally {
       setIsLoading(false);
     }
-  }, [editedStats, scheduleStatId, onSave, onClose, currentUser]);
+  }, [editedStats, scheduleStatId, onSave, onClose, currentUser, team]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[80%] h-[80vh] md:h-fit overflow-y-auto flex flex-col justify-center rounded-md">
+      <DialogContent className="w-[80%] h-[80vh] md:h-fit md:max-h-[80%] overflow-y-auto flex flex-col justify-center rounded-md">
         <div className="flex flex-col justify-center gap-2">
           <DialogTitle className="font-semibold">Edit Team Stats</DialogTitle>
           <span>

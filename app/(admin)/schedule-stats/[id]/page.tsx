@@ -10,8 +10,9 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   deleteOtmScheduleStat,
   getDetailedScheduleStats,
+  saveScheduleStat,
 } from "@/lib/api/schedules-stats/schedules-stats";
-import { PlayerStats } from "@/lib/types/players/players";
+import { PlayerStats, PlayerStatsRow } from "@/lib/types/players/players";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -23,6 +24,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [teams, setTeams] = useState<PlayerStats[]>([]);
   const isAdmin = currentUser?.role === "admin";
   const [editingTeamIndex, setEditingTeamIndex] = useState<number | null>(null);
+  const [scheduleId, setScheduleId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchSchedules = async () => {
@@ -30,22 +32,26 @@ export default function Page({ params }: { params: { id: string } }) {
       setError(null);
       try {
         if (!currentUser?.accessToken) {
-          throw new Error("Access token not provided");
+          setError("You must be logged in to view this page");
+          return;
         }
         const competitionId = localStorage.getItem("selectedCompetitionId");
         if (!competitionId) {
-          throw new Error("Competition ID not found in localStorage");
+          setError(
+            "No competition selected. Please select a competition first."
+          );
+          return;
         }
         const data = await getDetailedScheduleStats(
           params.id,
           competitionId,
           currentUser.accessToken
         );
-        console.log(data);
         if (Array.isArray(data) && data.length > 0) {
           setTeams(data);
+          setScheduleId(data[0]._id);
         } else {
-          throw new Error("Unexpected data format");
+          throw new Error("No schedule stats found");
         }
       } catch (error) {
         setError(
@@ -72,6 +78,7 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   const handleDeleteScheduleStats = async (scheduleStatId: string) => {
+    setIsDeleting(true);
     try {
       const competitionId = localStorage.getItem("selectedCompetitionId");
       if (!competitionId || !currentUser?.accessToken) {
@@ -88,11 +95,34 @@ export default function Page({ params }: { params: { id: string } }) {
       );
     } catch (error) {
       toast.error(`${error}`);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSaveScheduleStats = async (scheduleStatId: string) => {
+    try {
+      const competitionId = localStorage.getItem("selectedCompetitionId");
+      if (!competitionId || !currentUser?.accessToken) {
+        throw new Error("Missing competition ID or access token");
+      }
+      await saveScheduleStat(
+        competitionId,
+        scheduleStatId,
+        currentUser.accessToken
+      );
+      toast.success("This schedule stat has been saved");
+    } catch (error) {
+      toast.error(`${error}`);
     }
   };
 
   const handleUpdateStats = async (updatedTeam: any) => {
-    window.location.reload();
+    setTeams((prevTeams) =>
+      prevTeams.map((team) =>
+        team._id === updatedTeam._id ? updatedTeam : team
+      )
+    );
   };
 
   const breadcrumbPaths = [
@@ -122,18 +152,24 @@ export default function Page({ params }: { params: { id: string } }) {
             <div className="w-full pt-5 grid grid-cols-1 gap-5">
               {teams.map((team, index) => (
                 <div key={index}>
-                  <DataTable
+                  <div className="w-full py-3">
+                    <span>
+                      {team.team.teamName} ({team.team.teamGender})
+                    </span>
+                  </div>
+
+                  <DataTable<PlayerStatsRow>
                     columns={columns({
                       handleDelete: handleDeletePlayer(index),
                       isAdmin,
                     })}
-                    data={[team]}
+                    data={team.players}
                     showHeaderAndFooter={false}
                   />
                   <div className="w-full flex justify-end items-center mt-4">
                     <Button
                       variant="def"
-                      className="border hover:bg-destructive hover:text-white mr-2"
+                      className="border hover:bg-primary hover:text-white mr-2"
                       onClick={() => setEditingTeamIndex(index)}
                     >
                       Update this schedule stats
@@ -158,6 +194,9 @@ export default function Page({ params }: { params: { id: string } }) {
                 <Button
                   variant="def"
                   className="border hover:bg-primary-green hover:text-white"
+                  onClick={() =>
+                    scheduleId && handleSaveScheduleStats(scheduleId)
+                  }
                 >
                   Validate this schedule stats
                 </Button>
