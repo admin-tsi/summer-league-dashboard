@@ -8,7 +8,7 @@ import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
-  deleteOtmScheduleStat,
+  deleteSchedulesStats,
   getDetailedScheduleStats,
 } from "@/lib/api/schedules-stats/schedules-stats";
 import { PlayerStats } from "@/lib/types/players/players";
@@ -39,7 +39,7 @@ export default function Page({ params }: { params: { id: string } }) {
         const data = await getDetailedScheduleStats(
           params.id,
           competitionId,
-          currentUser.accessToken
+          currentUser.accessToken,
         );
         console.log(data);
         if (Array.isArray(data) && data.length > 0) {
@@ -49,7 +49,7 @@ export default function Page({ params }: { params: { id: string } }) {
         }
       } catch (error) {
         setError(
-          error instanceof Error ? error.message : "Failed to load schedules"
+          error instanceof Error ? error.message : "Failed to load schedules",
         );
       } finally {
         setIsLoading(false);
@@ -64,7 +64,7 @@ export default function Page({ params }: { params: { id: string } }) {
       newTeams[teamIndex] = {
         ...newTeams[teamIndex],
         players: newTeams[teamIndex].players.filter(
-          (player) => player.player._id !== id
+          (player) => player.player._id !== id,
         ),
       };
       return newTeams;
@@ -77,21 +77,21 @@ export default function Page({ params }: { params: { id: string } }) {
       if (!competitionId || !currentUser?.accessToken) {
         throw new Error("Missing competition ID or access token");
       }
-      await deleteOtmScheduleStat(
+      await deleteSchedulesStats(
         competitionId,
         scheduleStatId,
-        currentUser.accessToken
+        currentUser.accessToken,
       );
       toast.success("This schedule stat has been deleted");
       setTeams((prevTeams) =>
-        prevTeams.filter((team) => team._id !== scheduleStatId)
+        prevTeams.filter((team) => team._id !== scheduleStatId),
       );
     } catch (error) {
       toast.error(`${error}`);
     }
   };
 
-  const handleUpdateStats = async (updatedTeam: any) => {
+  const handleUpdateStats = async () => {
     window.location.reload();
   };
 
