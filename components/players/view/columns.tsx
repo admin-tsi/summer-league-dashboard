@@ -119,6 +119,7 @@ export const columns = ({
     header: () => <div className="text-left">Status</div>,
     cell: ({ row }) => {
       const status = row.original.playerStatus?.status;
+      const comment = row.original.playerStatus?.comment;
       let badgeVariant: any = "default";
       let statusText = "Unknown";
 
@@ -126,31 +127,35 @@ export const columns = ({
         badgeVariant = "success";
         statusText = "Verified";
       } else if (status === false) {
-        if (row.original.playerStatus?.comment) {
+        if (comment) {
           badgeVariant = "destructive";
           statusText = "Rejected";
         } else {
           badgeVariant = "default";
-          statusText = "In progress";
+          statusText = "Pending";
         }
       }
 
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Badge variant={badgeVariant} className="text-xs">
-                {statusText}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              {row.original.playerStatus?.comment || statusText}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex flex-col">
+          <Badge variant={badgeVariant} className="text-xs w-fit">
+            {statusText}
+          </Badge>
+          {comment && (
+            <span className="text-xs text-muted-foreground mt-1 hidden sm:inline">
+              {comment}
+            </span>
+          )}
+          {comment && (
+            <span className="text-xs text-muted-foreground mt-1 sm:hidden">
+              {comment}
+            </span>
+          )}
+        </div>
       );
     },
   },
+
   {
     id: "actions",
     header: () => <div className="text-center">Actions</div>,
