@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { Schedule } from "@/lib/types/schedules/schedules";
+import { Game, Schedule } from "@/lib/types/schedules/schedules";
 
 const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 
@@ -59,4 +59,23 @@ export async function getAllSchedules(
       throw new Error("A non-Axios error occurred");
     }
   }
+}
+
+export async function getTeamSchedules(teamId: string): Promise<Game[]> {
+  const url: string = `${baseUrl}/schedules/team/${teamId}`;
+
+  return axios
+    .get(url)
+    .then((response: AxiosResponse) => {
+      return response.data;
+    })
+    .catch((error: unknown) => {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(
+          `${error.response.data.message || error.response.statusText}`
+        );
+      } else {
+        throw new Error("Failed to get schedule: Network or server error");
+      }
+    });
 }

@@ -84,3 +84,26 @@ export type PlayerStats = {
   }[];
   __v: number;
 };
+
+export type PlayerTableData = {
+  teamName: string;
+  teamId: string;
+  player: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    position: string;
+    dorseyNumber: number;
+    weight: number;
+    playerImage: string;
+  };
+  threePoints: number;
+  twoPoints: number;
+  lancerFranc: number;
+  assists: number;
+  blocks: number;
+  fouls: number;
+  turnOver: number;
+  steal: number;
+  rebonds: number;
+};

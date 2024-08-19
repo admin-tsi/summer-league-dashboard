@@ -13,4 +13,5 @@ export type User = {
   dateOfBirth: string;
   address: string;
   accountStatus: boolean;
+  isManageTeam?: string | null;
 };

@@ -60,3 +60,13 @@ export type ScheduleData = {
     }>;
   }>;
 };
+
+export type Game = {
+  _id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  homeTeam: { teamName: string };
+  awayTeam: { teamName: string };
+  stadiumLocation: string;
+};

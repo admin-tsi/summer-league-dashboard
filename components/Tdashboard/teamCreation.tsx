@@ -14,6 +14,8 @@ function AboutTeam({}: Props) {
 
   useEffect(() => {
     if (currentUser && currentUser.isManageTeam) {
+      console.log(currentUser.isManageTeam);
+
       setTeamId(currentUser.isManageTeam);
       setCreationSuccess(true);
     }
@@ -27,7 +29,7 @@ function AboutTeam({}: Props) {
   return (
     <>
       {creationSuccess && teamId ? (
-        <TeamStats teamId={teamId} />
+        <TeamStats />
       ) : start ? (
         <TeamCreationForm onSuccess={handleSuccess} />
       ) : (
