@@ -32,14 +32,39 @@ export function CustomSelect({
   onValueChange,
   error,
 }: CustomSelectProps) {
+  // Function to find the option by value or label
+  const findOptionByValueOrLabel = (searchValue: string) => {
+    return options.find(
+      (option) =>
+        option.value.toLowerCase() === searchValue.toLowerCase() ||
+        option.label.toLowerCase() === searchValue.toLowerCase(),
+    );
+  };
+
+  // Handle value change
+  const handleValueChange = (newValue: string) => {
+    const selectedOption = findOptionByValueOrLabel(newValue);
+    if (selectedOption) {
+      onValueChange(selectedOption.value);
+    } else {
+      console.warn(`Unable to find option for value: ${newValue}`);
+      onValueChange(newValue); // Fall back to the selected value
+    }
+  };
+
+  // Find the current option
+  const currentOption = value ? findOptionByValueOrLabel(value) : null;
+
   return (
     <div className="w-full flex flex-col space-y-2">
       <Label htmlFor={label} className="text-sm font-medium text-gray-900">
         {label}
       </Label>
-      <Select onValueChange={onValueChange} value={value || ""}>
+      <Select onValueChange={handleValueChange} value={value || ""}>
         <SelectTrigger className="">
-          <SelectValue placeholder={placeholder} />
+          <SelectValue placeholder={placeholder}>
+            {currentOption ? currentOption.label : placeholder}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
