@@ -16,8 +16,32 @@ export async function getDivisions(
       }
     );
     return response.data;
-  } catch (error) {
-    console.error("Failed to fetch divisions", error);
-    throw new Error("Failed to fetch divisions");
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        `${error.response.data.message || error.response.statusText}`
+      );
+    } else {
+      throw new Error("Failed to create team: Network or server error");
+    }
+  }
+}
+
+export async function getSpecDivisionClassment(divisionId: string) {
+  try {
+    const response = await axios.get(
+      `${baseUrl}/divisions-classments/divisions/${divisionId}`
+    );
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        `${error.response.data.message || error.response.statusText}`
+      );
+    } else {
+      throw new Error(
+        "Failed to fetch division classement: Network or server error"
+      );
+    }
   }
 }

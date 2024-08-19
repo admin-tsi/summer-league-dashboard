@@ -1,22 +1,18 @@
-import React from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 
 const Standings = () => (
-  <div className="border rounded-md p-5 h-fit md:h-[550px] gap-2">
+  <div className="border rounded-md p-5 max-md:mb-12 h-fit md:h-[550px] gap-2">
     <div className="flex justify-between items-center text-sm">
       <span className="text-1xl font-bold">Standings</span>
-      <span>View All</span>
     </div>
-    <div className="w-full pt-5">
+    {/* <div className="w-full pt-5">
       <Table>
         <TableHeader>
           <TableRow>
@@ -31,6 +27,12 @@ const Standings = () => (
           </TableRow>
         </TableBody>
       </Table>
+    </div> */}
+    <div className="w-full h-full flex justify-center items-center">
+      <span className="w-full max-sm:py-3 md:w-1/2 text-center">
+        There is currently no ranking for the summer league. It will be
+        displayed here once it becomes available.
+      </span>
     </div>
   </div>
 );

@@ -41,7 +41,7 @@ export async function getTeamSchedules(teamId: string): Promise<Game[]> {
     .then((response: AxiosResponse) => {
       return response.data;
     })
-    .catch((error: any) => {
+    .catch((error: unknown) => {
       if (axios.isAxiosError(error) && error.response) {
         throw new Error(
           `${error.response.data.message || error.response.statusText}`

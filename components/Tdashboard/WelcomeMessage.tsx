@@ -6,7 +6,7 @@ type WelcomeMessageProps = {
 };
 
 const WelcomeMessage = ({ firstName, lastName }: WelcomeMessageProps) => (
-  <span className="text-3xl">
+  <span className="text-2xl md:text-3xl">
     Welcome back, {firstName} {lastName}
   </span>
 );

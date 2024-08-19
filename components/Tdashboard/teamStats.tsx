@@ -8,11 +8,7 @@ import { Game } from "@/lib/types/schedules/schedules";
 import { getTeamSchedules } from "@/lib/api/schedules/schedules";
 import LoadingSpinner from "../loading-spinner";
 
-type TeamStatsProps = {
-  teamId: string | null;
-};
-
-const TeamStats = ({ teamId }: TeamStatsProps) => {
+const TeamStats = () => {
   const currentUser: any = useCurrentUser();
   const [nextGames, setNextGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
