@@ -20,6 +20,7 @@ import { createTeam } from "@/lib/api/teams/teams";
 import LoadingSpinner from "../loading-spinner";
 import { teamCreationSchema } from "@/lib/schemas/team/team";
 import FormError from "../login/form-error";
+import { signOut } from "next-auth/react";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -51,13 +52,13 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       try {
         setIsDivisionsLoading(true);
         const selectedCompetitionId = localStorage.getItem(
-          "selectedCompetitionId"
+          "selectedCompetitionId",
         );
         if (selectedCompetitionId && teamGender) {
           setSelectedCompetitionId(selectedCompetitionId);
           const divisionsData = await getDivisions(
             selectedCompetitionId,
-            teamGender
+            teamGender,
           );
           setDivisions(divisionsData);
         } else {
@@ -83,6 +84,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
         if (currentUser.accessToken) {
           const response = await createTeam(data, token, selectedCompetitionId);
           onSuccess(response._id);
+          await signOut();
         } else {
           setError("No access token available");
         }
@@ -91,7 +93,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       }
     } else {
       setError(
-        "We're having trouble logging you in. Please refresh the page or log out temporarily."
+        "We're having trouble logging you in. Please refresh the page or log out temporarily.",
       );
     }
   };
