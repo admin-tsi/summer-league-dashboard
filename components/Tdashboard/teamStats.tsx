@@ -17,8 +17,10 @@ const TeamStats = () => {
     const loadNextGames = async () => {
       setIsLoading(true);
       try {
-        const games = await getTeamSchedules(currentUser.isManageTeam);
-        setNextGames(games);
+        if (currentUser && currentUser.isManageTeam) {
+          const games = await getTeamSchedules(currentUser.isManageTeam);
+          setNextGames(games);
+        }
       } catch (error) {
         console.error("Failed to load next games:", error);
       } finally {
@@ -28,6 +30,10 @@ const TeamStats = () => {
 
     loadNextGames();
   }, [currentUser]);
+
+  if (!currentUser) {
+    return <div>Please log in to view team stats.</div>;
+  }
 
   return (
     <div className="h-full w-full py-5 flex flex-col space-y-4">

@@ -6,7 +6,8 @@ export const players = z.object({
   playerImage: z.instanceof(File, { message: "Player Image file is required" }),
   dorseyNumber: z
     .number({ message: "Dorsey Number is required and must be a number" })
-    .positive("Dorsey Number must be a positive number"),
+    .nonnegative("Dorsey Number must be a non-negative number")
+    .int("Dorsey Number must be an integer"),
   college: z.string().min(1, { message: "College is required" }),
   nationality: z.string().min(1, { message: "Nationality is required" }),
   playerEmail: z.string().email({ message: "Invalid email address" }),
@@ -15,10 +16,10 @@ export const players = z.object({
     .number({ message: "Phone Number is required and must be a number" })
     .positive("Height must be a positive number"),
   yearOfExperience: z
-    .number({ message: "years of experience must be a number" })
-    .min(1, {
-      message: "Years of Experience is required and must be a number",
-    }),
+    .number({ message: "Years of experience must be a number" })
+    .nonnegative("Years of experience must be a non-negative number")
+    .nullable()
+    .optional(),
   position: z.string().min(1, { message: "Position is required" }),
   height: z
     .number({ message: "Height is required and must be a number" })
@@ -44,10 +45,8 @@ export const players = z.object({
       }
       return age >= 15;
     }, "You must be at least 15 years old"),
-  birthCertificate: z.instanceof(File, {
-    message: "Birth certificate file is required",
-  }),
-  cipFile: z.instanceof(File, { message: "CIP certificate file is required" }),
+  birthCertificate: z.union([z.string(), z.instanceof(File)]).optional(),
+  cipFile: z.union([z.string(), z.instanceof(File)]).optional(),
 });
 
 export const playerEditSchema = z.object({
