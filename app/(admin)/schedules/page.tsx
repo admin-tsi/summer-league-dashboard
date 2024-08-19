@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
@@ -28,15 +28,50 @@ import {
   FormMessage,
   Form,
 } from "@/components/ui/form";
-import { CalendarIcon, Clock } from "lucide-react";
+import { CalendarIcon, Clock, MapPin } from "lucide-react";
 import { MatchType, Schedule } from "@/lib/types/schedules/schedules";
 import { useCurrentToken } from "@/hooks/use-current-token";
 import { toast } from "sonner";
-import { createSchedule } from "@/lib/api/schedules/schedules";
-import { teamNames } from "@/constants/team/teams";
+import { createSchedule, getAllSchedules } from "@/lib/api/schedules/schedules";
+import { getAllKobeBryant } from "@/lib/api/users/users";
+import { User } from "@/lib/types/login/user";
+import { getAllTeams } from "@/lib/api/teams/teams";
+import { Teams } from "@/lib/types/teams/teams";
 
 export default function Page() {
   const token = useCurrentToken();
+  const [scoreboardOfficers, setScoreboardOfficers] = useState<User[]>([]);
+  const [teams, setTeams] = useState<Teams[]>([]);
+  const [selectedGender, setSelectedGender] = useState<string>("boys");
+  const filteredTeams = teams.filter(
+    (team) => team.teamGender === selectedGender,
+  );
+  const [schedules, setSchedules] = useState<Schedule[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const officers = await getAllKobeBryant(token);
+        setScoreboardOfficers(officers);
+
+        const competitionId = localStorage.getItem("selectedCompetitionId");
+        if (competitionId) {
+          const fetchedTeams = await getAllTeams(token, competitionId);
+          setTeams(fetchedTeams);
+
+          const fetchedSchedules = await getAllSchedules(token, competitionId);
+          setSchedules(fetchedSchedules);
+        } else {
+          toast.error("No competition selected");
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        toast.error("Failed to load data");
+      }
+    };
+
+    fetchData();
+  }, [token]);
 
   const breadcrumbPaths = [
     { label: "Management", href: "/" },
@@ -53,8 +88,8 @@ export default function Page() {
       awayTeam: "",
       stadiumLocation: "",
       conference: "",
-      homeScoreboardOfficier: "-",
-      awayScoreboardOfficier: "-",
+      homeScoreboardOfficier: "",
+      awayScoreboardOfficier: "",
       startTime: "",
       endTime: "",
     },
@@ -63,6 +98,15 @@ export default function Page() {
   const matchType = form.watch("match_type");
   const homeTeam = useWatch({ control: form.control, name: "homeTeam" });
   const awayTeam = useWatch({ control: form.control, name: "awayTeam" });
+  const homeScoreboardOfficier = useWatch({
+    control: form.control,
+    name: "homeScoreboardOfficier",
+  });
+  const awayScoreboardOfficier = useWatch({
+    control: form.control,
+    name: "awayScoreboardOfficier",
+  });
+
   const getDivisionOptions = (matchType: MatchType): string[] => {
     switch (matchType) {
       case "division":
@@ -78,6 +122,18 @@ export default function Page() {
     }
   };
 
+  const groupedSchedules = schedules.reduce(
+    (acc, schedule) => {
+      const date = new Date(schedule.date).toDateString();
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(schedule);
+      return acc;
+    },
+    {} as Record<string, Schedule[]>,
+  );
+
   const onSubmit: SubmitHandler<Omit<Schedule, "_id">> = async (data) => {
     try {
       const scheduleData = {
@@ -91,6 +147,28 @@ export default function Page() {
       console.error("Failed to create schedule:", error);
       toast.error("An error occurred while creating the schedule.");
     }
+  };
+
+  const getStatusColor = (status: string | undefined) => {
+    switch (status) {
+      case "not started":
+        return "bg-yellow-400";
+      case "finish":
+        return "bg-red-500";
+      case "pending":
+        return "bg-green-500";
+      default:
+        return "bg-gray-400";
+    }
+  };
+  const getTeamInfo = (team: any) => {
+    if (typeof team === "object" && team !== null) {
+      return {
+        name: team.teamName || "Unknown Team",
+        gender: team.teamGender || "U",
+      };
+    }
+    return { name: "Unknown Team", gender: "U" };
   };
 
   return (
@@ -198,7 +276,7 @@ export default function Page() {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="w-1/2">
                     <FormField
                       control={form.control}
                       name="date"
@@ -227,10 +305,11 @@ export default function Page() {
                         </FormItem>
                       )}
                     />
-
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="hour"
+                      name="startTime"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="font-semibold">
@@ -239,11 +318,26 @@ export default function Page() {
                           <FormControl>
                             <div className="relative">
                               <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2" />
-                              <Input
-                                type="time"
-                                className=" pl-10"
-                                {...field}
-                              />
+                              <Input type="time" className="pl-10" {...field} />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="endTime"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-semibold">
+                            End Time
+                          </FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2" />
+                              <Input type="time" className="pl-10" {...field} />
                             </div>
                           </FormControl>
                           <FormMessage />
@@ -271,6 +365,29 @@ export default function Page() {
                       </FormItem>
                     )}
                   />
+                  <FormItem>
+                    <FormLabel className="font-semibold">
+                      Select Gender
+                    </FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        setSelectedGender(value);
+                        form.setValue("homeTeam", "");
+                        form.setValue("awayTeam", "");
+                      }}
+                      value={selectedGender}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="">
+                          <SelectValue placeholder="Select Gender" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="boys">Boys</SelectItem>
+                        <SelectItem value="girls">Girls</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
 
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
@@ -289,6 +406,7 @@ export default function Page() {
                               }
                             }}
                             value={field.value}
+                            disabled={!selectedGender}
                           >
                             <FormControl>
                               <SelectTrigger className="">
@@ -296,9 +414,9 @@ export default function Page() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {teamNames.map((team) => (
-                                <SelectItem key={team} value={team}>
-                                  {team}
+                              {filteredTeams.map((team) => (
+                                <SelectItem key={team._id} value={team._id}>
+                                  {team.teamName}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -324,6 +442,7 @@ export default function Page() {
                               }
                             }}
                             value={field.value}
+                            disabled={!selectedGender}
                           >
                             <FormControl>
                               <SelectTrigger className="">
@@ -331,11 +450,94 @@ export default function Page() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {teamNames
-                                .filter((team) => team !== homeTeam)
+                              {filteredTeams
+                                .filter((team) => team._id !== homeTeam)
                                 .map((team) => (
-                                  <SelectItem key={team} value={team}>
-                                    {team}
+                                  <SelectItem key={team._id} value={team._id}>
+                                    {team.teamName}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="homeScoreboardOfficier"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-semibold">
+                            Home Scoreboard Officer
+                          </FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              if (value === awayScoreboardOfficier) {
+                                form.setValue("awayScoreboardOfficier", "");
+                              }
+                            }}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="">
+                                <SelectValue placeholder="Select Home Officer" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {scoreboardOfficers.map((officer) => (
+                                <SelectItem
+                                  key={officer._id}
+                                  value={officer._id}
+                                >
+                                  {`${officer.firstName} ${officer.lastName}`}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="awayScoreboardOfficier"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-semibold">
+                            Away Scoreboard Officer
+                          </FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              if (value === homeScoreboardOfficier) {
+                                form.setValue("homeScoreboardOfficier", "");
+                              }
+                            }}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="">
+                                <SelectValue placeholder="Select Away Officer" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {scoreboardOfficers
+                                .filter(
+                                  (officer) =>
+                                    officer._id !== homeScoreboardOfficier,
+                                )
+                                .map((officer) => (
+                                  <SelectItem
+                                    key={officer._id}
+                                    value={officer._id}
+                                  >
+                                    {`${officer.firstName} ${officer.lastName}`}
                                   </SelectItem>
                                 ))}
                             </SelectContent>
@@ -357,7 +559,64 @@ export default function Page() {
             </CardContent>
           </Card>
         </div>
-        <div className="col-span-2 h-full bg-secondary w-full rounded-lg shadow-lg"></div>
+        <div className="col-span-2 h-full bg-secondary w-full rounded-lg shadow-lg overflow-auto">
+          <Card className="w-full h-full">
+            <CardHeader>
+              <CardTitle>Schedules</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {Object.entries(groupedSchedules).map(([date, daySchedules]) => (
+                <div key={date} className="border mb-4">
+                  <div className="bg-black text-white p-2 flex justify-between">
+                    <span>
+                      {new Date(date).toLocaleDateString("en-US", {
+                        weekday: "long",
+                      })}
+                    </span>
+                    <span>
+                      {new Date(date).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </div>
+                  <div className="py-2">
+                    {daySchedules.map((schedule, scheduleIndex) => {
+                      const homeTeam = getTeamInfo(schedule.homeTeam);
+                      const awayTeam = getTeamInfo(schedule.awayTeam);
+                      return (
+                        <div
+                          key={scheduleIndex}
+                          className="grid grid-cols-12 gap-2 items-center p-2 border-b last:border-b-0 hover:bg-gray-100"
+                        >
+                          <span className="col-span-2 text-sm">
+                            {`${schedule.startTime || schedule.hour} - ${schedule.endTime || ""}`}
+                          </span>
+                          <span className="col-span-6 font-semibold text-sm">
+                            {`${homeTeam.name} (${homeTeam.gender.charAt(0).toUpperCase()}) VS ${awayTeam.name} (${awayTeam.gender.charAt(0).toUpperCase()})`}
+                          </span>
+                          <span className="col-span-3 text-sm flex items-center">
+                            <MapPin size={16} className="mr-1 flex-shrink-0" />
+                            <span className="truncate">
+                              {schedule.stadiumLocation}
+                            </span>
+                          </span>
+                          <span className="col-span-1 flex justify-center">
+                            <span
+                              className={`inline-block w-4 h-4 rounded-full ${getStatusColor(schedule.status)}`}
+                              title={schedule.status}
+                            ></span>
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </ContentLayout>
   );

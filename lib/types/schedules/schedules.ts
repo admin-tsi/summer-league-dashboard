@@ -15,6 +15,7 @@ export type Schedule = {
   notes?: string;
   startTime?: string;
   endTime?: string;
+  status?: string;
 };
 
 export type ScheduleData = {

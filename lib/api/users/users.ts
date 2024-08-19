@@ -2,6 +2,7 @@ import { User } from "@/lib/types/login/user";
 import axios from "axios";
 import { z } from "zod";
 import { UserSchema } from "@/lib/schemas/users/users";
+import { execOnce } from "next/dist/shared/lib/utils";
 
 type UserFormData = z.infer<typeof UserSchema>;
 
@@ -164,6 +165,34 @@ export async function promoteUser(
       throw new Error(
         error.response?.data.message ||
           "An error occurred while promoting user",
+      );
+    } else {
+      throw new Error("A non-Axios error occurred");
+    }
+  }
+}
+
+export async function getAllKobeBryant(
+  token: string | undefined,
+): Promise<User[]> {
+  const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+  try {
+    const response = await axios.get<User[]>(
+      `${baseUrl}/users/kobe-bryant/saison`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data.message ||
+          "An error occurred while fetching Kobe Bryants",
       );
     } else {
       throw new Error("A non-Axios error occurred");
