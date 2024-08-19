@@ -3,7 +3,7 @@ import { z } from "zod";
 export const players = z.object({
   firstName: z.string().min(1, { message: "First Name is required" }),
   lastName: z.string().min(1, { message: "Last Name is required" }),
-  playerImage: z.instanceof(File, { message: "Player Image file is required" }),
+  playerImage: z.union([z.string(), z.instanceof(File)]).optional(),
   dorseyNumber: z
     .number({ message: "Dorsey Number is required and must be a number" })
     .nonnegative("Dorsey Number must be a non-negative number")
@@ -15,11 +15,6 @@ export const players = z.object({
   phoneNumber: z
     .number({ message: "Phone Number is required and must be a number" })
     .positive("Height must be a positive number"),
-  yearOfExperience: z
-    .number({ message: "Years of experience must be a number" })
-    .nonnegative("Years of experience must be a non-negative number")
-    .nullable()
-    .optional(),
   position: z.string().min(1, { message: "Position is required" }),
   height: z
     .number({ message: "Height is required and must be a number" })
@@ -45,27 +40,26 @@ export const players = z.object({
       }
       return age >= 15;
     }, "You must be at least 15 years old"),
-  birthCertificate: z.union([z.string(), z.instanceof(File)]).optional(),
-  cipFile: z.union([z.string(), z.instanceof(File)]).optional(),
 });
 
 export const playerEditSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
   playerImage: z.union([z.string(), z.instanceof(File)]).optional(),
-  dorseyNumber: z.number().positive().optional(),
+  dorseyNumber: z
+    .number({ message: "Dorsey Number is required and must be a number" })
+    .nonnegative("Dorsey Number must be a non-negative number")
+    .int("Dorsey Number must be an integer")
+    .optional(),
   college: z.string().optional(),
   nationality: z.string().optional(),
   playerEmail: z.string().email().optional(),
   countryCode: z.string().optional(),
   phoneNumber: z.number().positive().optional(),
-  yearOfExperience: z.number().min(1).optional(),
   position: z.string().optional(),
   height: z.number().positive().optional(),
   weight: z.number().positive().optional(),
   birthdate: z.string().optional(),
-  birthCertificate: z.union([z.string(), z.instanceof(File)]).optional(),
-  cipFile: z.union([z.string(), z.instanceof(File)]).optional(),
 });
 
 export const playerValidationSchema = z.object({

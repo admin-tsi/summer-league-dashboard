@@ -381,7 +381,7 @@ export default function Page({
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <EditInput
                 id="birthdate"
                 label="Birth date"
@@ -390,37 +390,23 @@ export default function Page({
                 register={register("birthdate")}
                 errorMessage={errors.birthdate?.message}
               />
-              <div className="col-span-2 flex space-x-4 justify-center">
-                <CustomSelect
-                  label="Country Code"
-                  placeholder="Select country code"
-                  options={countryCodeOptions}
-                  value={watch("countryCode")}
-                  onValueChange={(value) => setValue("countryCode", value)}
-                  error={errors.countryCode?.message}
-                />
-                <div className="flex-grow">
-                  <EditInput
-                    id="phoneNumber"
-                    label="Phone Number"
-                    placeholder="96000000"
-                    register={register("phoneNumber", { valueAsNumber: true })}
-                    type="number"
-                    errorMessage={errors.phoneNumber?.message}
-                  />
-                </div>
-              </div>
-              <EditInput
-                id="yearOfExperience"
-                label="Years of Experience"
-                placeholder="1"
-                register={register("yearOfExperience", {
-                  valueAsNumber: true,
-                })}
-                type="number"
-                errorMessage={errors.yearOfExperience?.message}
+              <CustomSelect
+                label="Country Code"
+                placeholder="Select country code"
+                options={countryCodeOptions}
+                value={watch("countryCode")}
+                onValueChange={(value) => setValue("countryCode", value)}
+                error={errors.countryCode?.message}
               />
-            </div>{" "}
+              <EditInput
+                id="phoneNumber"
+                label="Phone Number"
+                placeholder="96000000"
+                register={register("phoneNumber", { valueAsNumber: true })}
+                type="number"
+                errorMessage={errors.phoneNumber?.message}
+              />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <PositionSelect
                 position={position}
@@ -444,13 +430,6 @@ export default function Page({
                 errorMessage={errors.weight?.message}
               />
             </div>
-            <DocumentsSection
-              isEditing={isEditing}
-              defPlayerValue={defPlayerValue}
-              // @ts-ignore
-              setValue={setValue}
-              errors={errors}
-            />
           </div>
           <div className="w-full flex justify-end gap-3 mt-5">
             <Button type="submit" variant="default" className="w-1/2 md:w-1/6">

@@ -1,32 +1,41 @@
 "use client";
+import { useEffect, useState } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import TeamCreation from "@/components/Tdashboard/teamCreation";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { getTeamById } from "@/lib/api/teams/teams";
 
 export default function Page() {
-  const breadcrumbPaths = [
+  const [breadcrumbPaths, setBreadcrumbPaths] = useState([
     { label: "Home", href: "/" },
     { label: "Dashboard" },
-  ];
+  ]);
+
   const currentUser: any = useCurrentUser();
 
-  // useEffect(() => {
-  //   const checkToken = async () => {
-  //     const newAccessToken = await verifyTokenExpiration(
-  //       currentUser.accessToken,
-  //       currentUser.refreshToken
-  //     );
-  //     if (newAccessToken) {
-  //       console.log(Old access token: ${currentUser.accessToken});
-  //       console.log(New access token: ${newAccessToken});
-  //     } else {
-  //       console.log("Impossible to get a new access token.");
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchTeamDetails = async () => {
+      if (currentUser.isManageTeam) {
+        try {
+          const teamId = currentUser.isManageTeam;
+          const competitionId = localStorage.getItem("selectedCompetitionId");
+          const token = currentUser.accessToken;
+          const team = await getTeamById(competitionId, teamId, token);
+          localStorage.setItem("currentTeam", JSON.stringify(team));
+          setBreadcrumbPaths([
+            { label: "Home", href: "/" },
+            { label: "Dashboard", href: "/dashboard" },
+            { label: team.teamName },
+          ]);
+        } catch (error) {
+          console.error("Failed to fetch team details:", error);
+        }
+      }
+    };
 
-  //   checkToken();
-  // }, [currentUser.accessToken, currentUser.refreshToken]);
+    fetchTeamDetails();
+  }, [currentUser]);
 
   return (
     <ContentLayout title="Dashboard">
