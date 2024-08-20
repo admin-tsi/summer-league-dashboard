@@ -40,9 +40,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body className={cn(cabinetGroteskFont.className, satoshiFont.className)}>
-        <ThemeProvider attribute="class" defaultTheme="light">
+        <ThemeProvider>
           {children}
           <Toaster className="font-satoshi" />
         </ThemeProvider>
