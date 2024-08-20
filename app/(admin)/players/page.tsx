@@ -30,6 +30,7 @@ export default function PlayersPage() {
         }
 
         const { role, isManageTeam } = currentUser;
+        console.log(token);
 
         if (role === "admin") {
           const data = await getAllPlayers(role, token);

@@ -22,6 +22,8 @@ export default function Page() {
           const competitionId = localStorage.getItem("selectedCompetitionId");
           const token = currentUser.accessToken;
           const team = await getTeamById(competitionId, teamId, token);
+          console.log(team);
+
           localStorage.setItem("currentTeam", JSON.stringify(team));
           setBreadcrumbPaths([
             { label: "Home", href: "/" },
