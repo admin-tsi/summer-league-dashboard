@@ -35,6 +35,7 @@ export default function Page() {
           return;
         }
         const competitionId = localStorage.getItem("selectedCompetitionId");
+
         if (!competitionId) {
           throw new Error("Competition ID not found in localStorage");
         }

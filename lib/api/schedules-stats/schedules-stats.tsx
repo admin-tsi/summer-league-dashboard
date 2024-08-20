@@ -127,8 +127,6 @@ export async function saveScheduleStat(
   scheduleStatId: string,
   token: string
 ): Promise<any> {
-  console.log(competitionId);
-
   const url: string = `${baseUrl}/results/schedule/${scheduleStatId}`;
 
   const config = {

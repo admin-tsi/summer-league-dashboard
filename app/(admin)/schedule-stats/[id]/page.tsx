@@ -50,6 +50,8 @@ export default function Page({ params }: { params: { id: string } }) {
         );
         if (Array.isArray(data) && data.length > 0) {
           setTeams(data);
+          console.log(data);
+
           setScheduleId(data[0]._id);
         } else {
           throw new Error("No schedule stats found");
