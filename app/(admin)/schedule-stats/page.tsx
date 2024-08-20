@@ -42,10 +42,7 @@ export default function Page() {
           competitionId,
           currentUser.accessToken
         );
-        console.log(currentUser.accessToken);
-
         setSchedules(data);
-        console.log(data);
       } catch (error) {
         setError("Failed to load schedules");
       } finally {
@@ -75,7 +72,11 @@ export default function Page() {
           </div>
         ) : (
           <div className="w-full pt-5">
-            <DataTable columns={columns({ handleDelete })} data={schedules} />
+            <DataTable
+              columns={columns({ handleDelete })}
+              data={schedules}
+              showHeaderAndFooter={false}
+            />
           </div>
         )}
       </div>

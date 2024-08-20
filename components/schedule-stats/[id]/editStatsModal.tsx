@@ -207,7 +207,7 @@ export function EditStatsModal({
             </div>
           ))}
         </div>
-        <DialogFooter>
+        <DialogFooter className="max-md:gap-2">
           <Button onClick={onClose} variant="outline">
             Cancel
           </Button>

@@ -21,6 +21,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isValidating, setIsValidating] = useState<boolean>(false);
   const [teams, setTeams] = useState<PlayerStats[]>([]);
   const isAdmin = currentUser?.role === "admin";
   const [editingTeamIndex, setEditingTeamIndex] = useState<number | null>(null);
@@ -101,6 +102,7 @@ export default function Page({ params }: { params: { id: string } }) {
   };
 
   const handleSaveScheduleStats = async (scheduleStatId: string) => {
+    setIsValidating(true);
     try {
       const competitionId = localStorage.getItem("selectedCompetitionId");
       if (!competitionId || !currentUser?.accessToken) {
@@ -114,6 +116,8 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.success("This schedule stat has been saved");
     } catch (error) {
       toast.error(`${error}`);
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -190,7 +194,7 @@ export default function Page({ params }: { params: { id: string } }) {
               ))}
             </div>
             {teams.length === 2 && (
-              <div className="w-full flex justify-end items-center">
+              <div className="w-full flex justify-end items-center mb-10">
                 <Button
                   variant="def"
                   className="border hover:bg-primary-green hover:text-white"
@@ -198,7 +202,11 @@ export default function Page({ params }: { params: { id: string } }) {
                     scheduleId && handleSaveScheduleStats(scheduleId)
                   }
                 >
-                  Validate this schedule stats
+                  {isValidating ? (
+                    <LoadingSpinner text="Validating..." />
+                  ) : (
+                    "Validate this schedule stats"
+                  )}
                 </Button>
               </div>
             )}

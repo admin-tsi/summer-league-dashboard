@@ -61,7 +61,6 @@ export async function getDetailedScheduleStats(
 }
 
 export async function deleteSchedulesStats(
-  scheduleId: string,
   competitionId: string,
   token: string
 ): Promise<any> {
