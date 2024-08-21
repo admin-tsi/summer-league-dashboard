@@ -53,7 +53,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [teamName, setTeamName] = useState<string | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [playersData, setPlayersData] = useState<Record<string, PlayerStat>>(
-    {},
+    {}
   );
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
@@ -63,14 +63,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
         (acc, player) => {
           acc[player._id] = playerStats.reduce(
             (statAcc, stat) => ({ ...statAcc, [stat]: 0 }),
-            {} as PlayerStat,
+            {} as PlayerStat
           );
           return acc;
         },
-        {} as Record<string, PlayerStat>,
+        {} as Record<string, PlayerStat>
       );
     },
-    [],
+    []
   );
 
   const updateScore = useCallback((stat: string, increment: boolean) => {
@@ -96,7 +96,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
         setHasChanges(true);
       }
     },
-    [activePlayer, updateScore],
+    [activePlayer, updateScore]
   );
 
   const handleDecrement = useCallback(
@@ -124,14 +124,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
         setHasChanges(true);
       }
     },
-    [activePlayer, updateScore],
+    [activePlayer, updateScore]
   );
 
   const handlePlayerClick = useCallback(
     (playerId: string) => {
       setActivePlayer(activePlayer === playerId ? null : playerId);
     },
-    [activePlayer],
+    [activePlayer]
   );
 
   const handleClear = useCallback(() => {
@@ -165,7 +165,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
     try {
       const competitionId: string | null = localStorage.getItem(
-        "selectedCompetitionId",
+        "selectedCompetitionId"
       );
       if (!competitionId) {
         throw new Error("Competition ID not found in localStorage");
@@ -178,9 +178,6 @@ const Page: React.FC<PageProps> = ({ params }) => {
         team: teamId,
         players: mappedData,
       };
-
-      console.log(stat);
-
       await saveOtmScheduleStat(competitionId, scheduleId, token, stat);
       toast.success("This schedule stats has been successfully saved.");
       router.push("/score-keeper");
@@ -213,7 +210,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
       try {
         if (!currentUser.accessToken) {
           setError(
-            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us.",
+            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
           );
           return;
         }
@@ -221,7 +218,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
         const data = await getAllPlayers(
           currentUser.role,
           currentUser.accessToken,
-          currentTeamId,
+          currentTeamId
         );
 
         setPlayers(data);
@@ -250,7 +247,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
           playersData,
           totalScore,
         },
-        teamId,
+        teamId
       );
     }
   }, [playersData, totalScore, teamId]);
@@ -276,46 +273,56 @@ const Page: React.FC<PageProps> = ({ params }) => {
             </Button>
           </div>
         ) : (
-          <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 justify-center items-center py-5">
+          <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 justify-center items-center p-5">
             <ScoreDisplay
               score={totalScore.toString().padStart(2, "0")}
               team={teamName}
             />
-            <div className="w-full flex justify-center items-center flex-wrap gap-3">
-              {players.map((player) => (
-                <PlayerButton
-                  key={player._id}
-                  number={player.dorseyNumber}
-                  isActive={activePlayer === player._id}
-                  onClick={() => handlePlayerClick(player._id)}
-                />
-              ))}
-            </div>
-            <div className="w-full md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-5 px-2">
-              {playerStats.map((stat, index) => (
-                <div key={index}>
-                  <Stat
-                    playerStats={stat}
-                    value={
-                      activePlayer !== null && playersData[activePlayer]
-                        ? playersData[activePlayer][stat] || 0
-                        : 0
-                    }
-                    onIncrement={() => handleIncrement(stat)}
-                    onDecrement={() => handleDecrement(stat)}
+            <div className="w-full flex">
+              <div className="w-fit flex flex-col justify-center items-center flex-wrap gap-3">
+                {players.map((player) => (
+                  <PlayerButton
+                    key={player._id}
+                    number={player.dorseyNumber}
+                    isActive={activePlayer === player._id}
+                    onClick={() => handlePlayerClick(player._id)}
                   />
+                ))}
+              </div>
+              <div className="w-full flex flex-col gap-5">
+                <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 px-2">
+                  {playerStats.map((stat, index) => (
+                    <div key={index}>
+                      <Stat
+                        playerStats={stat}
+                        value={
+                          activePlayer !== null && playersData[activePlayer]
+                            ? playersData[activePlayer][stat] || 0
+                            : 0
+                        }
+                        onIncrement={() => handleIncrement(stat)}
+                        onDecrement={() => handleDecrement(stat)}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <div className="w-1/2 grid grid-cols-2 gap-2">
-              <ActionButton onClick={handleClear}>CLEAR</ActionButton>
-              <ActionButton
-                destructive
-                onClick={handleSave}
-                disabled={!hasChanges || isSubmitting}
-              >
-                {isSubmitting ? <LoadingSpinner text="Saving..." /> : "SAVE"}
-              </ActionButton>
+                <div className="w-full flex justify-center items-center">
+                  <div className="grid grid-cols-2 gap-2 px-2 w-1/2">
+                    <ActionButton onClick={handleClear}>CLEAR</ActionButton>
+                    <ActionButton
+                      destructive
+                      onClick={handleSave}
+                      disabled={!hasChanges || isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <LoadingSpinner text="Saving..." />
+                      ) : (
+                        "SAVE"
+                      )}
+                    </ActionButton>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
