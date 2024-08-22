@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-
 import { apiAuthPrefix, authRoutes, publicRoutes } from "@/routes";
 import { getDefaultPageForRole, hasAccess } from "@/lib/utils";
 
@@ -26,15 +25,19 @@ export default auth((req) => {
     return NextResponse.next();
   }
 
-  if (!isLoggedIn && !isPublicRoute) {
+  if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  if (!isLoggedIn) {
     const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isLoggedIn && !isPublicRoute && !hasAccess(nextUrl.pathname, userRole)) {
-    const defaultPage = getDefaultPageForRole(userRole);
-    return NextResponse.redirect(new URL(defaultPage, nextUrl));
+  if (!userRole || !hasAccess(nextUrl.pathname, userRole)) {
+    const safePage = userRole ? getDefaultPageForRole(userRole) : "/login";
+    return NextResponse.redirect(new URL(safePage, nextUrl));
   }
 
   return NextResponse.next();

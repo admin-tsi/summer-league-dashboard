@@ -178,9 +178,9 @@ export default function Page() {
 
   return (
     <ContentLayout title="Schedules">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pb-8">
         <DynamicBreadcrumbs paths={breadcrumbPaths} />
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 py-2">
           <div className="w-full lg:w-1/3">
             <Card className="shadow-lg border-t-8 mb-6 lg:mb-0">
               <CardHeader className="text-foreground rounded-t-lg">
