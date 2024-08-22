@@ -1,7 +1,6 @@
 "use client";
-
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useCurrentToken } from "@/hooks/use-current-token";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -16,78 +15,100 @@ import {
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { DataTable } from "@/components/users/view/data-table";
 import { columns } from "@/components/users/view/columns";
+import { User } from "@/lib/types/login/user";
 
 export default function UsersPage() {
-  const [users, setUsers] = useState<any>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingRows, setLoadingRows] = useState<{ [key: string]: boolean }>(
+    {},
+  );
   const [error, setError] = useState<string | null>(null);
   const token = useCurrentToken();
-
   const router = useRouter();
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      setLoading(true);
-      await deleteUser(userId, token);
-      toast.success("User deleted successfully");
-      setUsers(users.filter((user: { _id: string }) => user._id !== userId));
-    } catch (error) {
-      toast.error("Failed to delete user");
-      console.error("Failed to delete user", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
-    try {
-      setLoading(true);
-      await promoteUser(userId, token, newRole);
-      toast.success("User role updated successfully");
-      setUsers(
-        users.map((user: { _id: string; role: string }) =>
-          user._id === userId ? { ...user, role: newRole } : user,
-        ),
-      );
-    } catch (error) {
-      toast.error("Failed to update user role");
-      console.error("Failed to update user role", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const currentPageRef = useRef(0);
 
-  const handleStatusChange = async (userId: string, newStatus: boolean) => {
-    try {
-      setLoading(true);
+  const handleDeleteUser = useCallback(
+    async (userId: string) => {
+      try {
+        setLoadingRows((prev) => ({ ...prev, [userId]: true }));
+        await deleteUser(userId, token);
+        toast.success("User deleted successfully");
+        setUsers((prevUsers) =>
+          prevUsers.filter((user) => user._id !== userId),
+        );
+      } catch (error) {
+        toast.error("Failed to delete user");
+        console.error("Failed to delete user", error);
+      } finally {
+        setLoadingRows((prev) => ({ ...prev, [userId]: false }));
+      }
+    },
+    [token],
+  );
 
-      await validateAccount(userId, token);
+  const handleRoleChange = useCallback(
+    async (userId: string, newRole: string) => {
+      try {
+        setLoadingRows((prev) => ({ ...prev, [userId]: true }));
+        await promoteUser(userId, token, newRole);
+        toast.success("User role updated successfully");
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === userId ? { ...user, role: newRole } : user,
+          ),
+        );
+      } catch (error) {
+        toast.error("Failed to update user role");
+        console.error("Failed to update user role", error);
+      } finally {
+        setLoadingRows((prev) => ({ ...prev, [userId]: false }));
+      }
+    },
+    [token],
+  );
 
-      toast.success("User status updated successfully");
+  const handleStatusChange = useCallback(
+    async (userId: string, newStatus: boolean) => {
+      try {
+        setLoadingRows((prev) => ({ ...prev, [userId]: true }));
+        await validateAccount(userId, token);
+        toast.success("User status updated successfully");
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === userId ? { ...user, accountStatus: newStatus } : user,
+          ),
+        );
+      } catch (error) {
+        toast.error("Failed to update user status");
+        console.error("Failed to update user status", error);
+      } finally {
+        setLoadingRows((prev) => ({ ...prev, [userId]: false }));
+      }
+    },
+    [token],
+  );
 
-      setUsers(
-        users.map((user: { _id: string }) =>
-          user._id === userId ? { ...user, accountStatus: newStatus } : user,
-        ),
-      );
-    } catch (error) {
-      toast.error("Failed to update user status");
-      console.error("Failed to update user status", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const handleClick = async (id: any) => {
-    router.push(`/users/${id}`);
-  };
+  const handleClick = useCallback(
+    (id: string) => {
+      router.push(`/users/${id}`);
+    },
+    [router],
+  );
 
   useEffect(() => {
     getAllUsers(token)
-      .then(setUsers)
+      .then((fetchedUsers) => {
+        const usersWithCreatedAt = fetchedUsers.map((user) => ({
+          ...user,
+          createdAt: user.createdAt || new Date().toISOString(),
+        }));
+        setUsers(usersWithCreatedAt);
+      })
       .catch(() => setError("Failed to load users"))
       .finally(() => setLoading(false));
-  }, []);
-
-  console.log(users);
+  }, [token]);
 
   const breadcrumbPaths = [
     { label: "Settings", href: "/users" },
@@ -115,8 +136,10 @@ export default function UsersPage() {
               handleClick,
               handleRoleChange,
               handleStatusChange,
+              loadingRows,
             )}
             data={users}
+            currentPageRef={currentPageRef}
           />
         )}
       </div>
