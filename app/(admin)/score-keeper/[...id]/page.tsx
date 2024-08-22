@@ -305,7 +305,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
           </Button>
         </div>
       ) : (
-        <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5">
+        <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5 lg:h-screen lg:w-full lg:flex lg:justify-center lg:items-center">
           <ScoreDisplay
             score={totalScore.toString().padStart(2, "0")}
             team={teamName}
