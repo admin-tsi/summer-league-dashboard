@@ -305,59 +305,29 @@ const Page: React.FC<PageProps> = ({ params }) => {
           </Button>
         </div>
       ) : (
-        <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5 lg:h-screen lg:w-full lg:flex lg:justify-center lg:items-center">
-          <ScoreDisplay
-            score={totalScore.toString().padStart(2, "0")}
-            team={teamName}
-          />
-          <div className="w-full flex">
-            <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
-              {players.slice(0, 4).map((player) => (
-                <PlayerButton
-                  key={player._id}
-                  number={player.dorseyNumber}
-                  isActive={activePlayer === player._id}
-                  onClick={() => handlePlayerClick(player._id)}
-                />
-              ))}
-            </div>
-            <div className="w-full flex flex-col gap-5">
-              <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 px-2">
-                {playerStats.map((stat, index) => (
-                  <div key={index}>
-                    <Stat
-                      playerStats={stat}
-                      value={
-                        activePlayer !== null && playersData[activePlayer]
-                          ? playersData[activePlayer][stat] || 0
-                          : 0
-                      }
-                      onIncrement={() => handleIncrement(stat)}
-                      onDecrement={() => handleDecrement(stat)}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="w-full flex justify-center items-center">
-                <div className="grid grid-cols-2 gap-2 px-2 w-1/2">
-                  <ActionButton onClick={handleClear}>CLEAR</ActionButton>
-                  <ActionButton
-                    destructive
-                    onClick={handleSave}
-                    disabled={!hasChanges || isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <LoadingSpinner text="Saving..." />
-                    ) : (
-                      "SAVE"
-                    )}
-                  </ActionButton>
-                </div>
-              </div>
-            </div>
-            {players.length > 4 && (
+        <>
+          <div className="h-[100dvh] px-5 md:hidden flex flex-col text-center gap-3 justify-center items-center">
+            <span>
+              This page is not accessible on mobile. If you are an OTM, please
+              return using a tablet or a computer. If you have an urgent
+              mission, please contact the support service to obtain one.
+            </span>
+            <Button
+              onClick={() => {
+                router.push("/score-keeper");
+              }}
+            >
+              Go Back
+            </Button>
+          </div>
+          <div className="h-full max-sm:hidden border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5 lg:h-screen lg:w-full lg:flex lg:justify-center lg:items-center">
+            <ScoreDisplay
+              score={totalScore.toString().padStart(2, "0")}
+              team={teamName}
+            />
+            <div className="w-full flex">
               <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
-                {players.slice(4).map((player) => (
+                {players.slice(0, 4).map((player) => (
                   <PlayerButton
                     key={player._id}
                     number={player.dorseyNumber}
@@ -366,9 +336,55 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   />
                 ))}
               </div>
-            )}
+              <div className="w-full flex flex-col gap-5">
+                <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 px-2">
+                  {playerStats.map((stat, index) => (
+                    <div key={index}>
+                      <Stat
+                        playerStats={stat}
+                        value={
+                          activePlayer !== null && playersData[activePlayer]
+                            ? playersData[activePlayer][stat] || 0
+                            : 0
+                        }
+                        onIncrement={() => handleIncrement(stat)}
+                        onDecrement={() => handleDecrement(stat)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="w-full flex justify-center items-center">
+                  <div className="grid grid-cols-2 gap-2 px-2 w-1/2">
+                    <ActionButton onClick={handleClear}>CLEAR</ActionButton>
+                    <ActionButton
+                      destructive
+                      onClick={handleSave}
+                      disabled={!hasChanges || isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <LoadingSpinner text="Saving..." />
+                      ) : (
+                        "SAVE"
+                      )}
+                    </ActionButton>
+                  </div>
+                </div>
+              </div>
+              {players.length > 4 && (
+                <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
+                  {players.slice(4).map((player) => (
+                    <PlayerButton
+                      key={player._id}
+                      number={player.dorseyNumber}
+                      isActive={activePlayer === player._id}
+                      onClick={() => handlePlayerClick(player._id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );
