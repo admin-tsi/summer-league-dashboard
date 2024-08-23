@@ -6,7 +6,7 @@ const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 export async function createSchedule(
   token: string | undefined,
   data: Omit<Schedule, "_id">,
-  competitionId: string | null
+  competitionId: string | null,
 ): Promise<void> {
   try {
     const apiData = {
@@ -25,7 +25,35 @@ export async function createSchedule(
     if (axios.isAxiosError(error)) {
       throw new Error(
         error.response?.data.message ||
-          "An error occurred while creating the schedule"
+          "An error occurred while creating the schedule",
+      );
+    } else {
+      throw new Error("A non-Axios error occurred");
+    }
+  }
+}
+
+export async function getAllSchedules(
+  token: string | undefined,
+  competitionId: string,
+): Promise<Schedule[]> {
+  try {
+    const response: AxiosResponse<Schedule[]> = await axios.get(
+      `${baseUrl}/schedules`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "x-competition-id": competitionId,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data.message ||
+          "An error occurred while fetching the schedules",
       );
     } else {
       throw new Error("A non-Axios error occurred");

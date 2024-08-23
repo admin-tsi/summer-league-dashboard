@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { User } from "@/lib/types/login/user";
 import LoadingSpinner from "@/components/loading-spinner";
-import { getUserById, updateUser, promoteUser } from "@/lib/api/users/users";
+import { getUserById, updateUser } from "@/lib/api/users/users";
 import { UserSchema } from "@/lib/schemas/users/users";
 import { toast } from "sonner";
 import {
@@ -86,19 +86,8 @@ export default function Page({
   const onSubmit = async (data: UserFormData) => {
     setIsSaving(true);
     try {
-      if (user && user.role !== data.role) {
-        await promoteUser(params.id, token, data.role);
-        toast.success("User role updated successfully");
-      }
-
-      const updatedData = {
-        ...data,
-      };
-      await updateUser(params.id, updatedData, token);
-      toast.success("User information updated successfully");
-
-      const refreshedUser = await getUserById(params.id, token);
-      setUser(refreshedUser);
+      await updateUser(params.id, data, token);
+      toast.success("User updated successfully");
     } catch (error) {
       toast.error("Failed to update user");
       console.error("Failed to update user", error);
@@ -173,6 +162,7 @@ export default function Page({
                   </FormItem>
                 )}
               />
+
               <div className="col-span-1 md:col-span-2 flex space-x-4">
                 <FormField
                   name="countryCode"
@@ -184,7 +174,7 @@ export default function Page({
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value}
+                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -217,7 +207,7 @@ export default function Page({
                           {...field}
                           id="phoneNumber"
                           placeholder="Phone Number"
-                          type="text"
+                          type="number"
                         />
                       </FormControl>
                       <FormMessage />
@@ -254,7 +244,10 @@ export default function Page({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel htmlFor="role">Role</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a role" />

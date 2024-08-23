@@ -65,6 +65,13 @@ export const columns = ({
     cell: ({ row }) => <div className="text-left">{row.original.lastName}</div>,
   },
   {
+    accessorKey: "team",
+    header: () => <div className="text-left">Team</div>,
+    cell: ({ row }) => (
+      <div className="text-left">{row.original.playerTeam.teamName}</div>
+    ),
+  },
+  {
     accessorKey: "birthdate",
     header: () => <div className="text-left">Age</div>,
     cell: ({ row }) => {
@@ -77,16 +84,6 @@ export const columns = ({
       }
       return <div>{age || "-"}</div>;
     },
-  },
-  {
-    accessorKey: "height",
-    header: () => <div className="text-left">Height</div>,
-    cell: ({ row }) => <div className="text-left">{row.original.height}</div>,
-  },
-  {
-    accessorKey: "weight",
-    header: () => <div className="text-left">Weight</div>,
-    cell: ({ row }) => <div className="text-left">{row.original.weight}</div>,
   },
   {
     accessorKey: "phoneNumber",
@@ -119,6 +116,7 @@ export const columns = ({
     header: () => <div className="text-left">Status</div>,
     cell: ({ row }) => {
       const status = row.original.playerStatus?.status;
+      const comment = row.original.playerStatus?.comment;
       let badgeVariant: any = "default";
       let statusText = "Unknown";
 
@@ -126,31 +124,35 @@ export const columns = ({
         badgeVariant = "success";
         statusText = "Verified";
       } else if (status === false) {
-        if (row.original.playerStatus?.comment) {
+        if (comment) {
           badgeVariant = "destructive";
           statusText = "Rejected";
         } else {
           badgeVariant = "default";
-          statusText = "In progress";
+          statusText = "Pending";
         }
       }
 
       return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Badge variant={badgeVariant} className="text-xs">
-                {statusText}
-              </Badge>
-            </TooltipTrigger>
-            <TooltipContent>
-              {row.original.playerStatus?.comment || statusText}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex flex-col">
+          <Badge variant={badgeVariant} className="text-xs w-fit">
+            {statusText}
+          </Badge>
+          {comment && (
+            <span className="text-xs text-muted-foreground mt-1 hidden sm:inline">
+              {comment}
+            </span>
+          )}
+          {comment && (
+            <span className="text-xs text-muted-foreground mt-1 sm:hidden">
+              {comment}
+            </span>
+          )}
+        </div>
       );
     },
   },
+
   {
     id: "actions",
     header: () => <div className="text-center">Actions</div>,

@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { MenuIcon, PanelsTopLeft } from "lucide-react";
-
+import { MenuIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Menu } from "@/components/admin-panel/menu";
 import {
@@ -8,11 +7,16 @@ import {
   SheetHeader,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from "@/components/ui/sheet";
+import Image from "next/image";
+import logo from "@/public/logo.svg";
+import React from "react";
 
 export function SheetMenu() {
   return (
     <Sheet>
+      <SheetTitle></SheetTitle>
       <SheetTrigger className="lg:hidden" asChild>
         <Button className="h-8" variant="outline" size="icon">
           <MenuIcon size={20} />
@@ -26,8 +30,13 @@ export function SheetMenu() {
             asChild
           >
             <Link href="/dashboard" className="flex items-center gap-2">
-              <PanelsTopLeft className="w-6 h-6 mr-1" />
-              <h1 className="font-bold text-lg">Brand</h1>
+              <Image
+                src={logo}
+                alt="AWSP Logo"
+                width={50}
+                height={50}
+                className="mt-4"
+              />
             </Link>
           </Button>
         </SheetHeader>

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   deleteOtmScheduleStat,
+  deleteSchedulesStats,
   getDetailedScheduleStats,
   saveScheduleStat,
 } from "@/lib/api/schedules-stats/schedules-stats";

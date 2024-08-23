@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import EditInput from "@/components/players/edit/input";
 import { Button } from "../ui/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,11 +14,13 @@ import {
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
 import { teamNames } from "@/constants/team/teams";
-
 import { createTeam } from "@/lib/api/teams/teams";
 import LoadingSpinner from "../loading-spinner";
 import { teamCreationSchema } from "@/lib/schemas/team/team";
 import FormError from "../login/form-error";
+import { signOut } from "next-auth/react";
+import TeamRecapDialog from "./teamRecapDialog";
+import { cities } from "@/constants/data/cities";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -33,6 +34,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
   const [error, setError] = useState<string | null>(null);
   const [selectedCompetitionId, setSelectedCompetitionId] = useState("");
   const [isDivisionsLoading, setIsDivisionsLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const {
     register,
@@ -45,6 +47,10 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
   });
 
   const teamGender = watch("teamGender");
+  const teamName = watch("teamName");
+  const city = watch("city");
+  const division = watch("division");
+  const formData = watch();
 
   useEffect(() => {
     const fetchDivisions = async () => {
@@ -83,6 +89,7 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
         if (currentUser.accessToken) {
           const response = await createTeam(data, token, selectedCompetitionId);
           onSuccess(response._id);
+          await signOut();
         } else {
           setError("No access token available");
         }
@@ -96,8 +103,11 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
     }
   };
 
-  const division = watch("division");
-  const teamName = watch("teamName");
+  const handleShowRecap = () => {
+    if (Object.keys(errors).length === 0) {
+      setIsDialogOpen(true);
+    }
+  };
 
   return (
     <form
@@ -129,12 +139,27 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
             </span>
           )}
         </div>
-        <EditInput
-          label="City"
-          placeholder="Your team city"
-          errorMessage={errors.city?.message}
-          register={register("city")}
-        />
+        <div className="w-full flex flex-col gap-2">
+          <span className="text-sm">City</span>
+          <Select
+            onValueChange={(value) => setValue("city", value)}
+            value={city}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select city" />
+            </SelectTrigger>
+            <SelectContent>
+              {cities.map((city) => (
+                <SelectItem key={city} value={city}>
+                  {city}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.city && (
+            <span className="text-red-600 text-sm">{errors.city.message}</span>
+          )}
+        </div>
         <div className="w-full flex flex-col gap-2">
           <span className="text-sm">Gender</span>
           <Select
@@ -186,19 +211,25 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
         </div>
 
         <Button
-          disabled={isSubmitting}
+          type="button"
+          onClick={handleShowRecap}
+          disabled={isSubmitting || Object.keys(errors).length > 0}
           className="mt-3 bg-background border text-primary hover:text-white"
         >
-          {isSubmitting ? (
-            <div>
-              <LoadingSpinner text="Loading..." />
-            </div>
-          ) : (
-            <span>Create my team</span>
-          )}
+          Check information and submit
         </Button>
       </div>
       {error && <FormError message={error} />}
+
+      <TeamRecapDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={handleSubmit(onSubmit)}
+        data={formData}
+        divisionName={
+          divisions.find((d) => d._id === formData.division)?.divisionName || ""
+        }
+      />
     </form>
   );
 };

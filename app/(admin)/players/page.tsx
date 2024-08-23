@@ -30,10 +30,12 @@ export default function PlayersPage() {
         }
 
         const { role, isManageTeam } = currentUser;
+        console.log(token);
 
         if (role === "admin") {
           const data = await getAllPlayers(role, token);
           setPlayers(data);
+          console.log(data);
         } else if (role === "team-manager") {
           if (isManageTeam) {
             const data = await getAllPlayers(role, token, isManageTeam);
@@ -52,7 +54,7 @@ export default function PlayersPage() {
     };
 
     fetchPlayers();
-  }, [currentUser]);
+  }, [currentUser, token]);
 
   const handleDelete = (id: string) => {
     setPlayers(players.filter((player) => player._id !== id));
@@ -83,7 +85,11 @@ export default function PlayersPage() {
             <p className="w-[80%] md:w-1/2 lg:w-1/3">{error}</p>
           </div>
         ) : (
-          <DataTable columns={columns({ handleDelete })} data={players} />
+          <DataTable
+            columns={columns({ handleDelete })}
+            data={players}
+            isAdmin={currentUser.role === "admin" ? true : false}
+          />
         )}
       </div>
     </ContentLayout>

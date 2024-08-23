@@ -98,6 +98,7 @@ export const {
     },
     session: async ({ session, token }) => {
       session.user = token.user as MyUserType;
+      console.log("session", session);
       return session;
     },
   },

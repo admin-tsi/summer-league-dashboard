@@ -4,7 +4,6 @@ import "./globals.css";
 
 import { cn } from "@/lib/utils";
 import React from "react";
-import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "sonner";
 
 const cabinetGroteskFont = localFont({
@@ -40,12 +39,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning={true}>
       <body className={cn(cabinetGroteskFont.className, satoshiFont.className)}>
-        <ThemeProvider attribute="class" defaultTheme="light">
-          {children}
-          <Toaster className="font-satoshi" />
-        </ThemeProvider>
+        {children}
+        <Toaster className="font-satoshi" />
       </body>
     </html>
   );
