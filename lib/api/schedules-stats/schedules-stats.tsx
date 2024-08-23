@@ -125,7 +125,8 @@ export async function updateOtmScheduleStat(
 export async function saveScheduleStat(
   competitionId: string,
   scheduleStatId: string,
-  token: string
+  token: string,
+  data: unknown
 ): Promise<any> {
   const url: string = `${baseUrl}/results/schedule/${scheduleStatId}`;
 
@@ -137,7 +138,7 @@ export async function saveScheduleStat(
   };
 
   return axios
-    .post(url, config)
+    .post(url, data, config)
     .then((response: AxiosResponse) => {
       return response.data;
     })

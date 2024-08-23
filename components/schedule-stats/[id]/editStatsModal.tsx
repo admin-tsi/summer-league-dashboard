@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,41 +6,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { PlayerStats } from "@/lib/types/players/players";
-import { useState, useCallback } from "react";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import LoadingSpinner from "@/components/loading-spinner";
-import { updateOtmScheduleStat } from "../../../lib/api/schedules-stats/schedules-stats";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
-
-type PlayerStat = {
-  player: {
-    _id: string;
-    firstName: string;
-    lastName: string;
-    position: string;
-    dorseyNumber: number;
-    weight: number;
-    playerImage: string;
-  };
-  threePoints: number;
-  twoPoints: number;
-  lancerFranc: number;
-  assists: number;
-  blocks: number;
-  fouls: number;
-  turnOver: number;
-  steal: number;
-  rebonds: number;
-};
+import { updateOtmScheduleStat } from "@/lib/api/schedules-stats/schedules-stats";
+import { Team, PlayerStat } from "@/lib/types/schedules-stats/schedules-stats";
 
 type EditStatsModalProps = {
-  scheduleStatId: string;
   isOpen: boolean;
   onClose: () => void;
-  team: PlayerStats;
-  onSave: (updatedStats: { players: PlayerStat[] }) => void;
+  team: Team | null;
+  onSave: (updatedTeam: Team) => void;
+  scheduleStatId: string | null;
 };
 
 const statFields: (keyof Omit<PlayerStat, "player">)[] = [
@@ -75,22 +54,16 @@ export function EditStatsModal({
   scheduleStatId,
 }: EditStatsModalProps) {
   const currentUser = useCurrentUser();
+  const [isLoading, setIsLoading] = useState(false);
+  const [editedStats, setEditedStats] = useState<PlayerStat[]>([]);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [editedStats, setEditedStats] = useState<PlayerStat[]>(() =>
-    team.players.map((player) => ({
-      player: player.player,
-      threePoints: player.threePoints,
-      twoPoints: player.twoPoints,
-      lancerFranc: player.lancerFranc,
-      assists: player.assists,
-      blocks: player.blocks,
-      fouls: player.fouls,
-      turnOver: player.turnOver,
-      steal: player.steal,
-      rebonds: player.rebonds,
-    }))
-  );
+  useEffect(() => {
+    if (team) {
+      setEditedStats(team.players);
+    } else {
+      setEditedStats([]);
+    }
+  }, [team]);
 
   const handleInputChange = useCallback(
     (
@@ -110,6 +83,11 @@ export function EditStatsModal({
   );
 
   const handleSave = useCallback(async () => {
+    if (!team || !scheduleStatId) {
+      toast.error("Unable to update: missing team or schedule stat ID");
+      return;
+    }
+
     setIsLoading(true);
     try {
       const competitionId = localStorage.getItem("selectedCompetitionId");
@@ -117,56 +95,39 @@ export function EditStatsModal({
         throw new Error("Competition ID or access token not found");
       }
 
-      const updatedPlayers: PlayerStat[] = team.players.map(
-        (playerData, index) => ({
-          player: playerData.player,
-          threePoints: editedStats[index].threePoints,
-          twoPoints: editedStats[index].twoPoints,
-          lancerFranc: editedStats[index].lancerFranc,
-          assists: editedStats[index].assists,
-          blocks: editedStats[index].blocks,
-          fouls: editedStats[index].fouls,
-          turnOver: editedStats[index].turnOver,
-          steal: editedStats[index].steal,
-          rebonds: editedStats[index].rebonds,
-        })
-      );
-
-      const newTeam = {
+      const updatedTeam: Team = {
         ...team,
-        players: updatedPlayers,
+        players: editedStats,
       };
 
       await updateOtmScheduleStat(
         competitionId,
         scheduleStatId,
         currentUser.accessToken,
-        { players: newTeam.players }
+        { players: updatedTeam.players }
       );
 
-      toast.success("Schedule Stat updated");
-      onSave(newTeam);
+      toast.success("Team stats updated successfully");
+      onSave(updatedTeam);
       onClose();
     } catch (error) {
-      toast.error("Failed to update Schedule Stat");
+      toast.error("Failed to update team stats");
     } finally {
       setIsLoading(false);
     }
   }, [editedStats, scheduleStatId, onSave, onClose, currentUser, team]);
 
+  if (!team) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-[80%] h-[80vh] md:h-fit md:max-h-[80%] overflow-y-auto flex flex-col justify-center rounded-md">
-        <div className="flex flex-col justify-center gap-2">
-          <DialogTitle className="font-semibold">Edit Team Stats</DialogTitle>
-          <span>
-            Update the statistics for each player. Click save when you&apos;re
-            done.
-          </span>
-        </div>
+        <DialogTitle className="font-semibold">
+          Edit Team Stats: {team.team.teamName}
+        </DialogTitle>
 
         <div className="grid grid-cols-1 gap-4 overflow-auto">
-          {team.players.map((player, index) => (
+          {editedStats.map((player, playerIndex) => (
             <div
               key={player.player._id}
               className="w-full grid grid-cols-1 gap-3"
@@ -185,20 +146,10 @@ export function EditStatsModal({
                       id={`${player.player._id}-${field}`}
                       type="number"
                       min={0}
-                      value={editedStats[index][field] || ""}
+                      value={player[field] || ""}
                       onChange={(e) =>
-                        handleInputChange(index, field, e.target.value)
+                        handleInputChange(playerIndex, field, e.target.value)
                       }
-                      onFocus={(e) => {
-                        if (e.target.value === "0") {
-                          e.target.value = "";
-                        }
-                      }}
-                      onBlur={(e) => {
-                        if (e.target.value === "") {
-                          handleInputChange(index, field, "0");
-                        }
-                      }}
                       className="w-full"
                     />
                   </div>
@@ -207,6 +158,7 @@ export function EditStatsModal({
             </div>
           ))}
         </div>
+
         <DialogFooter className="max-md:gap-2">
           <Button onClick={onClose} variant="outline">
             Cancel

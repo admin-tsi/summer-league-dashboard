@@ -81,11 +81,9 @@ export type PlayerStats = {
     turnOver: number;
     steal: number;
     rebonds: number;
-  }[];
+  };
   __v: number;
 };
-
-export type PlayerStatsRow = PlayerStats["players"][0];
 
 export type PlayerTableData = {
   teamName: string;
