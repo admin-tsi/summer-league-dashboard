@@ -1,8 +1,4 @@
-// pages/schedule-stats/[id].tsx
 "use client";
-
-import { useEffect, useState, useCallback } from "react";
-import { toast } from "sonner";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import { columns } from "@/components/schedule-stats/[id]/columns";
@@ -13,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   deleteOtmScheduleStat,
-  deleteSchedulesStats,
   getDetailedScheduleStats,
   saveScheduleStat,
 } from "@/lib/api/schedules-stats/schedules-stats";
-import { Team, PlayerStat } from "@/lib/types/schedules-stats/schedules-stats";
+import { Team } from "@/lib/types/schedules-stats/schedules-stats";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function Page({ params }: { params: { id: string } }) {
   const currentUser = useCurrentUser();
