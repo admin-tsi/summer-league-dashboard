@@ -1,241 +1,166 @@
 "use client";
+import React from "react";
+import { motion } from "framer-motion";
+import { Sun, Users, Award, Calendar, ChevronRight } from "lucide-react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import CustomBreadcrumb from "@/components/custom-breadcumb";
-import { Overview } from "@/components/overview";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
+  CardFooter,
   CardTitle,
+  CardDescription,
+  CardContent,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Activity,
-  ArrowUpRight,
-  CreditCard,
-  DollarSign,
-  Users,
-} from "lucide-react";
 
-export default function Page() {
-  // const currentUser: any = useCurrentUser();
+const SummerLeagueWelcome = () => {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
 
-  // useEffect(() => {
-  //   const checkToken = async () => {
-  //     const newAccessToken = await verifyTokenExpiration(
-  //       currentUser.accessToken,
-  //       currentUser.refreshToken
-  //     );
-  //     if (newAccessToken) {
-  //       console.log(`Old access token: ${currentUser.accessToken}`);
-  //       console.log(`New access token: ${newAccessToken}`);
-  //     } else {
-  //       console.log("Impossible to get a new access token.");
-  //     }
-  //   };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
-  //   checkToken();
-  // }, [currentUser.accessToken, currentUser.refreshToken]);
+  const stats = [
+    {
+      icon: <Users className="w-6 h-6" />,
+      title: "Participants",
+      value: "440",
+      color: "bg-primary-yellow text-primary-yellow-foreground",
+    },
+    {
+      icon: <Award className="w-6 h-6" />,
+      title: "Teams",
+      value: "30",
+      color: "bg-primary-green text-primary-green-foreground",
+    },
+    {
+      icon: <Calendar className="w-6 h-6" />,
+      title: "Days",
+      value: "13",
+      color: "bg-primary text-primary-foreground",
+    },
+  ];
+
+  const divisions = ["Sin", "Mion", "Djo", "Ayi"];
 
   return (
-    <ContentLayout title="Dashboard">
-      <CustomBreadcrumb />
-      <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="w-full rounded-none justify-start">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="courses">Courses</TabsTrigger>
-          <TabsTrigger value="earning">Earning</TabsTrigger>
-        </TabsList>
-        <Separator />
-        <TabsContent value="overview">
-          <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-            <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <ContentLayout title="Welcome">
+      <motion.div
+        className="mt-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants}>
+          <Card className="mb-8 border-primary-yellow shadow-lg rounded-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center text-2xl font-bold">
+                <motion.div
+                  initial={{ rotate: 0 }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sun className="w-8 h-8 text-primary-yellow mr-2" />
+                </motion.div>
+                Welcome to the I AM FOUNDATION Summer League!
+              </CardTitle>
+              <CardDescription className="text-lg text-muted-foreground">
+                Please wait while we assign your role. In the meantime,
+                here&#39;s some information about our league.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-base">
+              <p className="mb-4">
+                The Summer League is an initiative by Ian MAHINMI&#39;s I AM
+                FOUNDATION, aiming to promote basketball among Benin&#39;s youth
+                and provide a platform for young professionals in sports-related
+                careers.
+              </p>
+              <p>
+                Our league features players aged 14-16 and young professionals,
+                embodying values of fair play, teamwork, and professional
+                sportsmanship.
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          {stats.map((stat) => (
+            <motion.div key={stat.title} variants={itemVariants}>
+              <Card
+                className={`${stat.color} hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-in-out rounded-lg`}
+              >
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Total Revenue
+                    {stat.title}
                   </CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  {stat.icon}
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$45,231.89</div>
-                  <p className="text-xs text-muted-foreground">
-                    +20.1% from last month
-                  </p>
+                  <motion.div
+                    className="text-2xl font-bold"
+                    initial={{ scale: 1 }}
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    {stat.value}
+                  </motion.div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Subscriptions
-                  </CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">+2350</div>
-                  <p className="text-xs text-muted-foreground">
-                    +180.1% from last month
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                  <CreditCard className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">+12,234</div>
-                  <p className="text-xs text-muted-foreground">
-                    +19% from last month
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Active Now
-                  </CardTitle>
-                  <Activity className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">+573</div>
-                  <p className="text-xs text-muted-foreground">
-                    +201 since last hour
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-              <Card className="xl:col-span-2">
-                <CardHeader className="flex flex-row items-center">
-                  <div className="grid gap-2">
-                    <CardTitle>Transactions</CardTitle>
-                    <CardDescription>
-                      Recent transactions from your store.
-                    </CardDescription>
-                  </div>
-                  <Button className="ml-auto gap-1" variant="outline">
-                    View All
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <Overview />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Sales</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-8">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage
-                        src="https://i.pinimg.com/564x/72/d7/cc/72d7cc32e51ef9c829011bb9bf84f36a.jpg"
-                        alt="Avatar"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>OM</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                      <p className="text-sm font-medium leading-none">
-                        Olivia Martin
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        olivia.martin@email.com
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">+$1,999.00</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage
-                        src="https://i.pinimg.com/564x/72/d7/cc/72d7cc32e51ef9c829011bb9bf84f36a.jpg"
-                        alt="Avatar"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>JL</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                      <p className="text-sm font-medium leading-none">
-                        Jackson Lee
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        jackson.lee@email.com
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">+$39.00</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage
-                        src="https://i.pinimg.com/564x/72/d7/cc/72d7cc32e51ef9c829011bb9bf84f36a.jpg"
-                        alt="Avatar"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>IN</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                      <p className="text-sm font-medium leading-none">
-                        Isabella Nguyen
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        isabella.nguyen@email.com
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">+$299.00</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage
-                        src="https://i.pinimg.com/564x/72/d7/cc/72d7cc32e51ef9c829011bb9bf84f36a.jpg"
-                        alt="Avatar"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>WK</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                      <p className="text-sm font-medium leading-none">
-                        William Kim
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        will@email.com
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">+$99.00</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Avatar className="hidden h-9 w-9 sm:flex">
-                      <AvatarImage
-                        src="https://i.pinimg.com/564x/72/d7/cc/72d7cc32e51ef9c829011bb9bf84f36a.jpg"
-                        alt="Avatar"
-                        className="object-cover"
-                      />
-                      <AvatarFallback>SD</AvatarFallback>
-                    </Avatar>
-                    <div className="grid gap-1">
-                      <p className="text-sm font-medium leading-none">
-                        Sofia Davis
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        sofia.davis@email.com
-                      </p>
-                    </div>
-                    <div className="ml-auto font-medium">+$39.00</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </TabsContent>
-        <TabsContent value="courses">
-          <h6>i</h6>
-        </TabsContent>
-      </Tabs>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div variants={itemVariants}>
+          <Card className="border-primary-green shadow-lg rounded-lg">
+            <CardHeader>
+              <CardTitle className="text-xl font-bold">
+                League Structure
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-base">
+              <p className="mb-4">
+                Our league is divided into {divisions.length} divisions:
+              </p>
+              <ul className="list-none mb-4">
+                {divisions.map((division, index) => (
+                  <motion.li
+                    key={index}
+                    className="flex items-center mb-2 text-lg"
+                    whileHover={{ x: 5 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    <ChevronRight className="w-4 h-4 text-primary-green mr-2" />
+                    {division} Division
+                  </motion.li>
+                ))}
+              </ul>
+              <p>
+                The league consists of 120 division matches, 98 conference
+                matches, and 7 playoff matches, culminating in an exciting
+                finale to crown the I AM FOUNDATION SUMMER League champion.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <p className="text-sm text-muted-foreground">
+                Stay tuned for your role assignment and get ready for an amazing
+                summer of basketball!
+              </p>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </motion.div>
     </ContentLayout>
   );
-}
+};
+
+export default SummerLeagueWelcome;

@@ -44,7 +44,7 @@ export function getMenuList(
           active: pathname.includes("/dashboard"),
           icon: LayoutGrid,
           submenus: [],
-          roles: [],
+          roles: ["user"],
         },
         {
           href: "/dashboard-tm",
