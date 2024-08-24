@@ -1,12 +1,3 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
 const Standings = () => (
   <div className="border rounded-md p-5 max-md:mb-12 h-fit md:h-[550px] gap-2">
     <div className="flex justify-between items-center text-sm">

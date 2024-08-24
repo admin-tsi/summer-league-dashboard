@@ -1,5 +1,4 @@
 import {
-  addHours,
   format,
   isAfter,
   isBefore,
@@ -43,7 +42,7 @@ const Schedule: React.FC<Props> = ({ schedules }) => {
   const getStatusColor = (
     date: string,
     startTime: string,
-    endTime: string
+    endTime: string,
   ): string => {
     const now = new Date();
     const matchDate = parseISO(date);
@@ -100,7 +99,7 @@ const Schedule: React.FC<Props> = ({ schedules }) => {
               const statusColor = getStatusColor(
                 item.date,
                 item.startTime,
-                item.endTime
+                item.endTime,
               );
               const linkHref = getLinkHref(item);
               return (
