@@ -23,13 +23,19 @@ const scoreImpact: Record<string, number> = {
 
 const saveToLocalStorage = (data: any, teamId: string) => {
   const key = `basketballStats_${teamId}`;
-  localStorage.setItem(key, JSON.stringify(data));
+  const dataToSave = {
+    playersData: data.playersData,
+    totalScore: data.totalScore,
+    activePlayer: data.activePlayer,
+  };
+  localStorage.setItem(key, JSON.stringify(dataToSave));
 };
 
 const loadFromLocalStorage = (teamId: string): any | null => {
   const key = `basketballStats_${teamId}`;
   const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : null;
+  const parsedData = data ? JSON.parse(data) : null;
+  return parsedData;
 };
 
 const clearLocalStorage = (teamId: string) => {
@@ -53,7 +59,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [teamName, setTeamName] = useState<string | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [playersData, setPlayersData] = useState<Record<string, PlayerStat>>(
-    {},
+    {}
   );
   const [hasChanges, setHasChanges] = useState<boolean>(false);
 
@@ -63,14 +69,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
         (acc, player) => {
           acc[player._id] = playerStats.reduce(
             (statAcc, stat) => ({ ...statAcc, [stat]: 0 }),
-            {} as PlayerStat,
+            {} as PlayerStat
           );
           return acc;
         },
-        {} as Record<string, PlayerStat>,
+        {} as Record<string, PlayerStat>
       );
     },
-    [],
+    []
   );
 
   const updateScore = useCallback((stat: string, increment: boolean) => {
@@ -85,18 +91,21 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const handleIncrement = useCallback(
     (stat: string) => {
       if (activePlayer !== null) {
-        setPlayersData((prevData) => ({
-          ...prevData,
-          [activePlayer]: {
-            ...((prevData[activePlayer] || {}) as PlayerStat),
-            [stat]: ((prevData[activePlayer] || {})[stat] || 0) + 1,
-          },
-        }));
+        setPlayersData((prevData) => {
+          const newData = {
+            ...prevData,
+            [activePlayer]: {
+              ...((prevData[activePlayer] || {}) as PlayerStat),
+              [stat]: ((prevData[activePlayer] || {})[stat] || 0) + 1,
+            },
+          };
+          setHasChanges(true);
+          return newData;
+        });
         updateScore(stat, true);
-        setHasChanges(true);
       }
     },
-    [activePlayer, updateScore],
+    [activePlayer, updateScore]
   );
 
   const handleDecrement = useCallback(
@@ -110,35 +119,45 @@ const Page: React.FC<PageProps> = ({ params }) => {
           }
 
           const newValue = currentValue - 1;
-
-          return {
+          const newData = {
             ...prevData,
             [activePlayer]: {
               ...((prevData[activePlayer] || {}) as PlayerStat),
               [stat]: newValue,
             },
           };
+          setHasChanges(true);
+          return newData;
         });
 
         updateScore(stat, false);
-        setHasChanges(true);
       }
     },
-    [activePlayer, updateScore],
+    [activePlayer, updateScore]
   );
 
   const handlePlayerClick = useCallback(
     (playerId: string) => {
       setActivePlayer(activePlayer === playerId ? null : playerId);
     },
-    [activePlayer],
+    [activePlayer]
   );
 
   const handleClear = useCallback(() => {
-    setPlayersData(initializePlayerStats(players));
+    const initialPlayerStats = initializePlayerStats(players);
+    setPlayersData(initialPlayerStats);
     setTotalScore(0);
     setActivePlayer(null);
-    if (teamId) clearLocalStorage(teamId);
+    if (teamId) {
+      saveToLocalStorage(
+        {
+          playersData: initialPlayerStats,
+          totalScore: 0,
+          activePlayer: null,
+        },
+        teamId
+      );
+    }
     setHasChanges(false);
   }, [players, initializePlayerStats, teamId]);
 
@@ -165,7 +184,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
     try {
       const competitionId: string | null = localStorage.getItem(
-        "selectedCompetitionId",
+        "selectedCompetitionId"
       );
       if (!competitionId) {
         throw new Error("Competition ID not found in localStorage");
@@ -178,11 +197,9 @@ const Page: React.FC<PageProps> = ({ params }) => {
         team: teamId,
         players: mappedData,
       };
-
-      console.log(stat);
-
       await saveOtmScheduleStat(competitionId, scheduleId, token, stat);
       toast.success("This schedule stats has been successfully saved.");
+
       router.push("/score-keeper");
 
       handleClear();
@@ -213,7 +230,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
       try {
         if (!currentUser.accessToken) {
           setError(
-            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us.",
+            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
           );
           return;
         }
@@ -221,19 +238,31 @@ const Page: React.FC<PageProps> = ({ params }) => {
         const data = await getAllPlayers(
           currentUser.role,
           currentUser.accessToken,
-          currentTeamId,
+          currentTeamId
         );
 
         setPlayers(data);
 
         const savedData = loadFromLocalStorage(currentTeamId);
-        if (savedData) {
+        if (savedData && savedData.playersData) {
           setPlayersData(savedData.playersData);
           setTotalScore(savedData.totalScore);
+          setActivePlayer(savedData.activePlayer);
+          setHasChanges(true);
         } else {
-          setPlayersData(initializePlayerStats(data));
+          const initialPlayerStats = initializePlayerStats(data);
+          setPlayersData(initialPlayerStats);
+          saveToLocalStorage(
+            {
+              playersData: initialPlayerStats,
+              totalScore: 0,
+              activePlayer: null,
+            },
+            currentTeamId
+          );
         }
       } catch (error) {
+        console.error("Error fetching players:", error);
         setError("Failed to load players");
       } finally {
         setIsLoading(false);
@@ -244,45 +273,46 @@ const Page: React.FC<PageProps> = ({ params }) => {
   }, [currentUser, params.id, initializePlayerStats]);
 
   useEffect(() => {
-    if (teamId) {
+    if (teamId && hasChanges) {
       saveToLocalStorage(
         {
           playersData,
           totalScore,
+          activePlayer,
         },
-        teamId,
+        teamId
       );
     }
-  }, [playersData, totalScore, teamId]);
+  }, [playersData, totalScore, activePlayer, teamId, hasChanges]);
 
   return (
-    <ContentLayout title="OTM">
-      <>
-        {isLoading ? (
-          <div className="h-[800px] w-full flex justify-center items-center">
-            <LoadingSpinner text="Loading..." />
-          </div>
-        ) : error ? (
-          <div>{error}</div>
-        ) : players.length === 0 ? (
-          <div className="w-full h-[800px] flex flex-col justify-center items-center gap-2">
-            <span>No players available for this team.</span>
-            <Button
-              onClick={() => {
-                router.push("/score-keeper");
-              }}
-            >
-              Go Back
-            </Button>
-          </div>
-        ) : (
-          <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 justify-center items-center py-5">
-            <ScoreDisplay
-              score={totalScore.toString().padStart(2, "0")}
-              team={teamName}
-            />
-            <div className="w-full flex justify-center items-center flex-wrap gap-3">
-              {players.map((player) => (
+    <>
+      {isLoading ? (
+        <div className="h-[800px] w-full flex justify-center items-center">
+          <LoadingSpinner text="Loading..." />
+        </div>
+      ) : error ? (
+        <div>{error}</div>
+      ) : players.length === 0 ? (
+        <div className="w-full h-[800px] flex flex-col justify-center items-center gap-2">
+          <span>No players available for this team.</span>
+          <Button
+            onClick={() => {
+              router.push("/score-keeper");
+            }}
+          >
+            Go Back
+          </Button>
+        </div>
+      ) : (
+        <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5 lg:h-screen lg:w-full lg:flex lg:justify-center lg:items-center">
+          <ScoreDisplay
+            score={totalScore.toString().padStart(2, "0")}
+            team={teamName}
+          />
+          <div className="w-full flex">
+            <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
+              {players.slice(0, 4).map((player) => (
                 <PlayerButton
                   key={player._id}
                   number={player.dorseyNumber}
@@ -291,36 +321,56 @@ const Page: React.FC<PageProps> = ({ params }) => {
                 />
               ))}
             </div>
-            <div className="w-full md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-5 px-2">
-              {playerStats.map((stat, index) => (
-                <div key={index}>
-                  <Stat
-                    playerStats={stat}
-                    value={
-                      activePlayer !== null && playersData[activePlayer]
-                        ? playersData[activePlayer][stat] || 0
-                        : 0
-                    }
-                    onIncrement={() => handleIncrement(stat)}
-                    onDecrement={() => handleDecrement(stat)}
-                  />
+            <div className="w-full flex flex-col gap-5">
+              <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 px-2">
+                {playerStats.map((stat, index) => (
+                  <div key={index}>
+                    <Stat
+                      playerStats={stat}
+                      value={
+                        activePlayer !== null && playersData[activePlayer]
+                          ? playersData[activePlayer][stat] || 0
+                          : 0
+                      }
+                      onIncrement={() => handleIncrement(stat)}
+                      onDecrement={() => handleDecrement(stat)}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="w-full flex justify-center items-center">
+                <div className="grid grid-cols-2 gap-2 px-2 w-1/2">
+                  <ActionButton onClick={handleClear}>CLEAR</ActionButton>
+                  <ActionButton
+                    destructive
+                    onClick={handleSave}
+                    disabled={!hasChanges || isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <LoadingSpinner text="Saving..." />
+                    ) : (
+                      "SAVE"
+                    )}
+                  </ActionButton>
                 </div>
-              ))}
+              </div>
             </div>
-            <div className="w-1/2 grid grid-cols-2 gap-2">
-              <ActionButton onClick={handleClear}>CLEAR</ActionButton>
-              <ActionButton
-                destructive
-                onClick={handleSave}
-                disabled={!hasChanges || isSubmitting}
-              >
-                {isSubmitting ? <LoadingSpinner text="Saving..." /> : "SAVE"}
-              </ActionButton>
-            </div>
+            {players.length > 4 && (
+              <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
+                {players.slice(4).map((player) => (
+                  <PlayerButton
+                    key={player._id}
+                    number={player.dorseyNumber}
+                    isActive={activePlayer === player._id}
+                    onClick={() => handlePlayerClick(player._id)}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </>
-    </ContentLayout>
+        </div>
+      )}
+    </>
   );
 };
 

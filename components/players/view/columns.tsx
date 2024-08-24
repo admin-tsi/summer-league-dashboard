@@ -65,6 +65,13 @@ export const columns = ({
     cell: ({ row }) => <div className="text-left">{row.original.lastName}</div>,
   },
   {
+    accessorKey: "team",
+    header: () => <div className="text-left">Team</div>,
+    cell: ({ row }) => (
+      <div className="text-left">{row.original.playerTeam.teamName}</div>
+    ),
+  },
+  {
     accessorKey: "birthdate",
     header: () => <div className="text-left">Age</div>,
     cell: ({ row }) => {
@@ -77,16 +84,6 @@ export const columns = ({
       }
       return <div>{age || "-"}</div>;
     },
-  },
-  {
-    accessorKey: "height",
-    header: () => <div className="text-left">Height</div>,
-    cell: ({ row }) => <div className="text-left">{row.original.height}</div>,
-  },
-  {
-    accessorKey: "weight",
-    header: () => <div className="text-left">Weight</div>,
-    cell: ({ row }) => <div className="text-left">{row.original.weight}</div>,
   },
   {
     accessorKey: "phoneNumber",
