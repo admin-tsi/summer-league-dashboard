@@ -25,7 +25,7 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({ role }) => {
       badgeClass = "bg-pink-950/80 text-primary-foreground";
       break;
     default:
-      badgeClass = "bg-gray-100 text-gray-700";
+      badgeClass = "bg-gray-100 text-gray-700 hover:text-white";
   }
 
   return (
