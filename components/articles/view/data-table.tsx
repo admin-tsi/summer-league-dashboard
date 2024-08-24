@@ -73,12 +73,10 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center w-full mb-4 gap-3">
         <div className="flex justify-center items-center border rounded-lg w-full">
           <Input
-            placeholder="Filter first name..."
-            value={
-              (table.getColumn("firstName")?.getFilterValue() as string) ?? ""
-            }
+            placeholder="Filter title..."
+            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
-              table.getColumn("firstName")?.setFilterValue(event.target.value)
+              table.getColumn("title")?.setFilterValue(event.target.value)
             }
             className="w-full focus-visible:outline-none focus-visible:ring-0 border-0"
           />

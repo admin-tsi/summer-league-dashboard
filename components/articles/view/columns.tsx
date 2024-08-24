@@ -1,14 +1,32 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, BadgeCheck, Pencil, Trash2 } from "lucide-react";
+import { ArrowUpDown, Edit, Eye, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
-import { User } from "@/lib/types/login/user";
-import { RoleBadge } from "@/components/users/role-badge";
+
 import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Article } from "@/lib/types/articles/articles";
+
+const getStatusColor = (
+  status: "draft" | "published" | "pending" | "archived",
+) => {
+  switch (status) {
+    case "published":
+      return "bg-primary-green text-primary-green-foreground";
+    case "draft":
+      return "bg-secondary text-secondary-foreground";
+    case "pending":
+      return "bg-primary-yellow text-primary-yellow-foreground";
+    case "archived":
+      return "bg-muted text-muted-foreground";
+  }
+};
 
 export const columns = (
-  handleEdit: (userId: string) => void,
-): ColumnDef<User>[] => [
+  handleView: (articleId: string) => void,
+  handleEdit: (articleId: string) => void,
+  handleDelete: (articleId: string) => void,
+): ColumnDef<Article>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -17,16 +35,14 @@ export const columns = (
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value: any) =>
-          table.toggleAllPageRowsSelected(!!value)
-        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value: any) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
@@ -34,104 +50,109 @@ export const columns = (
     enableHiding: false,
   },
   {
-    accessorKey: "firstName",
-    header: "Firstname",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("firstName") || "-"}</div>
-    ),
-  },
-  {
-    accessorKey: "lastName",
-    header: "Lastname",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("lastName") || "-"}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div>{row.getValue("email") || "-"}</div>,
-  },
-  {
-    accessorKey: "dateOfBirth",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0"
-        >
-          Age
-          <ArrowUpDown className="h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const dob = new Date(row.getValue("dateOfBirth"));
-      const today = new Date();
-      let age = today.getFullYear() - dob.getFullYear();
-      const m = today.getMonth() - dob.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-        age--;
-      }
-      return <div>{age || "-"}</div>;
-    },
-  },
-  {
-    accessorKey: "phoneNumber",
-    header: "Phone",
-    cell: ({ row }) => (
-      <div>
-        {row.original.countryCode ? `${row.original.countryCode} ` : ""}
-        {row.getValue("phoneNumber") || "-"}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "role",
+    accessorKey: "title",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="p-0"
       >
-        Role
-        <ArrowUpDown className="h-4 w-4" />
+        Title
+        <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => {
-      const role = row.getValue("role") || "-";
-      return (
-        <div>
-          <RoleBadge role={String(role)}></RoleBadge>
-        </div>
-      );
-    },
-  },
-
-  {
-    accessorKey: "specialization",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0"
-        >
-          Specialization
-          <ArrowUpDown className="h-4 w-4" />
-        </Button>
-      );
-    },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("specialization") || "-"}</div>
+      <div className="font-medium">{row.getValue("title")}</div>
     ),
   },
   {
-    accessorKey: "address",
-    header: "Address",
+    accessorKey: "author",
+    header: "Author",
+    cell: ({ row }) => <div>{row.getValue("author") || "N/A"}</div>,
+  },
+  {
+    accessorKey: "category",
+    header: "Category",
+    cell: ({ row }) => <div>{row.getValue("category")}</div>,
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const status = row.getValue("status") as
+        | "draft"
+        | "published"
+        | "pending"
+        | "archived";
+      return (
+        <Badge className={getStatusColor(status)}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Created At
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("address") || "-"}</div>
+      <div>{new Date(row.getValue("createdAt")).toLocaleDateString()}</div>
+    ),
+  },
+  {
+    accessorKey: "likes",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Likes
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div>{row.getValue("likes")}</div>,
+  },
+  {
+    accessorKey: "featuredArticle",
+    header: "Featured",
+    cell: ({ row }) => (
+      <Badge variant={row.getValue("featuredArticle") ? "default" : "outline"}>
+        {row.getValue("featuredArticle") ? "Yes" : "No"}
+      </Badge>
+    ),
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <div className="flex space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleView(row.original._id)}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleEdit(row.original._id)}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => handleDelete(row.original._id)}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
     ),
   },
 ];
