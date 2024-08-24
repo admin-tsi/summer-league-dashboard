@@ -7,13 +7,12 @@ import { DataTable } from "@/components/players/view/data-table";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getAllPlayers } from "@/lib/api/players/players";
-import { Player } from "@/lib/types/players/players";
 import { useEffect, useState } from "react";
 import { Season } from "@/components/players/view/saisonSelector";
 import { useCurrentToken } from "@/hooks/use-current-token";
 
 export default function PlayersPage() {
-  const [players, setPlayers] = useState<Player[]>([]);
+  const [players, setPlayers] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const currentUser: any = useCurrentUser();
@@ -24,7 +23,7 @@ export default function PlayersPage() {
       try {
         if (!token) {
           setError(
-            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
+            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us.",
           );
           return;
         }
@@ -42,7 +41,7 @@ export default function PlayersPage() {
             setPlayers(data);
           } else {
             setError(
-              "You're not managing any team at the moment. Please create your team to be able to add, delete, or edit players."
+              "You're not managing any team at the moment. Please create your team to be able to add, delete, or edit players.",
             );
           }
         }
@@ -88,7 +87,7 @@ export default function PlayersPage() {
           <DataTable
             columns={columns({ handleDelete })}
             data={players}
-            isAdmin={currentUser.role === "admin" ? true : false}
+            isAdmin={currentUser.role === "admin"}
           />
         )}
       </div>

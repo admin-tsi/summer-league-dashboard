@@ -64,13 +64,13 @@ export const columns = ({
     },
     cell: ({ row }) => <div className="text-left">{row.original.lastName}</div>,
   },
-  {
+  /*  {
     accessorKey: "team",
     header: () => <div className="text-left">Team</div>,
     cell: ({ row }) => (
       <div className="text-left">{row.original.playerTeam.teamName}</div>
     ),
-  },
+  },*/
   {
     accessorKey: "birthdate",
     header: () => <div className="text-left">Age</div>,
@@ -134,7 +134,7 @@ export const columns = ({
       }
 
       return (
-        <div className="flex flex-col">
+        <div className="flex flex-col items-center">
           <Badge variant={badgeVariant} className="text-xs w-fit">
             {statusText}
           </Badge>
@@ -152,7 +152,6 @@ export const columns = ({
       );
     },
   },
-
   {
     id: "actions",
     header: () => <div className="text-center">Actions</div>,
