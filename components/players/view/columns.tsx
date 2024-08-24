@@ -68,7 +68,13 @@ export const columns = ({
     accessorKey: "team",
     header: () => <div className="text-left">Team</div>,
     cell: ({ row }) => (
-      <div className="text-left">{row.original.playerTeam.teamName}</div>
+      <div className="text-left">
+        <div>{row.original.playerTeam?.teamName || "No team assigned"}</div>
+        <div className="text-xs text-gray-500">
+          {row.original.playerTeam?.city},{" "}
+          {row.original.playerTeam?.divisionName}
+        </div>
+      </div>
     ),
   },
   {
