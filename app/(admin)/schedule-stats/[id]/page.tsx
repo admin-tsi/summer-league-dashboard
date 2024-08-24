@@ -7,6 +7,7 @@ import { DataTable } from "@/components/schedule-stats/schedulesDataTable";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { Button } from "@/components/ui/button";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useRouter } from "next/navigation";
 import {
   deleteOtmScheduleStat,
   getDetailedScheduleStats,
@@ -26,7 +27,7 @@ export default function Page({ params }: { params: { id: string } }) {
   const [awayTeam, setAwayTeam] = useState<Team | null>(null);
   const [editingTeam, setEditingTeam] = useState<Team | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
+  const router = useRouter();
   const isAdmin = currentUser?.role === "admin";
 
   const fetchSchedules = useCallback(async () => {
@@ -115,6 +116,7 @@ export default function Page({ params }: { params: { id: string } }) {
         finalResult
       );
       toast.success("This schedule stat has been saved.");
+      router.push("/schedule-stats");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to save schedule stat."
