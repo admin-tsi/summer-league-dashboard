@@ -21,7 +21,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [loadingRows, setLoadingRows] = useState<{ [key: string]: boolean }>(
-    {},
+    {}
   );
   const [error, setError] = useState<string | null>(null);
   const token = useCurrentToken();
@@ -36,7 +36,7 @@ export default function UsersPage() {
         await deleteUser(userId, token);
         toast.success("User deleted successfully");
         setUsers((prevUsers) =>
-          prevUsers.filter((user) => user._id !== userId),
+          prevUsers.filter((user) => user._id !== userId)
         );
       } catch (error) {
         toast.error("Failed to delete user");
@@ -45,7 +45,7 @@ export default function UsersPage() {
         setLoadingRows((prev) => ({ ...prev, [userId]: false }));
       }
     },
-    [token],
+    [token]
   );
 
   const handleRoleChange = useCallback(
@@ -56,8 +56,8 @@ export default function UsersPage() {
         toast.success("User role updated successfully");
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
-            user._id === userId ? { ...user, role: newRole } : user,
-          ),
+            user._id === userId ? { ...user, role: newRole } : user
+          )
         );
       } catch (error) {
         toast.error("Failed to update user role");
@@ -66,7 +66,7 @@ export default function UsersPage() {
         setLoadingRows((prev) => ({ ...prev, [userId]: false }));
       }
     },
-    [token],
+    [token]
   );
 
   const handleStatusChange = useCallback(
@@ -77,8 +77,8 @@ export default function UsersPage() {
         toast.success("User status updated successfully");
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
-            user._id === userId ? { ...user, accountStatus: newStatus } : user,
-          ),
+            user._id === userId ? { ...user, accountStatus: newStatus } : user
+          )
         );
       } catch (error) {
         toast.error("Failed to update user status");
@@ -87,14 +87,14 @@ export default function UsersPage() {
         setLoadingRows((prev) => ({ ...prev, [userId]: false }));
       }
     },
-    [token],
+    [token]
   );
 
   const handleClick = useCallback(
     (id: string) => {
       router.push(`/users/${id}`);
     },
-    [router],
+    [router]
   );
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function UsersPage() {
               handleClick,
               handleRoleChange,
               handleStatusChange,
-              loadingRows,
+              loadingRows
             )}
             data={users}
             currentPageRef={currentPageRef}

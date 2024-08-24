@@ -53,8 +53,6 @@ export default function Page() {
           otmId,
           token
         );
-        console.log(data);
-
         setSchedules(data);
       } catch (error: unknown) {
         setError(`${error}`);

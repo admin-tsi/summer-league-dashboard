@@ -32,7 +32,7 @@ type Group = {
 
 export function getMenuList(
   pathname: string,
-  userRole: string | undefined,
+  userRole: string | undefined
 ): Group[] {
   const allMenus: Group[] = [
     {
@@ -89,10 +89,10 @@ export function getMenuList(
           roles: ["admin", "team-manager"],
         },
         {
-          href: "/articles",
-          label: "Article",
-          active: pathname.includes("/articles"),
-          icon: NotebookPenIcon,
+          href: "/web-redactors",
+          label: "Web redaction",
+          active: pathname.includes("/web-redactors"),
+          icon: TrendingUp,
           submenus: [],
           roles: ["admin", "web-redactor"],
         },
@@ -138,7 +138,7 @@ export function getMenuList(
     .map((group) => ({
       ...group,
       menus: group.menus.filter((menu) =>
-        userRole ? menu.roles.includes(userRole) : menu.roles.length === 0,
+        userRole ? menu.roles.includes(userRole) : menu.roles.length === 0
       ),
     }))
     .filter((group) => group.menus.length > 0);

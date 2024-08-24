@@ -81,7 +81,7 @@ export type PlayerStats = {
     turnOver: number;
     steal: number;
     rebonds: number;
-  }[];
+  };
   __v: number;
 };
 

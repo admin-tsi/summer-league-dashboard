@@ -14,6 +14,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { ConfirmationDialog } from "@/components/score-keeer/ConfirmationDialog";
 
 const scoreImpact: Record<string, number> = {
   "03 Points": 3,
@@ -62,6 +63,8 @@ const Page: React.FC<PageProps> = ({ params }) => {
     {}
   );
   const [hasChanges, setHasChanges] = useState<boolean>(false);
+  const [isClearingConfirmOpen, setIsClearingConfirmOpen] = useState(false);
+  const [isSavingConfirmOpen, setIsSavingConfirmOpen] = useState(false);
 
   const initializePlayerStats = useCallback(
     (players: Player[]): Record<string, PlayerStat> => {
@@ -143,7 +146,11 @@ const Page: React.FC<PageProps> = ({ params }) => {
     [activePlayer]
   );
 
-  const handleClear = useCallback(() => {
+  const handleClearConfirm = useCallback(() => {
+    setIsClearingConfirmOpen(true);
+  }, []);
+
+  const executeClear = useCallback(() => {
     const initialPlayerStats = initializePlayerStats(players);
     setPlayersData(initialPlayerStats);
     setTotalScore(0);
@@ -159,14 +166,19 @@ const Page: React.FC<PageProps> = ({ params }) => {
       );
     }
     setHasChanges(false);
+    setIsClearingConfirmOpen(false);
   }, [players, initializePlayerStats, teamId]);
 
-  const handleSave = useCallback(async () => {
+  const handleSaveConfirm = useCallback(() => {
     if (!hasChanges) {
       toast.error("No changes to save.");
       return;
     }
+    setIsSavingConfirmOpen(true);
+  }, [hasChanges]);
 
+  const executeSave = useCallback(async () => {
+    setIsSavingConfirmOpen(false);
     setSubmittingErrors("");
     setIsSubmitting(true);
     const mappedData = Object.entries(playersData).map(([playerId, stats]) => ({
@@ -202,22 +214,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
       router.push("/score-keeper");
 
-      handleClear();
+      executeClear();
     } catch (error: any) {
       toast.error(`${error.message}`);
       setSubmittingErrors(error.message);
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    hasChanges,
-    playersData,
-    teamId,
-    currentUser,
-    params.id,
-    router,
-    handleClear,
-  ]);
+  }, [playersData, teamId, currentUser, params.id, router, executeClear]);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -305,59 +309,29 @@ const Page: React.FC<PageProps> = ({ params }) => {
           </Button>
         </div>
       ) : (
-        <div className="h-full border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5 lg:h-screen lg:w-full lg:flex lg:justify-center lg:items-center">
-          <ScoreDisplay
-            score={totalScore.toString().padStart(2, "0")}
-            team={teamName}
-          />
-          <div className="w-full flex">
-            <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
-              {players.slice(0, 4).map((player) => (
-                <PlayerButton
-                  key={player._id}
-                  number={player.dorseyNumber}
-                  isActive={activePlayer === player._id}
-                  onClick={() => handlePlayerClick(player._id)}
-                />
-              ))}
-            </div>
-            <div className="w-full flex flex-col gap-5">
-              <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 px-2">
-                {playerStats.map((stat, index) => (
-                  <div key={index}>
-                    <Stat
-                      playerStats={stat}
-                      value={
-                        activePlayer !== null && playersData[activePlayer]
-                          ? playersData[activePlayer][stat] || 0
-                          : 0
-                      }
-                      onIncrement={() => handleIncrement(stat)}
-                      onDecrement={() => handleDecrement(stat)}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="w-full flex justify-center items-center">
-                <div className="grid grid-cols-2 gap-2 px-2 w-1/2">
-                  <ActionButton onClick={handleClear}>CLEAR</ActionButton>
-                  <ActionButton
-                    destructive
-                    onClick={handleSave}
-                    disabled={!hasChanges || isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      <LoadingSpinner text="Saving..." />
-                    ) : (
-                      "SAVE"
-                    )}
-                  </ActionButton>
-                </div>
-              </div>
-            </div>
-            {players.length > 4 && (
+        <>
+          <div className="h-[100dvh] px-5 md:hidden flex flex-col text-center gap-3 justify-center items-center">
+            <span>
+              This page is not accessible on mobile. If you are an OTM, please
+              return using a tablet or a computer. If you have an urgent
+              mission, please contact the support service to obtain one.
+            </span>
+            <Button
+              onClick={() => {
+                router.push("/score-keeper");
+              }}
+            >
+              Go Back
+            </Button>
+          </div>
+          <div className="h-full max-sm:hidden border border-t-primary-yellow border-t-8 w-full flex flex-col gap-8 relative justify-center items-center p-5 lg:h-screen lg:w-full lg:flex lg:justify-center lg:items-center">
+            <ScoreDisplay
+              score={totalScore.toString().padStart(2, "0")}
+              team={teamName}
+            />
+            <div className="w-full flex">
               <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
-                {players.slice(4).map((player) => (
+                {players.slice(0, 4).map((player) => (
                   <PlayerButton
                     key={player._id}
                     number={player.dorseyNumber}
@@ -366,9 +340,61 @@ const Page: React.FC<PageProps> = ({ params }) => {
                   />
                 ))}
               </div>
-            )}
+              <div className="w-full flex flex-col gap-5">
+                <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 px-2">
+                  {playerStats.map((stat, index) => (
+                    <div key={index}>
+                      <Stat
+                        playerStats={stat}
+                        value={
+                          activePlayer !== null && playersData[activePlayer]
+                            ? playersData[activePlayer][stat] || 0
+                            : 0
+                        }
+                        onIncrement={() => handleIncrement(stat)}
+                        onDecrement={() => handleDecrement(stat)}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div className="w-full flex justify-center items-center">
+                  <div className="grid grid-cols-2 gap-2 px-2 w-1/2">
+                    <ConfirmationDialog
+                      triggerText="CLEAR"
+                      title="Clear All Stats"
+                      description="Are you sure you want to clear all stats? This action cannot be undone."
+                      confirmText="Clear"
+                      onConfirm={executeClear}
+                      triggerClassName="border rounded-none border-destructive hover:bg-destructive hover:text-background hover:border-background py-5 "
+                    />
+                    <ConfirmationDialog
+                      triggerText="SAVE"
+                      title="Save Stats"
+                      description="Are you sure you want to save these stats?"
+                      confirmText="Save"
+                      onConfirm={executeSave}
+                      triggerClassName="border rounded-none border-destructive hover:bg-destructive hover:text-background hover:border-background py-5 "
+                      isLoading={isSubmitting}
+                      loadingText="Saving..."
+                    />
+                  </div>
+                </div>
+              </div>
+              {players.length > 4 && (
+                <div className="w-fit flex flex-col justify-start items-center flex-wrap gap-3">
+                  {players.slice(4).map((player) => (
+                    <PlayerButton
+                      key={player._id}
+                      number={player.dorseyNumber}
+                      isActive={activePlayer === player._id}
+                      onClick={() => handlePlayerClick(player._id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   );

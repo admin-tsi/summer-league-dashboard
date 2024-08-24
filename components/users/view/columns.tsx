@@ -43,7 +43,7 @@ export const columns = (
   handleEdit: (userId: string) => void,
   handleRoleChange: (userId: string, newRole: string) => void,
   handleStatusChange: (userId: string, newStatus: boolean) => void,
-  loadingRows: { [key: string]: boolean },
+  loadingRows: { [key: string]: boolean }
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -297,6 +297,9 @@ export const columns = (
                           </SelectItem>
                           <SelectItem value="content-creator">
                             <RoleBadge role="content-creator" />
+                          </SelectItem>
+                          <SelectItem value="web-redactor">
+                            <RoleBadge role="web-redactor" />
                           </SelectItem>
                         </SelectContent>
                       </Select>

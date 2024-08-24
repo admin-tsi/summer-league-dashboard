@@ -1,8 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PlayerStats } from "@/lib/types/players/players";
+import { PlayerStatsRow } from "@/lib/types/players/players";
 import { ColumnDef } from "@tanstack/react-table";
-import Link from "next/link";
 
 interface ColumnsProps {
   handleDelete?: (scheduleId: string) => void;
@@ -12,8 +10,8 @@ interface ColumnsProps {
 export const columns = ({
   handleDelete,
   isAdmin,
-}: ColumnsProps): ColumnDef<PlayerStats>[] => {
-  const baseColumns: ColumnDef<PlayerStats>[] = [
+}: ColumnsProps): ColumnDef<PlayerStatsRow>[] => {
+  const baseColumns: ColumnDef<PlayerStatsRow>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -37,87 +35,82 @@ export const columns = ({
       enableHiding: false,
     },
     {
-      accessorKey: "team.teamName",
-      header: () => <div className="text-left">Team</div>,
-      cell: ({ row }) => (
-        <div className="text-left">{row.original.team.teamName}</div>
-      ),
-    },
-    {
-      accessorKey: "team.teamGender",
-      header: () => <div className="text-left">Gender</div>,
-      cell: ({ row }) => (
-        <div className="text-left">{row.original.team.teamGender}</div>
-      ),
-    },
-    {
-      accessorKey: "players[0].player.firstName",
+      accessorKey: "player.firstName",
       header: () => <div className="text-left">Player Name</div>,
       cell: ({ row }) => (
-        <div className="text-left">
-          {row.original.players[0]?.player.firstName}
-        </div>
+        <div className="text-left">{row.original.player.firstName}</div>
       ),
     },
     {
-      accessorKey: "players[0].player.dorseyNumber",
+      accessorKey: "player.dorseyNumber",
       header: () => <div className="text-left">Dorsey Number</div>,
       cell: ({ row }) => (
-        <div className="text-left">
-          {row.original.players[0]?.player.dorseyNumber}
-        </div>
+        <div className="text-left">{row.original.player.dorseyNumber}</div>
       ),
     },
     {
-      accessorKey: "players[0].player.position",
+      accessorKey: "player.position",
       header: () => <div className="text-left">Position</div>,
       cell: ({ row }) => (
-        <div className="text-left">
-          {row.original.players[0]?.player.position}
-        </div>
+        <div className="text-left">{row.original.player.position}</div>
       ),
     },
     {
-      accessorKey: "players[0].threePoints",
-      header: () => <div className="text-left">3PT</div>,
+      accessorKey: "threePoints",
+      header: () => <div className="text-left">Three Points</div>,
       cell: ({ row }) => (
-        <div className="text-left">{row.original.players[0]?.threePoints}</div>
+        <div className="text-left">{row.original.threePoints}</div>
       ),
     },
     {
-      accessorKey: "players[0].twoPoints",
-      header: () => <div className="text-left">2PT</div>,
+      accessorKey: "twoPoints",
+      header: () => <div className="text-left">Two Points</div>,
       cell: ({ row }) => (
-        <div className="text-left">{row.original.players[0]?.twoPoints}</div>
+        <div className="text-left">{row.original.twoPoints}</div>
       ),
     },
     {
-      accessorKey: "players[0].lancerFranc",
-      header: () => <div className="text-left">FT</div>,
+      accessorKey: "lancerFranc",
+      header: () => <div className="text-left">Free Throw</div>,
       cell: ({ row }) => (
-        <div className="text-left">{row.original.players[0]?.lancerFranc}</div>
+        <div className="text-left">{row.original.lancerFranc}</div>
       ),
     },
     {
-      accessorKey: "players[0].assists",
-      header: () => <div className="text-left">AST</div>,
+      accessorKey: "turnOver",
+      header: () => <div className="text-left">Turn Over</div>,
       cell: ({ row }) => (
-        <div className="text-left">{row.original.players[0]?.assists}</div>
+        <div className="text-left">{row.original.turnOver}</div>
       ),
     },
     {
-      accessorKey: "players[0].blocks",
-      header: () => <div className="text-left">BLK</div>,
+      accessorKey: "assists",
+      header: () => <div className="text-left">Assists</div>,
       cell: ({ row }) => (
-        <div className="text-left">{row.original.players[0]?.blocks}</div>
+        <div className="text-left">{row.original.assists}</div>
       ),
     },
     {
-      accessorKey: "players[0].steal",
-      header: () => <div className="text-left">STL</div>,
+      accessorKey: "rebonds",
+      header: () => <div className="text-left">Rebonds</div>,
       cell: ({ row }) => (
-        <div className="text-left">{row.original.players[0]?.steal}</div>
+        <div className="text-left">{row.original.rebonds}</div>
       ),
+    },
+    {
+      accessorKey: "blocks",
+      header: () => <div className="text-left">Blocks</div>,
+      cell: ({ row }) => <div className="text-left">{row.original.blocks}</div>,
+    },
+    {
+      accessorKey: "fouls",
+      header: () => <div className="text-left">Fouls</div>,
+      cell: ({ row }) => <div className="text-left">{row.original.fouls}</div>,
+    },
+    {
+      accessorKey: "steal",
+      header: () => <div className="text-left">Steal</div>,
+      cell: ({ row }) => <div className="text-left">{row.original.steal}</div>,
     },
   ];
 
