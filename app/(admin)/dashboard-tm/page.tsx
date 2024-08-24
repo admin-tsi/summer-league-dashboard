@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
-import TeamCreation from "@/components/Tdashboard/teamCreation";
+import TeamCreation from "@/components/dashboard-fm/teamCreation";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getTeamById } from "@/lib/api/teams/teams";
 

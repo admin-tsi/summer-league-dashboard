@@ -1,10 +1,8 @@
 "use client";
-import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
-import { ActionButton } from "@/components/score-keeer/actionButton";
-import { PlayerButton } from "@/components/score-keeer/playerButton";
-import { ScoreDisplay } from "@/components/score-keeer/scoreDisplay";
-import Stat from "@/components/score-keeer/stat";
+import { PlayerButton } from "@/components/score-keeper/playerButton";
+import { ScoreDisplay } from "@/components/score-keeper/scoreDisplay";
+import Stat from "@/components/score-keeper/stat";
 import { playerStats } from "@/constants/stat/game-stats";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { saveOtmScheduleStat } from "@/lib/api/otm/otm";
@@ -14,7 +12,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ConfirmationDialog } from "@/components/score-keeer/ConfirmationDialog";
+import { ConfirmationDialog } from "@/components/score-keeper/ConfirmationDialog";
 
 const scoreImpact: Record<string, number> = {
   "03 Points": 3,
@@ -60,7 +58,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [teamName, setTeamName] = useState<string | null>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
   const [playersData, setPlayersData] = useState<Record<string, PlayerStat>>(
-    {}
+    {},
   );
   const [hasChanges, setHasChanges] = useState<boolean>(false);
   const [isClearingConfirmOpen, setIsClearingConfirmOpen] = useState(false);
@@ -72,14 +70,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
         (acc, player) => {
           acc[player._id] = playerStats.reduce(
             (statAcc, stat) => ({ ...statAcc, [stat]: 0 }),
-            {} as PlayerStat
+            {} as PlayerStat,
           );
           return acc;
         },
-        {} as Record<string, PlayerStat>
+        {} as Record<string, PlayerStat>,
       );
     },
-    []
+    [],
   );
 
   const updateScore = useCallback((stat: string, increment: boolean) => {
@@ -108,7 +106,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
         updateScore(stat, true);
       }
     },
-    [activePlayer, updateScore]
+    [activePlayer, updateScore],
   );
 
   const handleDecrement = useCallback(
@@ -136,14 +134,14 @@ const Page: React.FC<PageProps> = ({ params }) => {
         updateScore(stat, false);
       }
     },
-    [activePlayer, updateScore]
+    [activePlayer, updateScore],
   );
 
   const handlePlayerClick = useCallback(
     (playerId: string) => {
       setActivePlayer(activePlayer === playerId ? null : playerId);
     },
-    [activePlayer]
+    [activePlayer],
   );
 
   const handleClearConfirm = useCallback(() => {
@@ -162,7 +160,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
           totalScore: 0,
           activePlayer: null,
         },
-        teamId
+        teamId,
       );
     }
     setHasChanges(false);
@@ -196,7 +194,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
 
     try {
       const competitionId: string | null = localStorage.getItem(
-        "selectedCompetitionId"
+        "selectedCompetitionId",
       );
       if (!competitionId) {
         throw new Error("Competition ID not found in localStorage");
@@ -234,7 +232,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
       try {
         if (!currentUser.accessToken) {
           setError(
-            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
+            "Unable to get player list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us.",
           );
           return;
         }
@@ -242,7 +240,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
         const data = await getAllPlayers(
           currentUser.role,
           currentUser.accessToken,
-          currentTeamId
+          currentTeamId,
         );
 
         setPlayers(data);
@@ -262,7 +260,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
               totalScore: 0,
               activePlayer: null,
             },
-            currentTeamId
+            currentTeamId,
           );
         }
       } catch (error) {
@@ -284,7 +282,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
           totalScore,
           activePlayer,
         },
-        teamId
+        teamId,
       );
     }
   }, [playersData, totalScore, activePlayer, teamId, hasChanges]);

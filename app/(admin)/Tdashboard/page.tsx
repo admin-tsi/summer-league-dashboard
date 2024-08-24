@@ -1,7 +1,7 @@
 "use client";
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
-import TeamCreation from "@/components/Tdashboard/teamCreation";
+import TeamCreation from "@/components/dashboard-fm/teamCreation";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
 export default function Page() {

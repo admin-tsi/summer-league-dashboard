@@ -2,7 +2,7 @@
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
-import Schedule from "@/components/score-keeer/schedule";
+import Schedule from "@/components/score-keeper/schedule";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getOtmSchedules } from "@/lib/api/otm/otm";
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ export default function Page() {
       setError(null);
       try {
         const competitionId: string | null = localStorage.getItem(
-          "selectedCompetitionId"
+          "selectedCompetitionId",
         );
         if (!competitionId) {
           throw new Error("Competition ID not found in localStorage");
@@ -51,7 +51,7 @@ export default function Page() {
         const data: ScheduleItem[] = await getOtmSchedules(
           competitionId,
           otmId,
-          token
+          token,
         );
         setSchedules(data);
       } catch (error: unknown) {
