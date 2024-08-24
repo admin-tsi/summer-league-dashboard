@@ -19,8 +19,17 @@ export default function ArticlesPage() {
 
   const router = useRouter();
 
-  const handleClick = async (id: any) => {
+  const handleView = (id: string) => {
     router.push(`/articles/${id}`);
+  };
+
+  const handleEdit = (id: string) => {
+    router.push(`/articles/edit/${id}`);
+  };
+
+  const handleDelete = (id: string) => {
+    // Implement delete logic here
+    console.log(`Delete article with id: ${id}`);
   };
 
   useEffect(() => {
@@ -52,7 +61,14 @@ export default function ArticlesPage() {
             <p className="w-[80%] md:w-1/2 lg:w-1/3">{error}</p>
           </div>
         ) : (
-          <DataTable columns={columns(handleClick)} data={articles} />
+          <DataTable
+            columns={columns(
+              (id) => handleView(id),
+              (id) => handleEdit(id),
+              (id) => handleDelete(id),
+            )}
+            data={articles}
+          />
         )}
       </div>
     </ContentLayout>
