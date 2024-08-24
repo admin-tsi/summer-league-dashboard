@@ -64,7 +64,7 @@ export const columns = ({
     },
     cell: ({ row }) => <div className="text-left">{row.original.lastName}</div>,
   },
-  /*  {
+  {
     accessorKey: "team",
     header: () => <div className="text-left">Team</div>,
     cell: ({ row }) => (
@@ -76,7 +76,7 @@ export const columns = ({
         </div>
       </div>
     ),
-  },*/
+  },
   {
     accessorKey: "birthdate",
     header: () => <div className="text-left">Age</div>,
