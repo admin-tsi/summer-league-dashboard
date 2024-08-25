@@ -10,9 +10,10 @@ import DynamicBreadcrumbs from "@/components/share/breadcrumbPath";
 import { DataTable } from "@/components/articles/view/data-table";
 import { columns } from "@/components/articles/view/columns";
 import { getAllArticles } from "@/lib/api/articles/articles";
+import { Article } from "@/lib/types/articles/articles";
 
 export default function ArticlesPage() {
-  const [articles, setArticles] = useState<any>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const token = useCurrentToken();
@@ -28,18 +29,15 @@ export default function ArticlesPage() {
   };
 
   const handleDelete = (id: string) => {
-    // Implement delete logic here
     console.log(`Delete article with id: ${id}`);
   };
 
   useEffect(() => {
     getAllArticles(token)
-      .then(setArticles)
+      .then((data: Article[]) => setArticles(data))
       .catch(() => setError("Failed to load articles"))
       .finally(() => setLoading(false));
-  }, []);
-
-  console.log(articles);
+  }, [token]);
 
   const breadcrumbPaths = [
     { label: "Settings", href: "/articles" },
@@ -62,11 +60,7 @@ export default function ArticlesPage() {
           </div>
         ) : (
           <DataTable
-            columns={columns(
-              (id) => handleView(id),
-              (id) => handleEdit(id),
-              (id) => handleDelete(id),
-            )}
+            columns={columns(handleView, handleEdit, handleDelete)}
             data={articles}
           />
         )}

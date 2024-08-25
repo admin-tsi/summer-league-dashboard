@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, Edit, Eye, Trash2 } from "lucide-react";
+import { ArrowUpDown, Eye, Trash2 } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -67,7 +67,15 @@ export const columns = (
   {
     accessorKey: "author",
     header: "Author",
-    cell: ({ row }) => <div>{row.getValue("author") || "N/A"}</div>,
+    cell: ({ row }) => {
+      const author = row.getValue("author") as {
+        firstName: string;
+        lastName: string;
+      } | null;
+      return (
+        <div>{author ? `${author.firstName} ${author.lastName}` : "N/A"}</div>
+      );
+    },
   },
   {
     accessorKey: "category",
@@ -137,13 +145,6 @@ export const columns = (
           onClick={() => handleView(row.original._id)}
         >
           <Eye className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleEdit(row.original._id)}
-        >
-          <Edit className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"

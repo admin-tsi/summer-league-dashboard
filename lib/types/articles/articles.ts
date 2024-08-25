@@ -7,4 +7,7 @@ export interface Article {
   createdAt: string;
   likes: number;
   featuredArticle: boolean;
+  highlightsVideo: string;
+  featuredImage: string;
+  imagesGallery: string[];
 }
