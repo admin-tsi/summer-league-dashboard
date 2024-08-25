@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { Sidebar } from "@/components/admin-panel/sidebar";
 import { useSidebarToggle } from "@/hooks/use-sidebar-toggle";
+import React from "react";
+import CompetitionBanner from "@/components/admin-panel/competition-banner";
 
 export default function AdminPanelLayout({
   children,
@@ -24,6 +26,7 @@ export default function AdminPanelLayout({
         )}
       >
         {children}
+        <CompetitionBanner />
       </main>
     </>
   );

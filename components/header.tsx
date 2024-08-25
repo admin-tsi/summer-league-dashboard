@@ -13,7 +13,6 @@ import { ModeToggle } from "@/components/mode-toggle";
 const Header = () => {
   const pathname = usePathname();
 
-  //const user = useCurrentUser();
   return (
     <div className="relative border-b-[1px] px-2 sm:px-4 py-6 flex items-center">
       <div className="flex justify-between w-full">

@@ -14,6 +14,8 @@ import {
   TooltipContent,
   TooltipProvider,
 } from "@/components/ui/tooltip";
+import { signOut } from "next-auth/react";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -21,8 +23,8 @@ interface MenuProps {
 
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
-  const menuList = getMenuList(pathname);
-
+  const userRole = useCurrentUser()?.role || "user";
+  const menuList = getMenuList(pathname, userRole);
   return (
     <div className="[&>div>div[style]]:!block">
       <nav className="mt-8 h-full w-full">
@@ -112,7 +114,7 @@ export function Menu({ isOpen }: MenuProps) {
                     className="w-full justify-center h-10 mt-5"
                   >
                     <span className={cn(isOpen === false ? "" : "mr-4")}>
-                      <LogOut size={18} />
+                      <LogOut size={18} onClick={() => signOut()} />
                     </span>
                     <p
                       className={cn(

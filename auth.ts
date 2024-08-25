@@ -1,21 +1,26 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import axios from "axios";
+import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
 
 export type MyUserType = {
   id: string;
+  firstName: string;
+  lastName: string;
   email: string;
   role: string;
   isverified: boolean;
   accessToken: string;
-  expireIn: number;
+  refreshToken: string;
   emailVerified: Date | null;
   createdAt: string;
   updatedAt: string;
   __v: number;
+  isManageTeam: string | null;
 };
 
 const api = process.env.NEXT_PUBLIC_BASE_URL;
+
 export const {
   handlers: { POST, GET },
   auth,
@@ -32,12 +37,27 @@ export const {
           });
 
           console.log("response", response.data);
-          const { user, token, expiresIn } = response.data;
-          console.log("expirin", response.data);
-          if (user && token) {
-            user.accessToken = token;
-            user.expireIn = expiresIn;
-            return user;
+
+          const { user, accessToken, refreshToken } = response.data;
+
+          if (user && accessToken && refreshToken) {
+            const formattedUser: MyUserType = {
+              id: user._id,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              email: user.email,
+              role: user.role,
+              isverified: user.isverified,
+              accessToken,
+              refreshToken,
+              emailVerified: user.emailVerified,
+              createdAt: user.createdAt,
+              updatedAt: user.updatedAt,
+              __v: user.__v,
+              isManageTeam: user.isManageTeam || null,
+            };
+
+            return formattedUser;
           } else {
             return null;
           }
@@ -58,10 +78,27 @@ export const {
         token.user = user as MyUserType;
       }
 
+      if (token.user) {
+        const newAccessToken = await verifyTokenExpiration(
+          // @ts-ignore
+          token.user.accessToken,
+          // @ts-ignore
+          token.user.refreshToken,
+        );
+
+        if (newAccessToken) {
+          // @ts-ignore
+          token.user.accessToken = newAccessToken;
+        } else {
+          delete token.user;
+        }
+      }
+
       return token;
     },
     session: async ({ session, token }) => {
       session.user = token.user as MyUserType;
+      console.log("session", session);
       return session;
     },
   },
