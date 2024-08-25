@@ -33,8 +33,7 @@ const saveToLocalStorage = (data: any, teamId: string) => {
 const loadFromLocalStorage = (teamId: string): any | null => {
   const key = `basketballStats_${teamId}`;
   const data = localStorage.getItem(key);
-  const parsedData = data ? JSON.parse(data) : null;
-  return parsedData;
+  return data ? JSON.parse(data) : null;
 };
 
 const clearLocalStorage = (teamId: string) => {
@@ -55,11 +54,9 @@ const Page: React.FC<PageProps> = ({ params }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [players, setPlayers] = useState<Player[]>([]);
-  const [teamName, setTeamName] = useState<string | null>(null);
+  const [teamName, setTeamName] = useState<string | any>(null);
   const [teamId, setTeamId] = useState<string | null>(null);
-  const [playersData, setPlayersData] = useState<Record<string, PlayerStat>>(
-    {},
-  );
+  const [playersData, setPlayersData] = useState<Record<string, any>>({});
   const [hasChanges, setHasChanges] = useState<boolean>(false);
   const [isClearingConfirmOpen, setIsClearingConfirmOpen] = useState(false);
   const [isSavingConfirmOpen, setIsSavingConfirmOpen] = useState(false);

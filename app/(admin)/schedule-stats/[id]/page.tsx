@@ -40,19 +40,19 @@ export default function Page({ params }: { params: { id: string } }) {
       const competitionId = localStorage.getItem("selectedCompetitionId");
       if (!competitionId) {
         throw new Error(
-          "No competition selected. Please select a competition first."
+          "No competition selected. Please select a competition first.",
         );
       }
       const data = await getDetailedScheduleStats(
         params.id,
         competitionId,
-        currentUser.accessToken
+        currentUser.accessToken,
       );
       setHomeTeam(data.homeTeam || null);
       setAwayTeam(data.awayTeam || null);
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Failed to load schedules."
+        error instanceof Error ? error.message : "Failed to load schedules.",
       );
     } finally {
       setIsLoading(false);
@@ -73,7 +73,7 @@ export default function Page({ params }: { params: { id: string } }) {
       await deleteOtmScheduleStat(
         competitionId,
         scheduleStatId,
-        currentUser.accessToken
+        currentUser.accessToken,
       );
       toast.success("This schedule stat has been deleted.");
       if (homeTeam?._id === scheduleStatId) {
@@ -85,7 +85,7 @@ export default function Page({ params }: { params: { id: string } }) {
       toast.error(
         error instanceof Error
           ? error.message
-          : "Failed to delete schedule stat."
+          : "Failed to delete schedule stat.",
       );
     } finally {
       setIsDeleting(false);
@@ -113,13 +113,15 @@ export default function Page({ params }: { params: { id: string } }) {
         competitionId,
         params.id,
         currentUser.accessToken,
-        finalResult
+        finalResult,
       );
       toast.success("This schedule stat has been saved.");
       router.push("/schedule-stats");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to save schedule stat."
+        error instanceof Error
+          ? error.message
+          : "Failed to save schedule stat.",
       );
     } finally {
       setIsValidating(false);
@@ -170,7 +172,7 @@ export default function Page({ params }: { params: { id: string } }) {
             <Button
               variant="def"
               className="border hover:bg-destructive hover:text-white"
-              onClick={() => handleDeleteScheduleStats(team._id || "")}
+              onClick={() => handleDeleteScheduleStats(team!._id || "")}
               disabled={isDeleting}
             >
               {isDeleting ? (
