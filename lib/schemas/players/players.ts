@@ -38,8 +38,8 @@ export const players = z.object({
       ) {
         age--;
       }
-      return age >= 13;
-    }, "You must be at least 13 years old"),
+      return age >= 11;
+    }, "You must be at least 11 years old"),
 });
 
 export const playerEditSchema = z.object({
