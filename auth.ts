@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
 
@@ -27,21 +27,23 @@ export const {
   signIn,
 } = NextAuth({
   providers: [
-    Credentials({
-      authorize: async (credentials) => {
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
         try {
-          const { email, password } = credentials;
           const response = await axios.post(`${api}/auth/login`, {
-            email,
-            password,
+            email: credentials?.email,
+            password: credentials?.password,
           });
-
-          console.log("response", response.data);
 
           const { user, accessToken, refreshToken } = response.data;
 
           if (user && accessToken && refreshToken) {
-            const formattedUser: MyUserType = {
+            return {
               id: user._id,
               firstName: user.firstName,
               lastName: user.lastName,
@@ -55,50 +57,54 @@ export const {
               updatedAt: user.updatedAt,
               __v: user.__v,
               isManageTeam: user.isManageTeam || null,
-            };
-
-            return formattedUser;
-          } else {
-            return null;
+            } as MyUserType;
           }
-        } catch (e) {
-          console.error(e);
+          return null;
+        } catch (error) {
+          console.error("Authorization error:", error);
           return null;
         }
       },
     }),
   ],
-
   session: {
     strategy: "jwt",
   },
   callbacks: {
-    jwt: async ({ token, user }) => {
+    async jwt({ token, user }) {
       if (user) {
         token.user = user as MyUserType;
       }
 
       if (token.user) {
-        const newAccessToken = await verifyTokenExpiration(
-          // @ts-ignore
-          token.user.accessToken,
-          // @ts-ignore
-          token.user.refreshToken,
-        );
+        try {
+          const newAccessToken = await verifyTokenExpiration(
+            // @ts-ignore
 
-        if (newAccessToken) {
-          // @ts-ignore
-          token.user.accessToken = newAccessToken;
-        } else {
+            token.user.accessToken,
+            // @ts-ignore
+
+            token.user.refreshToken,
+          );
+
+          if (newAccessToken) {
+            // @ts-ignore
+
+            token.user.accessToken = newAccessToken;
+          } else {
+            console.error("Failed to refresh access token");
+            delete token.user;
+          }
+        } catch (error) {
+          console.error("Error in jwt callback:", error);
           delete token.user;
         }
       }
 
       return token;
     },
-    session: async ({ session, token }) => {
+    async session({ session, token }) {
       session.user = token.user as MyUserType;
-      console.log("session", session);
       return session;
     },
   },
