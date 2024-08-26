@@ -3,7 +3,6 @@
 import { ContentLayout } from "@/components/admin-panel/content-layout";
 import LoadingSpinner from "@/components/loading-spinner";
 import { CustomSelect } from "@/components/players/edit/custom-select";
-import { DocumentsSection } from "@/components/players/edit/documents-section";
 import Dropzone from "@/components/players/edit/dragzone";
 import EditInput from "@/components/players/edit/input";
 import InteractiveStatusBadge from "@/components/players/edit/interactive-player-status-badge";
@@ -116,7 +115,7 @@ export default function Page({
         } else {
           const currentCount = parseInt(
             localStorage.getItem("playersCount") || "0",
-            10
+            10,
           );
           if (currentCount >= 8) {
             setFullTeam(true);
@@ -179,7 +178,7 @@ export default function Page({
   const handleUpdatePlayer = async (
     data: FormFields,
     playerId: string,
-    newAccessToken: string
+    newAccessToken: string,
   ) => {
     const updateData: Partial<Player> = extractPlayerUpdateData(data);
     const updateFiles = createUpdateFilesFormData(data);
@@ -187,13 +186,13 @@ export default function Page({
     const dataResponse = await updatePlayer(
       updateData,
       playerId,
-      newAccessToken
+      newAccessToken,
     );
     if (hasUpdateFiles(updateFiles)) {
       const fileResponse = await updatePlayerFiles(
         updateFiles,
         playerId,
-        newAccessToken
+        newAccessToken,
       );
     }
     toast("The player has been successfully updated.");
@@ -207,21 +206,22 @@ export default function Page({
       currentUser.accessToken,
       currentUser.isManageTeam,
       formData,
-      competeId
+      competeId,
     );
     updatePlayersCount();
     toast.success("The player has been successfully created.");
     reset();
     localStorage.removeItem("formData");
+    toast.info("The page will reload in 3 seconds...");
     setTimeout(() => {
       window.location.reload();
-    }, 3000);
+    }, 5000);
   };
 
   const updatePlayersCount = () => {
     let currentCount = parseInt(
       localStorage.getItem("playersCount") || "0",
-      10
+      10,
     );
     currentCount += 1;
     localStorage.setItem("playersCount", currentCount.toString());
@@ -401,7 +401,7 @@ export default function Page({
               <EditInput
                 id="phoneNumber"
                 label="Phone Number"
-                placeholder="96000000"
+                placeholder="You can register coach's phone number"
                 register={register("phoneNumber", { valueAsNumber: true })}
                 type="number"
                 errorMessage={errors.phoneNumber?.message}

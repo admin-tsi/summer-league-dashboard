@@ -4,6 +4,7 @@ const nextConfig = {
     domains: [
       "cdn.nba.com",
       "summer-league-storage.s3.eu-north-1.amazonaws.com",
+      "cdn.pixabay.com",
     ],
     remotePatterns: [
       {

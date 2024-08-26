@@ -43,7 +43,7 @@ export const columns = (
   handleEdit: (userId: string) => void,
   handleRoleChange: (userId: string, newRole: string) => void,
   handleStatusChange: (userId: string, newStatus: boolean) => void,
-  loadingRows: { [key: string]: boolean }
+  loadingRows: { [key: string]: boolean },
 ): ColumnDef<User>[] => [
   {
     id: "select",
@@ -173,7 +173,7 @@ export const columns = (
       );
     },
   },
-  {
+  /*  {
     accessorKey: "createdAt",
     header: ({ column }) => {
       return (
@@ -190,6 +190,28 @@ export const columns = (
     cell: ({ row }) => {
       const date = new Date(row.getValue("createdAt"));
       return <div>{date.toLocaleDateString()}</div>;
+    },
+  },*/
+  {
+    accessorKey: "specialization",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="p-0"
+        >
+          Spe.
+          <ArrowUpDown className="h-4 w-4 ml-2" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      return (
+        <div className="capitalize">
+          {row.getValue("specialization") || "-"}
+        </div>
+      );
     },
   },
   {

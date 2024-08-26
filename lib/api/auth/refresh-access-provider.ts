@@ -18,7 +18,7 @@ export const verifyTokenExpiration = async (
       }
 
       const currentTime = Math.floor(Date.now() / 1000);
-      const bufferTime = 5 * 60;
+      const bufferTime = 5 * 60; // 5 minutes buffer
       return decoded.exp - bufferTime < currentTime;
     } catch (error) {
       console.error("Error decoding token:", error);

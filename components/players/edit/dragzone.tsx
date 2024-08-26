@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Camera, FileText, Upload } from "lucide-react";
 import Image from "next/image";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Accept, useDropzone } from "react-dropzone";
 import { UseFormSetValue } from "react-hook-form";
+import DefaultImage from "@/public/img.png";
 
 interface DropzoneProps {
   type: "image" | "file";
@@ -26,6 +27,14 @@ const Dropzone: React.FC<DropzoneProps> = ({
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [progress, setProgress] = useState<number>(0);
   const [fileName, setFileName] = useState<string>("");
+
+  useEffect(() => {
+    if (playerImage && typeof playerImage === "string") {
+      setImageSrc(playerImage);
+    } else if (!playerImage) {
+      setImageSrc(DefaultImage.src);
+    }
+  }, [playerImage]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -63,7 +72,7 @@ const Dropzone: React.FC<DropzoneProps> = ({
   const handleDelete = () => {
     setFileName("");
     setProgress(0);
-    setImageSrc(null);
+    setImageSrc(DefaultImage.src);
     setValue(attribute, null);
   };
 
@@ -89,59 +98,47 @@ const Dropzone: React.FC<DropzoneProps> = ({
         }`}
       >
         <input {...getInputProps()} />
-        {!imageSrc && !progress && (
-          <div
-            className={`flex flex-col justify-center items-center relative ${
-              type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"
-            }`}
-          >
-            {playerImage ? (
-              <Image
-                src={playerImage as string}
-                alt="Player Image"
-                fill
-                objectFit="cover"
-                className="rounded-custom-radius"
-              />
-            ) : (
-              <div className="text-muted-foreground">
-                {isDragActive ? (
-                  <p className="text-primary font-medium">
-                    {type === "image"
-                      ? "Déposez l'image ici ..."
-                      : "Déposez le fichier ici ..."}
-                  </p>
-                ) : (
-                  <div className="flex flex-col items-center space-y-2">
-                    {type === "image" ? (
-                      <Camera className="h-12 w-12 text-primary" />
-                    ) : (
-                      <Upload className="h-12 w-12 text-primary" />
-                    )}
-                    <span className="font-medium">
-                      {type === "image"
-                        ? "Click to add a picture"
-                        : title
-                          ? "Click to update this file"
-                          : "Click to add a file"}
-                    </span>
-                    <p className="text-sm">or drag and drop</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-        {imageSrc && type === "image" && (
-          <div className="h-[300px] w-[300px] relative">
+        <div
+          className={`flex flex-col justify-center items-center relative ${
+            type === "file" ? "h-[100px] w-full" : "h-[300px] w-[300px]"
+          }`}
+        >
+          {imageSrc ? (
             <Image
               src={imageSrc}
-              alt="Preview"
-              layout="fill"
-              className="object-cover rounded-custom-radius"
+              alt="Player Image"
+              fill
+              objectFit="cover"
+              className="rounded-custom-radius"
             />
-          </div>
-        )}
+          ) : (
+            <div className="text-muted-foreground">
+              {isDragActive ? (
+                <p className="text-primary font-medium">
+                  {type === "image"
+                    ? "Déposez l'image ici ..."
+                    : "Déposez le fichier ici ..."}
+                </p>
+              ) : (
+                <div className="flex flex-col items-center space-y-2">
+                  {type === "image" ? (
+                    <Camera className="h-12 w-12 text-primary" />
+                  ) : (
+                    <Upload className="h-12 w-12 text-primary" />
+                  )}
+                  <span className="font-medium">
+                    {type === "image"
+                      ? "Click to add a picture"
+                      : title
+                        ? "Click to update this file"
+                        : "Click to add a file"}
+                  </span>
+                  <p className="text-sm">or drag and drop</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
       {type === "file" && progress > 0 && (
         <div className="mt-4 p-4 rounded-custom-radius bg-card">
@@ -166,7 +163,7 @@ const Dropzone: React.FC<DropzoneProps> = ({
           </div>
         </div>
       )}
-      {progress === 100 && (
+      {(imageSrc !== DefaultImage.src || progress === 100) && (
         <div className="w-full flex justify-end mt-4">
           <Button
             variant="destructive"

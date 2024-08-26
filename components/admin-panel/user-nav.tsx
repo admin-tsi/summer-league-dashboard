@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -17,9 +16,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { LayoutGrid, LockKeyhole, LogOut, User } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Badge } from "@/components/ui/badge";
@@ -101,6 +99,7 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {/*
         <DropdownMenuGroup>
           <DropdownMenuItem className="hover:cursor-pointer" asChild>
             <Link href="/dashboard" className="flex items-center">
@@ -124,6 +123,7 @@ export function UserNav() {
             </button>
           </DropdownMenuItem>
         </DropdownMenuGroup>
+*/}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="hover:cursor-pointer bg-destructive text-destructive-foreground"
