@@ -9,6 +9,7 @@ import { useCurrentUser } from "@/hooks/use-current-user";
 import { getAllSchedulesStats } from "@/lib/api/schedules-stats/schedules-stats";
 import { ScheduleData } from "@/lib/types/schedules/schedules";
 import { useEffect, useState } from "react";
+import NoSchedules from "@/components/score-keeper/no-schedules";
 
 export default function Page() {
   const currentUser: any = useCurrentUser();
@@ -30,7 +31,7 @@ export default function Page() {
       try {
         if (!currentUser.accessToken) {
           setError(
-            "Unable to get schedule list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us."
+            "Unable to get schedule list because your token is not provided. Please reload your page, and if the problem persists, don't hesitate to contact us.",
           );
           return;
         }
@@ -41,7 +42,7 @@ export default function Page() {
         }
         const data = await getAllSchedulesStats(
           competitionId,
-          currentUser.accessToken
+          currentUser.accessToken,
         );
         setSchedules(data);
       } catch (error) {
@@ -68,9 +69,7 @@ export default function Page() {
             <p>{error}</p>
           </div>
         ) : schedules.length === 0 ? (
-          <div className="h-[600px] w-full flex justify-center items-center">
-            <p>No schedules available</p>
-          </div>
+          <NoSchedules />
         ) : (
           <div className="w-full pt-5">
             <DataTable

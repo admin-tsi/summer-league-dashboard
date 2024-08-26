@@ -6,6 +6,7 @@ import Schedule from "@/components/score-keeper/schedule";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getOtmSchedules } from "@/lib/api/otm/otm";
 import { useEffect, useState } from "react";
+import NoSchedules from "@/components/score-keeper/no-schedules";
 
 interface BreadcrumbPath {
   label: string;
@@ -75,9 +76,7 @@ export default function Page() {
             <p>{error}</p>
           </div>
         ) : schedules.length === 0 ? (
-          <div className="h-[600px] w-full flex justify-center items-center">
-            <p>No schedules available</p>
-          </div>
+          <NoSchedules />
         ) : (
           <div className="w-full pt-5">
             <Schedule schedules={schedules} />
