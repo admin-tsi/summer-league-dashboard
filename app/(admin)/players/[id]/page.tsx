@@ -401,7 +401,7 @@ export default function Page({
               <EditInput
                 id="phoneNumber"
                 label="Phone Number"
-                placeholder="96000000"
+                placeholder="You can register coach's phone number"
                 register={register("phoneNumber", { valueAsNumber: true })}
                 type="number"
                 errorMessage={errors.phoneNumber?.message}
