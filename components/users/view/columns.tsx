@@ -173,7 +173,7 @@ export const columns = (
       );
     },
   },
-  {
+  /*  {
     accessorKey: "createdAt",
     header: ({ column }) => {
       return (
@@ -191,7 +191,7 @@ export const columns = (
       const date = new Date(row.getValue("createdAt"));
       return <div>{date.toLocaleDateString()}</div>;
     },
-  },
+  },*/
   {
     accessorKey: "specialization",
     header: ({ column }) => {
