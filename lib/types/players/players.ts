@@ -107,3 +107,20 @@ export type PlayerTableData = {
   steal: number;
   rebonds: number;
 };
+
+export type PlayerStatsRow = {
+  player: {
+    firstName: string;
+    dorseyNumber: number;
+    position: string;
+  };
+  threePoints: number;
+  twoPoints: number;
+  lancerFranc: number;
+  turnOver: number;
+  assists: number;
+  rebonds: number;
+  blocks: number;
+  fouls: number;
+  steal: number;
+};
