@@ -14,7 +14,6 @@ import {
   deleteArticle,
   getCurrentUserArticles,
 } from "@/lib/api/articles/articles";
-import { getAllTeams } from "@/lib/api/teams/teams";
 import { Article } from "@/lib/types/articles/articles";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -49,21 +48,12 @@ import {
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { AlertCircle } from "lucide-react";
 
-type Teams = {
-  _id: string;
-  teamName: string;
-  city: string;
-  teamGender: string;
-  divisionName: string;
-};
-
 const newArticleSchema = z.object({
   title: z.string().min(1, "Title is required"),
   slug: z.string().min(1, "Slug is required"),
   content: z.string().min(1, "Content is required"),
   status: z.enum(["draft", "pending", "published", "archived"]),
   category: z.enum(["News", "Feature", "Opinion", "Review"]),
-  Team: z.string().min(1, "Team selection is required"),
 });
 
 type NewArticleFormData = z.infer<typeof newArticleSchema>;
@@ -77,13 +67,10 @@ const generateSlug = (title: string): string => {
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [teams, setTeams] = useState<Teams[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isTeamsLoading, setIsTeamsLoading] = useState<boolean>(false);
-  const [teamsError, setTeamsError] = useState<string | null>(null);
   const token = useCurrentToken();
   const currentUser = useCurrentUser();
   const router = useRouter();
@@ -96,7 +83,6 @@ export default function ArticlesPage() {
       content: "",
       status: "draft",
       category: "News",
-      Team: "",
     },
   });
 
@@ -157,26 +143,6 @@ export default function ArticlesPage() {
     }
   };
 
-  const fetchTeams = async () => {
-    setIsTeamsLoading(true);
-    setTeamsError(null);
-    try {
-      const competitionId: string | null = localStorage.getItem(
-        "selectedCompetitionId",
-      );
-      if (!competitionId) {
-        throw new Error("Competition ID not found in localStorage");
-      }
-      const teamsData = await getAllTeams(token, competitionId);
-      setTeams(teamsData);
-    } catch (error) {
-      setTeamsError("Failed to load teams");
-      console.error("Error fetching teams:", error);
-    } finally {
-      setIsTeamsLoading(false);
-    }
-  };
-
   useEffect(() => {
     const fetchArticles = async () => {
       setLoading(true);
@@ -203,7 +169,7 @@ export default function ArticlesPage() {
   const handleModalOpen = (open: boolean) => {
     setIsModalOpen(open);
     if (open) {
-      fetchTeams();
+      console.log("fetching teams");
     } else {
       form.reset();
     }
@@ -334,54 +300,7 @@ export default function ArticlesPage() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="Team"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Teams</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        disabled={isTeamsLoading || !!teamsError}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue
-                              placeholder={
-                                isTeamsLoading
-                                  ? "Loading teams..."
-                                  : teamsError
-                                    ? "Failed to load teams"
-                                    : "Select a team"
-                              }
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {teams.map((team) => (
-                            <SelectItem key={team._id} value={team._id}>
-                              {team.teamName}
-                              {team.teamGender.toLowerCase() === "boys"
-                                ? " (B)"
-                                : " (G)"}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {teamsError && (
-                        <p className="text-sm text-red-500 mt-1">
-                          {teamsError}
-                        </p>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="submit"
-                  disabled={creating || isTeamsLoading || !!teamsError}
-                >
+                <Button type="submit" disabled={creating}>
                   {creating ? <LoadingSpinner text="Creating..." /> : "Create"}
                 </Button>
               </form>
