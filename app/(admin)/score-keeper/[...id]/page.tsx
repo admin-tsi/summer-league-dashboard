@@ -190,9 +190,7 @@ const Page: React.FC<PageProps> = ({ params }) => {
     }));
 
     try {
-      const competitionId: string | null = localStorage.getItem(
-        "selectedCompetitionId",
-      );
+      const competitionId: string | null = "66cbbc31b450ee0e0b089f88";
       if (!competitionId) {
         throw new Error("Competition ID not found in localStorage");
       }
