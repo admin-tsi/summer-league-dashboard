@@ -32,6 +32,7 @@ export const roleDefaultPages: RoleDefaultPages = {
   "team-manager": "/dashboard-tm",
   "kobe-bryant": "/score-keeper",
   user: "/dashboard",
+  "web-redactor": "/articles",
 };
 
 export const getDefaultPageForRole = (role: string | undefined): string => {

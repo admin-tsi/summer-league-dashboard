@@ -26,6 +26,7 @@ export const columns = (
   handleView: (articleId: string) => void,
   handleEdit: (articleId: string) => void,
   handleDelete: (articleId: string) => void,
+  userRole: string,
 ): ColumnDef<Article>[] => [
   {
     id: "select",
@@ -146,13 +147,15 @@ export const columns = (
         >
           <Eye className="h-4 w-4" />
         </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => handleDelete(row.original._id)}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        {userRole === "admin" && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleDelete(row.original._id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     ),
   },

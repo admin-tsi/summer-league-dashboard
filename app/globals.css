@@ -101,3 +101,16 @@
     background: #555;
 }
 /* Scrollbar */
+
+.ProseMirror ul,
+.ProseMirror ol {
+    @apply list-disc list-outside leading-3 pl-4;
+}
+
+.ProseMirror li {
+    @apply leading-normal mb-2;
+}
+
+.ProseMirror ol {
+    @apply list-decimal;
+}

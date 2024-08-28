@@ -5,7 +5,7 @@ const baseUrl: string = process.env.NEXT_PUBLIC_BASE_URL || "";
 export async function getOtmSchedules(
   competitionId: string,
   otmId: string,
-  token: string
+  token: string,
 ): Promise<any> {
   const url: string = `${baseUrl}/kb-stats/otm/schedules/${otmId}`;
 
@@ -17,13 +17,12 @@ export async function getOtmSchedules(
   };
 
   try {
-    const response = await axios
-        .get(url, config);
+    const response = await axios.get(url, config);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response) {
       throw new Error(
-          `${error.response.data.message || error.response.statusText}`
+        `${error.response.data.message || error.response.statusText}`,
       );
     } else {
       throw new Error("Failed to create team: Network or server error");
@@ -35,14 +34,14 @@ export async function saveOtmScheduleStat(
   competitionId: string,
   scheduleId: string,
   token: string,
-  data: any
+  data: any,
 ): Promise<any> {
   const url: string = `${baseUrl}/kb-stats/schedules/${scheduleId}`;
 
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
-      "x-competition-id": competitionId,
+      "xx-competition-id": competitionId,
     },
   };
 
@@ -54,7 +53,7 @@ export async function saveOtmScheduleStat(
     .catch((error: any) => {
       if (axios.isAxiosError(error) && error.response) {
         throw new Error(
-          `${error.response.data.message || error.response.statusText}`
+          `${error.response.data.message || error.response.statusText}`,
         );
       } else {
         throw new Error("Failed to create team: Network or server error");
