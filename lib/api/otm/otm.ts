@@ -41,7 +41,7 @@ export async function saveOtmScheduleStat(
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,
-      "xx-competition-id": competitionId,
+      "x-competition-id": competitionId,
     },
   };
 
