@@ -21,6 +21,7 @@ interface DocumentCardProps {
   errors: FieldErrors<PartialPlayer>;
 }
 
+// @ts-ignore
 const DocumentCard: React.FC<DocumentCardProps> = ({
   title,
   isUpdating,
@@ -61,6 +62,7 @@ const DocumentCard: React.FC<DocumentCardProps> = ({
         <>
           <Dropzone
             type="file"
+            // @ts-ignore
             setValue={setValue}
             attribute={fileAttribute}
             title={defPlayerValue ? "update" : undefined}
