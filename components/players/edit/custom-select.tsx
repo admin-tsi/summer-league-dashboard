@@ -32,7 +32,6 @@ export function CustomSelect({
   onValueChange,
   error,
 }: CustomSelectProps) {
-  // Function to find the option by value or label
   const findOptionByValueOrLabel = (searchValue: string) => {
     return options.find(
       (option) =>
@@ -41,18 +40,16 @@ export function CustomSelect({
     );
   };
 
-  // Handle value change
   const handleValueChange = (newValue: string) => {
     const selectedOption = findOptionByValueOrLabel(newValue);
     if (selectedOption) {
       onValueChange(selectedOption.value);
     } else {
       console.warn(`Unable to find option for value: ${newValue}`);
-      onValueChange(newValue); // Fall back to the selected value
+      onValueChange(newValue);
     }
   };
 
-  // Find the current option
   const currentOption = value ? findOptionByValueOrLabel(value) : null;
 
   return (
