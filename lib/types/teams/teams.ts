@@ -7,3 +7,10 @@ export type Teams = {
   divisionName: "string";
   teamGender: "string";
 };
+
+export type GameStats = {
+  totalGame: number;
+  wins: number;
+  losses: number;
+  rating: number;
+};
