@@ -1,11 +1,9 @@
 import { z } from "zod";
 
-export const players = z.object({
+export const playersClientSchema = z.object({
   firstName: z.string().min(1, { message: "First Name is required" }),
   lastName: z.string().min(1, { message: "Last Name is required" }),
-  playerImage: z
-    .union([z.string(), z.instanceof(File), z.undefined()])
-    .optional(),
+  playerImage: z.union([z.string(), z.any(), z.undefined()]).optional(),
   dorseyNumber: z
     .number({ message: "Dorsey Number is required and must be a number" })
     .nonnegative("Dorsey Number must be a non-negative number")
@@ -42,12 +40,53 @@ export const players = z.object({
     }, "You must be at least 11 years old"),
 });
 
+export const playersServerSchema = z.object({
+  firstName: z.string().min(1, { message: "First Name is required" }),
+  lastName: z.string().min(1, { message: "Last Name is required" }),
+  playerImage: z.string().optional(), // Validate as a string
+  dorseyNumber: z
+    .number({ message: "Dorsey Number is required and must be a number" })
+    .nonnegative("Dorsey Number must be a non-negative number")
+    .int("Dorsey Number must be an integer"),
+  college: z.string().min(1, { message: "College is required" }),
+  nationality: z.string().min(1, { message: "Nationality is required" }),
+  playerEmail: z.union([z.string().email(), z.string().length(0)]).optional(),
+  countryCode: z.string().optional(),
+  phoneNumber: z.number().optional(),
+  position: z.string().min(1, { message: "Position is required" }),
+  height: z
+    .number({ message: "Height is required and must be a number" })
+    .positive("Height must be a positive number"),
+  weight: z
+    .number({ message: "Weight is required and must be a number" })
+    .positive("Weight must be a positive number")
+    .min(1, { message: "Weight is required" }),
+  birthdate: z
+    .string()
+    .min(1, "Date of birth is required")
+    .max(25, "Invalid date of birth")
+    .refine((value) => {
+      const today = new Date();
+      const birthDate = new Date(value);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+      return age >= 11;
+    }, "You must be at least 11 years old"),
+});
+
+export const players =
+  typeof window === "undefined" ? playersServerSchema : playersClientSchema;
+
 export const playerEditSchema = z.object({
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  playerImage: z
-    .union([z.string(), z.instanceof(File), z.undefined()])
-    .optional(),
+  playerImage: z.union([z.string(), z.any(), z.undefined()]).optional(),
   dorseyNumber: z
     .number({ message: "Dorsey Number is required and must be a number" })
     .nonnegative("Dorsey Number must be a non-negative number")
