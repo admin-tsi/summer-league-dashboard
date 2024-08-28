@@ -47,6 +47,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { AlertCircle } from "lucide-react";
 
 type Teams = {
   _id: string;
@@ -187,7 +188,6 @@ export default function ArticlesPage() {
         } else {
           articlesData = await getAllArticles(token);
         }
-        console.log(articlesData, "okokokokokok");
         setArticles(articlesData);
       } catch (error) {
         setError("Failed to load articles");
@@ -196,7 +196,9 @@ export default function ArticlesPage() {
         setLoading(false);
       }
     };
-  });
+
+    fetchArticles();
+  }, [currentUser, token]);
 
   const handleModalOpen = (open: boolean) => {
     setIsModalOpen(open);
@@ -395,6 +397,13 @@ export default function ArticlesPage() {
         ) : error ? (
           <div className="h-[500px] w-full flex justify-center items-center">
             <p className="w-[80%] md:w-1/2 lg:w-1/3">{error}</p>
+          </div>
+        ) : articles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-[500px]">
+            <AlertCircle className="h-16 w-16 text-gray-500 mb-4" />
+            <p className="text-lg text-gray-500">
+              No articles available. Please create a new article to get started.
+            </p>
           </div>
         ) : (
           <DataTable
