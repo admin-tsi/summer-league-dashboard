@@ -314,9 +314,9 @@ export default function Page({
                   attribute="playerImage"
                   playerImage={defPlayerValue?.playerImage}
                 />
-                {errors.playerImage && (
+                {errors.playerImage && errors.playerImage.message && (
                   <p className="text-sm text-red-500">
-                    {errors.playerImage.message}
+                    {errors.playerImage.message.toString()}
                   </p>
                 )}
               </div>
