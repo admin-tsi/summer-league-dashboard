@@ -68,7 +68,8 @@ export default function ArticleEditPage({
   const debouncedSave = useCallback(
     debounce(async (data: ArticleFormData) => {
       try {
-        await updateArticleById(params.id, data, token);
+        const { status, ...dataWithoutStatus } = data;
+        await updateArticleById(params.id, dataWithoutStatus, token);
         toast.success("Article updated successfully");
       } catch (error) {
         toast.error("Failed to update article");
@@ -79,8 +80,10 @@ export default function ArticleEditPage({
   );
 
   useEffect(() => {
-    const subscription = watch((data) => {
-      debouncedSave(data as ArticleFormData);
+    const subscription = watch((data, { name }) => {
+      if (name !== "status") {
+        debouncedSave(data as ArticleFormData);
+      }
     });
     return () => subscription.unsubscribe();
   }, [watch, debouncedSave]);
@@ -115,8 +118,8 @@ export default function ArticleEditPage({
             <InfoIcon className="h-4 w-4" />
             <AlertTitle>Auto-save Enabled</AlertTitle>
             <AlertDescription>
-              Your changes are automatically saved as you type. No need to
-              manually save.
+              Your changes are automatically saved as you type, except for the
+              status field. No need to manually save.
             </AlertDescription>
           </Alert>
 
