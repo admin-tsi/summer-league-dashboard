@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FileText, Info, TriangleAlert, Upload } from "lucide-react";
+import { FileText, Info, Upload } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "@/components/players/edit/dragzone";
 import { Player } from "@/lib/types/players/players";

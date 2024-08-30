@@ -43,7 +43,7 @@ const Dropzone: React.FC<DropzoneProps> = ({
           <p className="text-primary">Drop the files here ...</p>
         ) : (
           <p className="text-gray-500">
-            Drag 'n' drop some files here, or click to select files
+            Drag n drop some files here, or click to select files
           </p>
         )}
       </CardContent>

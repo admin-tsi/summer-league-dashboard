@@ -16,7 +16,6 @@ interface DropzoneProps {
 const Dropzone: React.FC<DropzoneProps> = ({
   type,
   setValue,
-  attribute,
   playerImage,
   title,
 }) => {
