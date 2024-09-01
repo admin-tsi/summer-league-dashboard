@@ -228,7 +228,9 @@ export default function Page() {
                                 <SelectItem value="playoffs">
                                   Playoffs
                                 </SelectItem>
-                                <SelectItem value="final">Final</SelectItem>
+                                <SelectItem value="final season">
+                                  Final
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
