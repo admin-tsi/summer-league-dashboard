@@ -231,6 +231,12 @@ export default function Page() {
                                 <SelectItem value="final season">
                                   Final
                                 </SelectItem>
+                                <SelectItem value="final conference">
+                                  Final conference
+                                </SelectItem>
+                                <SelectItem value="all-star game">
+                                  All-star game
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
