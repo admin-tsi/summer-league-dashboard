@@ -130,7 +130,7 @@ export default function Page() {
         return ["Hwé", "Sun"];
       case "playoffs":
         return ["Quarterfinals", "Semifinals"];
-      case "final":
+      case "final season":
         return ["Final"];
       default:
         return [];
