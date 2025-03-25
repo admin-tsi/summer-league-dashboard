@@ -27,6 +27,25 @@ export async function getDivisions(
   }
 }
 
+export async function getAllDivisions(selectedCompetitionId: string) {
+  try {
+    const response = await axios.get(`${baseUrl}/divisions`, {
+      headers: {
+        "x-competition-id": selectedCompetitionId,
+      },
+    });
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(
+        `${error.response.data.message || error.response.statusText}`
+      );
+    } else {
+      throw new Error("Failed to create team: Network or server error");
+    }
+  }
+}
+
 export async function getSpecDivisionClassment(divisionId: string) {
   try {
     const response = await axios.get(

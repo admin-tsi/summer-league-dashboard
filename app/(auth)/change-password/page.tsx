@@ -77,8 +77,8 @@ export default function Page() {
 
   return (
     <main className="fixed inset-0 bg-background flex items-center justify-center">
-      <Card className="w-full h-full sm:max-w-sm sm:h-auto sm:rounded-lg bg-muted">
-        <CardHeader>
+      <Card className="w-full h-full sm:max-w-sm sm:h-auto sm:rounded-lg bg-muted border-none md:shadow-2xl">
+        <CardHeader className="space-y-4">
           <Link
             href="/public"
             className="block h-full w-16 mx-auto sm:mx-0 sm:mr-4 "
@@ -91,9 +91,6 @@ export default function Page() {
               height={64}
             />
           </Link>
-          <CardTitle className="text-2xl text-center sm:text-left">
-            Change Password
-          </CardTitle>
           <CardDescription className="text-center sm:text-left">
             Enter your new password below to change your password
           </CardDescription>
@@ -206,6 +203,11 @@ export default function Page() {
                   "Change Password"
                 )}
               </Button>
+              <div className="w-full text-center">
+                <Link href="/login" className="underline">
+                  Back to login page
+                </Link>
+              </div>
             </form>
           </Form>
         </CardContent>
