@@ -1,4 +1,4 @@
-export type MatchType = "division" | "conference" | "playoffs" | "final";
+export type MatchType = "division" | "conference" | "playoffs" | "final season";
 
 export type Schedule = {
   _id: string;

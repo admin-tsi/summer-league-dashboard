@@ -10,3 +10,5 @@ export const ArticleSchema = z.object({
   highlightsVideo: z.string().optional(),
   imagesGallery: z.array(z.string()).optional(),
 });
+
+export type ArticleFormData = z.infer<typeof ArticleSchema>;

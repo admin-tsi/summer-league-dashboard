@@ -130,7 +130,7 @@ export default function Page() {
         return ["Hwé", "Sun"];
       case "playoffs":
         return ["Quarterfinals", "Semifinals"];
-      case "final":
+      case "final season":
         return ["Final"];
       default:
         return [];
@@ -228,7 +228,15 @@ export default function Page() {
                                 <SelectItem value="playoffs">
                                   Playoffs
                                 </SelectItem>
-                                <SelectItem value="final">Final</SelectItem>
+                                <SelectItem value="final season">
+                                  Final
+                                </SelectItem>
+                                <SelectItem value="final conference">
+                                  Final conference
+                                </SelectItem>
+                                <SelectItem value="all-star game">
+                                  All-star game
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />

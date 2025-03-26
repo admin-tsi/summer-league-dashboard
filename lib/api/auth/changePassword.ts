@@ -31,11 +31,21 @@ export const AskChangePassword = async ({ email }: AskChangePasswordProps) => {
       };
     }
   } catch (error) {
-    return {
-      success: false,
-      message: "An error occurred while changing password.",
-      error,
-    };
+    if (axios.isAxiosError(error) && error.response) {
+      return {
+        success: false,
+        message:
+          error.response.data.message ||
+          "An error occurred while changing password.",
+        error: error.response.data,
+      };
+    } else {
+      return {
+        success: false,
+        message: "An unexpected error occurred. Please try again later.",
+        error,
+      };
+    }
   }
 };
 
