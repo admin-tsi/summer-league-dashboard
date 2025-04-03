@@ -23,7 +23,7 @@ interface MenuProps {
 
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
-  const userRole = useCurrentUser()?.role || "user";
+  const userRole = useCurrentUser()?.user?.role || "user";
   const menuList = getMenuList(pathname, userRole);
   return (
     <div className="[&>div>div[style]]:!block">
@@ -74,7 +74,7 @@ export function Menu({ isOpen }: MenuProps) {
                                     "max-w-[200px] truncate",
                                     isOpen === false
                                       ? "-translate-x-96 opacity-0"
-                                      : "translate-x-0 opacity-100",
+                                      : "translate-x-0 opacity-100"
                                   )}
                                 >
                                   {label}
@@ -100,7 +100,7 @@ export function Menu({ isOpen }: MenuProps) {
                         isOpen={isOpen}
                       />
                     </div>
-                  ),
+                  )
               )}
             </li>
           ))}
@@ -119,7 +119,7 @@ export function Menu({ isOpen }: MenuProps) {
                     <p
                       className={cn(
                         "whitespace-nowrap",
-                        isOpen === false ? "opacity-0 hidden" : "opacity-100",
+                        isOpen === false ? "opacity-0 hidden" : "opacity-100"
                       )}
                     >
                       Sign out

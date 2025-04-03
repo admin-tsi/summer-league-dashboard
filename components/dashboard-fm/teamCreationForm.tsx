@@ -1,26 +1,25 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "../ui/select";
+import { cities } from "@/constants/data/cities";
+import { teamNames } from "@/constants/team/teams";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
-import { teamNames } from "@/constants/team/teams";
 import { createTeam } from "@/lib/api/teams/teams";
-import LoadingSpinner from "../loading-spinner";
 import { teamCreationSchema } from "@/lib/schemas/team/team";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import LoadingSpinner from "../loading-spinner";
 import FormError from "../login/form-error";
-import { signOut } from "next-auth/react";
+import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import TeamRecapDialog from "./teamRecapDialog";
-import { cities } from "@/constants/data/cities";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -29,7 +28,7 @@ type Props = {
 };
 
 const TeamCreationForm = ({ onSuccess }: Props) => {
-  const currentUser: any = useCurrentUser();
+  const currentUser = useCurrentUser();
   const [divisions, setDivisions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedCompetitionId, setSelectedCompetitionId] = useState("");
@@ -53,6 +52,9 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
   const formData = watch();
 
   useEffect(() => {
+    if (currentUser?.user?.accessToken) {
+      console.log(currentUser?.user?.accessToken);
+    }
     const fetchDivisions = async () => {
       try {
         setIsDivisionsLoading(true);
@@ -80,19 +82,14 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
     if (teamGender) {
       fetchDivisions();
     }
-  }, [teamGender]);
+  }, [teamGender, currentUser?.user?.accessToken]);
 
   const onSubmit = async (data: TeamCreationFormData) => {
-    const token = currentUser.accessToken;
-    if (token) {
+    if (currentUser?.user?.accessToken) {
       try {
-        if (currentUser.accessToken) {
-          const response = await createTeam(data, token, selectedCompetitionId);
-          onSuccess(response._id);
-          await signOut();
-        } else {
-          setError("No access token available");
-        }
+        const token = currentUser.user.accessToken;
+        const response = await createTeam(data, token, selectedCompetitionId);
+        onSuccess(response._id);
       } catch (error: any) {
         setError(error.message);
       }

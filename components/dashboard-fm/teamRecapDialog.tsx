@@ -43,7 +43,6 @@ const TeamRecapDialog: React.FC<TeamRecapDialogProps> = ({
       setIsLoading(false);
       toast.success("The team has been successfully created");
       onClose();
-      await signOut();
     }
   };
   return (
