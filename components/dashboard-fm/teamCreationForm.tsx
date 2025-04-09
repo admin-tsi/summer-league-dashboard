@@ -3,7 +3,7 @@ import { cities } from "@/constants/data/cities";
 import { teamNames } from "@/constants/team/teams";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
-import { createTeam } from "@/lib/api/teams/teams";
+import { createTeam, getTeamById } from "@/lib/api/teams/teams";
 import { teamCreationSchema } from "@/lib/schemas/team/team";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import TeamRecapDialog from "./teamRecapDialog";
+import { toast } from "sonner";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -52,9 +53,6 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
   const formData = watch();
 
   useEffect(() => {
-    if (currentUser?.user?.accessToken) {
-      console.log(currentUser?.user?.accessToken);
-    }
     const fetchDivisions = async () => {
       try {
         setIsDivisionsLoading(true);
@@ -89,14 +87,26 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
       try {
         const token = currentUser.user.accessToken;
         const response = await createTeam(data, token, selectedCompetitionId);
-        onSuccess(response._id);
+        const teamId = response._id;
+        const teamDetails = await getTeamById(
+          selectedCompetitionId,
+          teamId,
+          token
+        );
+
+        localStorage.setItem("currentTeam", JSON.stringify(teamDetails));
+
+        toast.success("The team has been successfully created");
+        onSuccess(teamId);
       } catch (error: any) {
         setError(error.message);
+        toast.error("Failed to create team");
       }
     } else {
       setError(
         "We're having trouble logging you in. Please refresh the page or log out temporarily."
       );
+      toast.error("Authentication error");
     }
   };
 
