@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { getMenuList } from "@/lib/menu-list";
+import { MyUserType } from "@/auth";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -8,18 +9,15 @@ export function cn(...inputs: ClassValue[]) {
 
 export function hasAccess(
   pathname: string,
-  userRole: string | undefined,
+  userRole: string | undefined
 ): boolean {
   if (!userRole) return false;
-
   const menuList = getMenuList(pathname, userRole);
-
   const allRoutes = menuList.flatMap((group) =>
     group.menus.flatMap((menu) =>
-      [menu, ...menu.submenus].map((item) => item.href),
-    ),
+      [menu, ...menu.submenus].map((item) => item.href)
+    )
   );
-
   return allRoutes.some((route) => pathname.startsWith(route));
 }
 
@@ -35,7 +33,17 @@ export const roleDefaultPages: RoleDefaultPages = {
   "web-redactor": "/articles",
 };
 
-export const getDefaultPageForRole = (role: string | undefined): string => {
+export const getDefaultPageForRole = (
+  role: string | undefined | null,
+  isManageTeam?: string | undefined | null
+): string => {
   if (!role) return "/dashboard";
+
+  if (role === "team-manager") {
+    return isManageTeam
+      ? "/dashboard-tm/team-overview"
+      : "/dashboard-tm/team-creation";
+  }
+
   return roleDefaultPages[role] || "/dashboard";
 };

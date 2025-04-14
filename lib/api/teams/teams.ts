@@ -59,7 +59,7 @@ export async function getTeamById(
   competitionId: string | null,
   teamId: string,
   token: string
-): Promise<any> {
+): Promise<Teams> {
   const url: string = `${baseUrl}/teams/${teamId}`;
 
   const config = {

@@ -2,13 +2,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { apiAuthPrefix, authRoutes, publicRoutes } from "@/routes";
 import { getDefaultPageForRole, hasAccess } from "@/lib/utils";
+import { is } from "date-fns/locale";
 
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
   // @ts-ignore
   const userRole = req.auth?.user?.role;
-
+  const user = req.auth?.user;
+  const isManageTeam = req.auth?.user?.isManageTeam;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
@@ -19,7 +21,7 @@ export default auth((req) => {
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      const defaultPage = getDefaultPageForRole(userRole);
+      const defaultPage = getDefaultPageForRole(userRole, isManageTeam);
       return NextResponse.redirect(new URL(defaultPage, nextUrl));
     }
     return NextResponse.next();
@@ -36,7 +38,9 @@ export default auth((req) => {
   }
 
   if (!userRole || !hasAccess(nextUrl.pathname, userRole)) {
-    const safePage = userRole ? getDefaultPageForRole(userRole) : "/login";
+    const safePage = userRole
+      ? getDefaultPageForRole(userRole, isManageTeam)
+      : "/login";
     return NextResponse.redirect(new URL(safePage, nextUrl));
   }
 

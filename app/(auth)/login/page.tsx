@@ -66,8 +66,8 @@ export default function Page() {
 
   return (
     <main className="fixed inset-0 bg-background flex items-center justify-center">
-      <Card className="w-full h-full sm:max-w-sm sm:h-auto sm:rounded-lg bg-muted">
-        <CardHeader>
+      <Card className="w-full h-full md:w-1/4 sm:h-auto sm:rounded-lg bg-muted shadow-2xl border-none">
+        <CardHeader className="space-y-4">
           <Link
             href="/public"
             className="block h-full w-16 mx-auto sm:mx-0 sm:mr-4 "
@@ -80,9 +80,6 @@ export default function Page() {
               height={64}
             />
           </Link>
-          <CardTitle className="text-2xl text-center sm:text-left">
-            Login
-          </CardTitle>
           <CardDescription className="text-center sm:text-left">
             Enter your email below to login to your account
           </CardDescription>

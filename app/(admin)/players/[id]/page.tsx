@@ -139,7 +139,7 @@ export default function Page({
           token,
           currentUser.isManageTeam,
           formData,
-          competitionId,
+          competitionId
         );
         toast.success("Player created successfully");
         reset();
@@ -166,7 +166,7 @@ export default function Page({
   };
 
   const getErrorMessage = (
-    error: string | FieldError | FieldErrorsImpl<any> | undefined,
+    error: string | FieldError | FieldErrorsImpl<any> | undefined
   ): string | undefined => {
     if (typeof error === "string") {
       return error;

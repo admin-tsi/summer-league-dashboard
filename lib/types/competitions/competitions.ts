@@ -1,6 +1,9 @@
-export type Competition = {
+type Competition = {
   _id: string;
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 };
+
+export type Seasons = Competition[];

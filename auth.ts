@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 import { verifyTokenExpiration } from "@/lib/api/auth/refresh-access-provider";
+import { JWT } from "next-auth/jwt";
 
 export type MyUserType = {
   id: string;
@@ -18,6 +19,20 @@ export type MyUserType = {
   __v: number;
   isManageTeam: string | null;
 };
+
+// Étendre le type JWT pour inclure notre champ user
+declare module "next-auth/jwt" {
+  interface JWT {
+    user?: MyUserType;
+  }
+}
+
+// Étendre le type Session pour typer correctement user
+declare module "next-auth" {
+  interface Session {
+    user: MyUserType;
+  }
+}
 
 const api = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -39,9 +54,7 @@ export const {
             email: credentials?.email,
             password: credentials?.password,
           });
-
           const { user, accessToken, refreshToken } = response.data;
-
           if (user && accessToken && refreshToken) {
             return {
               id: user._id,
@@ -71,25 +84,28 @@ export const {
     strategy: "jwt",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.user = user as MyUserType;
+      }
+
+      if (trigger === "update" && session) {
+        if (!token.user) {
+          token.user = {} as MyUserType;
+        }
+        token.user = {
+          ...token.user,
+          ...session.user,
+        };
       }
 
       if (token.user) {
         try {
           const newAccessToken = await verifyTokenExpiration(
-            // @ts-ignore
-
             token.user.accessToken,
-            // @ts-ignore
-
-            token.user.refreshToken,
+            token.user.refreshToken
           );
-
           if (newAccessToken) {
-            // @ts-ignore
-
             token.user.accessToken = newAccessToken;
           } else {
             console.error("Failed to refresh access token");
@@ -100,11 +116,12 @@ export const {
           delete token.user;
         }
       }
-
       return token;
     },
     async session({ session, token }) {
-      session.user = token.user as MyUserType;
+      if (token.user) {
+        session.user = token.user;
+      }
       return session;
     },
   },
