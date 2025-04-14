@@ -1,7 +1,16 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+
+import { Key, LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 import { toast } from "sonner";
+
+import { useCurrentToken } from "@/hooks/use-current-token";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { AskChangePassword } from "@/lib/api/auth/changePassword";
+
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,120 +25,95 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { LogOut } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { Badge } from "@/components/ui/badge";
-import { AskChangePassword } from "@/lib/api/auth/changePassword";
-import { useCurrentToken } from "@/hooks/use-current-token";
 
 export function UserNav() {
   const user = useCurrentUser();
   const token = useCurrentToken();
-  const [firstName, setFirstName] = useState<string | undefined>(undefined);
-  const [lastName, setLastName] = useState<string | undefined>(undefined);
-  const [email, setEmail] = useState<string | undefined>(undefined);
-  const [role, setRole] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    if (user) {
-      setFirstName(user.firstName);
-      setLastName(user.lastName);
-      setEmail(user.email);
-      setRole(user.role);
-    }
-  }, [user]);
+  const firstName = user?.user?.firstName;
+  const lastName = user?.user?.lastName;
+  const email = user?.user?.email;
+  const role = user?.user?.role;
 
   const handleChangePassword = async () => {
-    if (user?.accessToken && user?.refreshToken && token) {
-      const emailToSend = email ?? "";
+    if (
+      !email ||
+      !user?.user?.accessToken ||
+      !user?.user.refreshToken ||
+      !token
+    ) {
+      toast.error("Missing required information to change password");
+      return;
+    }
 
-      try {
-        const result = await AskChangePassword({ email: emailToSend });
-        if (result.success) {
-          console.log(result.message);
-          toast(result.message);
-        } else {
-          console.error(/*result.error ??*/ "Error changing password");
-        }
-      } catch (error) {
-        console.error("Error changing password:", error);
+    try {
+      const result = await AskChangePassword({ email });
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.error || "Failed to request password change");
       }
-    } else {
-      console.error("Missing required tokens or user information");
+    } catch (error) {
+      toast.error("Error requesting password change");
+      console.error("Error changing password:", error);
     }
   };
+
   return (
     <DropdownMenu>
-      <TooltipProvider disableHoverableContent>
+      <TooltipProvider>
         <Tooltip delayDuration={100}>
           <TooltipTrigger asChild>
             <DropdownMenuTrigger asChild>
               <Button
-                variant="outline"
-                className="relative h-8 w-8 rounded-full"
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full border hover:bg-primary/10"
               >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="#" alt="Avatar" />
-                  <AvatarFallback className="bg-transparent">
-                    {firstName != null ? firstName[0] : "J"}
-                    {lastName != null ? lastName[0] : "D"}
+                <Avatar className="h-9 w-9">
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {firstName?.[0] || "U"}
+                    {lastName?.[0] || ""}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
           </TooltipTrigger>
-          <TooltipContent side="bottom">Profile</TooltipContent>
+          <TooltipContent side="bottom">Your Profile</TooltipContent>
         </Tooltip>
       </TooltipProvider>
 
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-2">
-            <Badge variant="outline" className="w-fit px-2 py-2">
-              {role}
-            </Badge>
-            <p className="text-sm font-medium leading-none">
-              {firstName} {lastName}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {email}
-            </p>
+      <DropdownMenuContent className="w-64" align="end" forceMount>
+        <DropdownMenuLabel className="p-4">
+          <div className="flex flex-col space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">
+                {firstName} {lastName}
+              </p>
+              {role && (
+                <Badge variant="outline" className="ml-2 px-2 py-0.5 text-xs">
+                  {role}
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground break-all">{email}</p>
           </div>
         </DropdownMenuLabel>
+
         <DropdownMenuSeparator />
-        {/*
-        <DropdownMenuGroup>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/dashboard" className="flex items-center">
-              <LayoutGrid className="w-4 h-4 mr-3 text-muted-foreground" />
-              Dashboard
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/account" className="flex items-center">
-              <User className="w-4 h-4 mr-3 text-muted-foreground" />
-              Account
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <button
-              className="flex items-center w-full"
-              onClick={() => handleChangePassword()}
-            >
-              <LockKeyhole className="w-4 h-4 mr-3 text-muted-foreground" />
-              Change Password
-            </button>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-*/}
-        <DropdownMenuSeparator />
+
         <DropdownMenuItem
-          className="hover:cursor-pointer bg-destructive text-destructive-foreground"
+          className="cursor-pointer flex items-center gap-2"
+          onClick={handleChangePassword}
+        >
+          <Key className="w-4 h-4" />
+          Change Password
+        </DropdownMenuItem>
+
+        <DropdownMenuItem
+          className="cursor-pointer flex items-center gap-2 text-destructive focus:text-destructive"
           onClick={() => signOut()}
         >
-          <LogOut className="w-4 h-4 mr-3 text-destructive-foreground" />
+          <LogOut className="w-4 h-4" />
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>

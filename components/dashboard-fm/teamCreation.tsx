@@ -1,44 +1,38 @@
-import React, { useState, useEffect } from "react";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useState } from "react";
 import { Button } from "../ui/button";
 import TeamCreationForm from "./teamCreationForm";
-import TeamStats from "./teamStats";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
 function AboutTeam({}: Props) {
-  const currentUser: any = useCurrentUser();
+  const router = useRouter();
+  const currentUserData = useCurrentUser();
   const [start, setStart] = useState(false);
-  const [creationSuccess, setCreationSuccess] = useState(false);
-  const [teamId, setTeamId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (currentUser && currentUser.isManageTeam) {
-      console.log(currentUser.isManageTeam);
-
-      setTeamId(currentUser.isManageTeam);
-      setCreationSuccess(true);
+  const handleSuccess = async (id: string) => {
+    if (currentUserData?.updateUser) {
+      await currentUserData.updateUser({ isManageTeam: id });
+      router.push("/dashboard-tm/team-overview");
     }
-  }, [currentUser]);
-
-  const handleSuccess = (id: string) => {
-    setTeamId(id);
-    setCreationSuccess(true);
   };
 
   return (
     <>
-      {creationSuccess && teamId ? (
-        <TeamStats />
-      ) : start ? (
-        <TeamCreationForm onSuccess={handleSuccess} />
+      {start ? (
+        <div className="flex flex-col items-center justify-center w-full h-[70vh]">
+          <TeamCreationForm onSuccess={handleSuccess} />
+        </div>
       ) : (
-        <Button
-          className="w-1/2 md:w-1/4 bg-primary-yellow text-primary hover:text-white"
-          onClick={() => setStart(true)}
-        >
-          Create your team
-        </Button>
+        <div className="flex flex-col items-center justify-center w-full h-[70vh]">
+          <Button
+            className="w-1/2 md:w-1/4 bg-primary-yellow text-primary hover:text-white"
+            onClick={() => setStart(true)}
+          >
+            Create your team
+          </Button>
+        </div>
       )}
     </>
   );

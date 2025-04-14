@@ -16,7 +16,9 @@ export default function PlayersPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const currentUser: any = useCurrentUser();
-  const token = useCurrentToken();
+  const token = currentUser.user?.accessToken;
+  const role = currentUser.user?.role;
+  const isManageTeam = currentUser.user?.isManageTeam;
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -28,8 +30,6 @@ export default function PlayersPage() {
           return;
         }
 
-        const { role, isManageTeam } = currentUser;
-
         if (role === "admin") {
           const data = await getAllPlayers(role, token);
           setPlayers(data);
@@ -38,6 +38,7 @@ export default function PlayersPage() {
           if (isManageTeam) {
             const data = await getAllPlayers(role, token, isManageTeam);
             setPlayers(data);
+            console.log(data);
           } else {
             setError(
               "You're not managing any team at the moment. Please create your team to be able to add, delete, or edit players."
@@ -52,7 +53,7 @@ export default function PlayersPage() {
     };
 
     fetchPlayers();
-  }, [currentUser, token]);
+  }, [currentUser, role, token, isManageTeam]);
 
   const handleDelete = (id: string) => {
     setPlayers(players.filter((player: any) => player._id !== id));

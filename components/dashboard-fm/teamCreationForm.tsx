@@ -1,26 +1,26 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "../ui/select";
+import { cities } from "@/constants/data/cities";
+import { teamNames } from "@/constants/team/teams";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { getDivisions } from "@/lib/api/division/division";
-import { teamNames } from "@/constants/team/teams";
-import { createTeam } from "@/lib/api/teams/teams";
-import LoadingSpinner from "../loading-spinner";
+import { createTeam, getTeamById } from "@/lib/api/teams/teams";
 import { teamCreationSchema } from "@/lib/schemas/team/team";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import LoadingSpinner from "../loading-spinner";
 import FormError from "../login/form-error";
-import { signOut } from "next-auth/react";
+import { Button } from "../ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import TeamRecapDialog from "./teamRecapDialog";
-import { cities } from "@/constants/data/cities";
+import { toast } from "sonner";
 
 type TeamCreationFormData = z.infer<typeof teamCreationSchema>;
 
@@ -29,7 +29,7 @@ type Props = {
 };
 
 const TeamCreationForm = ({ onSuccess }: Props) => {
-  const currentUser: any = useCurrentUser();
+  const currentUser = useCurrentUser();
   const [divisions, setDivisions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedCompetitionId, setSelectedCompetitionId] = useState("");
@@ -80,26 +80,33 @@ const TeamCreationForm = ({ onSuccess }: Props) => {
     if (teamGender) {
       fetchDivisions();
     }
-  }, [teamGender]);
+  }, [teamGender, currentUser?.user?.accessToken]);
 
   const onSubmit = async (data: TeamCreationFormData) => {
-    const token = currentUser.accessToken;
-    if (token) {
+    if (currentUser?.user?.accessToken) {
       try {
-        if (currentUser.accessToken) {
-          const response = await createTeam(data, token, selectedCompetitionId);
-          onSuccess(response._id);
-          await signOut();
-        } else {
-          setError("No access token available");
-        }
+        const token = currentUser.user.accessToken;
+        const response = await createTeam(data, token, selectedCompetitionId);
+        const teamId = response._id;
+        const teamDetails = await getTeamById(
+          selectedCompetitionId,
+          teamId,
+          token
+        );
+
+        localStorage.setItem("currentTeam", JSON.stringify(teamDetails));
+
+        toast.success("The team has been successfully created");
+        onSuccess(teamId);
       } catch (error: any) {
         setError(error.message);
+        toast.error("Failed to create team");
       }
     } else {
       setError(
         "We're having trouble logging you in. Please refresh the page or log out temporarily."
       );
+      toast.error("Authentication error");
     }
   };
 
